@@ -28,64 +28,30 @@
 <?import com.jfoenix.controls.JFXPopup?>
 <?import javafx.scene.layout.BorderPane?>
 
+<?import javafx.scene.image.ImageView?>
 <StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
 	xmlns="http://javafx.com/javafx/2.2">
 	<!-- Header -->
-	<BorderPane>
+	<HBox>
 
-		<top>
-			<VBox spacing="20">
-				<JFXToolbar>
-					<leftItems>
-						<JFXRippler maskType="CIRCLE" style="-fx-ripple-color:WHITE;">
-							<StackPane fx:id="titleBurgerContainer">
-								<JFXHamburger fx:id="titleBurger">
-									<HamburgerBackArrowBasicTransition />
-								</JFXHamburger>
-							</StackPane>
-						</JFXRippler>
-						<Label>Material Design</Label>
-					</leftItems>
-					<rightItems>
-						<JFXRippler fx:id="optionsRippler" maskType="CIRCLE"
-							style="-fx-ripple-color:WHITE;">
-							<StackPane fx:id="optionsBurger">
-								<JFXHamburger styleClass="jfx-options-burger">
-								</JFXHamburger>
-							</StackPane>
-						</JFXRippler>
-					</rightItems>
-				</JFXToolbar>
-			</VBox>
-		</top>
-
-		<!-- Content Area -->
-		<center>
-			<JFXDrawer fx:id="drawer" defaultDrawerSize="250" direction="LEFT">
-				<styleClass>
-					<String fx:value="body" />
-				</styleClass>
-			</JFXDrawer>
-		</center>
-	</BorderPane>
-
-	<JFXPopup fx:id="toolbarPopup" styleClass="tool-bar-popup">
-		<JFXListView styleClass="option-list-view">
-			<Label>
-				Contact Us
-				<graphic>
-					<Icon awesomeIcon="USER" size="1.5em" style=";"
-						styleClass="option-jfx-list-view-icon" />
-				</graphic>
-			</Label>
-			<Label fx:id="exit">
-				Exit
-				<graphic>
-					<Icon awesomeIcon="REPLY" size="1.5em" style=";"
-						styleClass="option-jfx-list-view-icon" />
-				</graphic>
-			</Label>
+		<JFXListView fx:id="deviceList" styleClass="custom-jfx-list-view" minWidth="100" maxWidth="400" prefWidth="240">
+			<Label text="Text1"/>
+			<Label text="Text2"/>
+			<Label text="Text3"/>
 		</JFXListView>
-	</JFXPopup>
+		<VBox HBox.hgrow="ALWAYS" >
+
+			<HBox HBox.hgrow="ALWAYS" style="-fx-background-color: #00c853" prefHeight="60" alignment="CENTER">
+				<Label text="Button1" prefWidth="60" prefHeight="60"/>
+				<Label text="Button1" prefWidth="60" prefHeight="60"/>
+				<Label text="Button1" prefWidth="60" prefHeight="60"/>
+				<Label text="Button1" prefWidth="60" prefHeight="60"/>
+				<Label text="Button1" prefWidth="60" prefHeight="60"/>
+			</HBox>
+
+			<StackPane  style="-fx-background-color: #2962ff" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" />
+		</VBox>
+
+	</HBox>
 
 </StackPane>

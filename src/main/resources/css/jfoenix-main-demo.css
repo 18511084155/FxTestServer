@@ -969,9 +969,9 @@
 
 
 .jfx-scroll-pane .main-header{
-	-fx-background-image: url("../bg1.jpg");
+	-fx-background-image: url("../image/bg1.jpg");
 }
 
 .jfx-scroll-pane .condensed-header{
-	-fx-background-image: url("../bg4.jpg");
+	-fx-background-image: url("../image/bg4.jpg");
 }

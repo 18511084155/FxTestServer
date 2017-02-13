@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Label?>
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import com.jfoenix.controls.JFXListView?>
+<VBox fx:id="root" xmlns:fx="http://javafx.com/fxml/1" fx:controller="quant.test.server.controller.PrefsAdbController"
+	xmlns="http://javafx.com/javafx/2.2" alignment="CENTER">
+
+	<Label text="你好 欢迎使用!" style="-fx-font-size: 24px; -fx-padding: 12 12 120 12 "  alignment="CENTER"/>
+
+	<GridPane  alignment="CENTER">
+
+			<Label text="路径" style="-fx-font-size: 14px; -fx-padding: 20 20 20 20" />
+
+			<JFXTextField fx:id="pathField"/>
+
+		<JFXListView prefWidth="200" maxWidth="300" minWidth="100" expanded="true">
+
+			<Label text="label1"/>
+			<Label text="label1"/>
+			<Label text="label1"/>
+			<Label text="label1"/>
+			<Label text="label1"/>
+			<Label text="label1"/>
+			<Label text="label1"/>
+
+		</JFXListView>
+
+	</GridPane>
+
+	<HBox alignment="BOTTOM_RIGHT" style="-fx-padding: 12 100 12 12">
+
+		<JFXButton text="环境变量" />
+
+		<JFXButton text="应用" />
+	</HBox>
+
+
+</VBox>
