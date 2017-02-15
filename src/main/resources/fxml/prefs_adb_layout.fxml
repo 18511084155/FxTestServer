@@ -47,8 +47,6 @@
 
 			<JFXButton fx:id="applyButton" text="应用" styleClass="custom-jfx-button-raised"/>
 		</HBox>
-
-
 	</VBox>
 
 	<JFXSnackbar fx:id="snackBar" prefWidth="320" />

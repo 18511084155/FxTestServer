@@ -53,7 +53,7 @@ class PrefsAdbController implements Initializable{
         System.getenv().each {
             def valueArray = it.value.split(pathSeparator)
             if(valueArray){
-                valueArray.each { value-> envItems.add(new EnvironmentItem(it.key,value,value.contains(path)))}
+                valueArray.each { value-> envItems.add(new EnvironmentItem(it.key,value,value.toLowerCase().contains(path)))}
             }
         }
         envKey.setCellValueFactory({ envKey.validateValue(it)?it.value.value.key: envKey.getComputedValue(it) })

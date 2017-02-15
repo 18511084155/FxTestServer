@@ -3,6 +3,7 @@ package quant.test.server.validator;
 import com.jfoenix.validation.base.ValidatorBase;
 import javafx.beans.DefaultProperty;
 import javafx.scene.control.TextInputControl;
+import quant.test.server.util.TextUtils;
 
 /**
  * Created by cz on 2017/2/15.
@@ -27,7 +28,10 @@ public class AdbPathValidator extends ValidatorBase {
     protected void evalTextInputField(){
         TextInputControl textField = (TextInputControl) srcControl.get();
         if(null!=textField){
-            hasErrors.set(!textField.getText().contains(path));
+            String text = textField.getText();
+            if(!TextUtils.isEmpty(text)){
+                hasErrors.set(!textField.getText().toLowerCase().contains(path));
+            }
         }
     }
 }
