@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXListView?>
+<?import com.jfoenix.controls.JFXSnackbar?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
+	xmlns="http://javafx.com/javafx/2.2">
+	<!-- Header -->
+	<HBox>
+
+		<JFXListView fx:id="deviceList" styleClass="custom-jfx-list-view" minWidth="100" maxWidth="400" prefWidth="240">
+			<Label text="Text1"/>
+			<Label text="Text2"/>
+			<Label text="Text3"/>
+		</JFXListView>
+		<VBox HBox.hgrow="ALWAYS" >
+
+			<HBox HBox.hgrow="ALWAYS" style="-fx-background-color: #00c853" prefHeight="60" alignment="CENTER">
+				<Label text="Button1" prefWidth="60" prefHeight="60"/>
+				<Label text="Button1" prefWidth="60" prefHeight="60"/>
+				<Label text="Button1" prefWidth="60" prefHeight="60"/>
+				<Label text="Button1" prefWidth="60" prefHeight="60"/>
+				<Label text="Button1" prefWidth="60" prefHeight="60"/>
+			</HBox>
+
+			<StackPane  style="-fx-background-color: #2962ff" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" />
+		</VBox>
+
+	</HBox>
+
+	<JFXSnackbar fx:id="snackBar" prefWidth="300" />
+
+</StackPane>

@@ -1,42 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<?import javafx.scene.layout.*?>
+<?import com.jfoenix.controls.*?>
+<?import de.jensd.fx.fontawesome.Icon?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
-<?import com.jfoenix.controls.JFXButton?>
-<?import com.jfoenix.controls.JFXTextField?>
-<?import com.jfoenix.controls.JFXListView?>
-<VBox fx:id="root" xmlns:fx="http://javafx.com/fxml/1" fx:controller="quant.test.server.controller.PrefsAdbController"
-	xmlns="http://javafx.com/javafx/2.2" alignment="CENTER">
+<?import javafx.scene.layout.*?>
+<?import quant.test.server.validator.AdbPathValidator?>
+<StackPane fx:id="root"
+		   fx:controller="quant.test.server.controller.PrefsAdbController"
+		   xmlns:fx="http://javafx.com/fxml/1"
+		   xmlns="http://javafx.com/javafx/2.2" >
+	<VBox alignment="CENTER">
 
-	<Label text="你好 欢迎使用!" style="-fx-font-size: 24px; -fx-padding: 12 12 120 12 "  alignment="CENTER"/>
+		<Label styleClass="title-label" text="你好 欢迎使用!" style="-fx-font-size: 32px; -fx-padding: 12 12 32 12 "  />
 
-	<GridPane  alignment="CENTER">
+		<GridPane  alignment="CENTER"  >
 
-			<Label text="路径" style="-fx-font-size: 14px; -fx-padding: 20 20 20 20" />
+				<JFXTextField fx:id="pathField" prefWidth="420" GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.columnSpan="2" promptText="请输入Adb所在完整目录" labelFloat="true" style="-fx-padding: 0 12 0 12; " >
+					<GridPane.margin>
+						<Insets bottom="12"/>
+					</GridPane.margin>
+					<validators>
+						<AdbPathValidator message="请输入Adb所在完整目录!">
+							<Icon awesomeIcon="WARNING" style="-fx-font-family: FontAwesome;" />
+						</AdbPathValidator>
+					</validators>
+				</JFXTextField>
 
-			<JFXTextField fx:id="pathField"/>
+				<Label styleClass="title-label" text="选择己配置的环境变量" style="-fx-font-size: 11px; -fx-padding: 12 12 12 12 " GridPane.rowIndex="1" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
 
-		<JFXListView prefWidth="200" maxWidth="300" minWidth="100" expanded="true">
+				<JFXTreeTableView fx:id="treeTableView" onMouseClicked="#handleEnvClick" maxWidth="400"  minWidth="100" GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.halignment="CENTER" >
+					<columns>
+						<JFXTreeTableColumn fx:id="envKey"
+											text="Key" minWidth="0" prefWidth="120" style="-fx-alignment: center-left; -fx-padding: 0 12 0 12"/>
+						<JFXTreeTableColumn fx:id="envValue"
+											text="Value" minWidth="0" prefWidth="200" style="-fx-alignment: center-left; -fx-padding: 0 12 0 12"/>
+						<JFXTreeTableColumn fx:id="envValid"
+											text="Valid" minWidth="0" prefWidth="60" resizable="false" style="-fx-alignment: center"/>
+					</columns>
+				</JFXTreeTableView>
 
-			<Label text="label1"/>
-			<Label text="label1"/>
-			<Label text="label1"/>
-			<Label text="label1"/>
-			<Label text="label1"/>
-			<Label text="label1"/>
-			<Label text="label1"/>
+		</GridPane>
 
-		</JFXListView>
+		<HBox alignment="BOTTOM_RIGHT" style="-fx-padding: 24 64 12 12">
 
-	</GridPane>
-
-	<HBox alignment="BOTTOM_RIGHT" style="-fx-padding: 12 100 12 12">
-
-		<JFXButton text="环境变量" />
-
-		<JFXButton text="应用" />
-	</HBox>
+			<JFXButton fx:id="applyButton" text="应用" styleClass="custom-jfx-button-raised"/>
+		</HBox>
 
 
-</VBox>
+	</VBox>
+
+	<JFXSnackbar fx:id="snackBar" prefWidth="320" />
+</StackPane>
