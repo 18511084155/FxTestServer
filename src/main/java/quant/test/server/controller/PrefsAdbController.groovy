@@ -9,6 +9,7 @@ import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.scene.control.TreeTableView
 import javafx.scene.layout.StackPane
+import quant.test.server.StageManager
 import quant.test.server.model.EnvironmentItem
 import quant.test.server.prefs.PrefsKey
 import quant.test.server.prefs.SharedPrefs
@@ -81,9 +82,20 @@ class PrefsAdbController implements Initializable{
                 def adbText=pathField.text
                 //判断是否以Separator结尾,不为则补足
                 adbText.endsWith(fileSeparator)?:(adbText+=fileSeparator)
+                if(System.properties["os.name"].startsWith("Windows")){
+                    //windows  file.separator=/  path.separator=;
+                    adbText+="adb.exe"
+                } else if(System.properties["os.name"].startsWith("Mac")){
+                    //osx file.separator=\  path.separator=:
+                    adbText+="adb"
+                }
                 //保存路径
                 SharedPrefs.save(PrefsKey.ADB,adbText)
+                def stageManager=StageManager.instance
+                stageManager.getStage(this)?.hide()
+                stageManager.newStage(getClass().getClassLoader().getResource("fxml/main_layout.fxml"),800,720)?.show()
             }
         } as EventHandler)
     }
+
 }

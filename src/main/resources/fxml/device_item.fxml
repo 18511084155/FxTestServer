@@ -6,35 +6,26 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.shape.Circle?>
-<?import javafx.scene.paint.Color?>
 <HBox fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
-	  xmlns="http://javafx.com/javafx/2.2" fx:controller="quant.test.server.controller.DeviceItemController" alignment="CENTER">
+	  xmlns="http://javafx.com/javafx/2.2"  alignment="CENTER">
 	<children >
 
-		<ImageView fx:id="imageView" fitWidth="36" fitHeight="36" >
+		<ImageView fx:id="imageView" fitWidth="24" fitHeight="24" >
 			<HBox.margin>
-				<Insets left="8" right="8"/>
+				<Insets left="4" right="4"/>
 			</HBox.margin>
-			<Image  url="@/image/ic_settings_input_hdmi.png"  />
 		</ImageView>
 
 		<VBox HBox.hgrow="ALWAYS" alignment="CENTER_LEFT">
-			<Label fx:id="deviceName" text="mx5" styleClass="item-label" />
+			<Label fx:id="deviceName"  styleClass="item-label" />
 
-			<Label fx:id="socketStatus"  text="192.168.1.20 0:5555" styleClass="item-label" >
-				<VBox.margin>
-					<Insets top="4" bottom="4"/>
-				</VBox.margin>
-			</Label>
+			<Label fx:id="socketStatus"   styleClass="item-label" />
 		</VBox>
 
-		<Circle fx:id="runStatus"  radius="12" >
+		<Circle fx:id="runStatus"  radius="8" >
 			<HBox.margin>
-				<Insets left="8" right="8"/>
+				<Insets left="4" right="4"/>
 			</HBox.margin>
-			<fill>
-				<Color red="1.0" green="0.1" blue="0.1" />
-			</fill>
 		</Circle>
 
 	</children>

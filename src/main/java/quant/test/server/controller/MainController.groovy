@@ -1,33 +1,71 @@
 package quant.test.server.controller
-
 import com.android.ddmlib.AndroidDebugBridge
 import com.android.ddmlib.IDevice
+import com.jfoenix.controls.JFXDrawer
 import com.jfoenix.controls.JFXListView
+import io.datafx.controller.flow.Flow
+import io.datafx.controller.flow.FlowHandler
+import io.datafx.controller.flow.container.AnimatedFlowContainer
+import io.datafx.controller.flow.container.ContainerAnimations
+import io.datafx.controller.flow.context.FXMLViewFlowContext
+import io.datafx.controller.flow.context.ViewFlowContext
 import javafx.collections.FXCollections
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
+import javafx.scene.Node
+import javafx.scene.control.Label
+import javafx.util.Duration
+import quant.test.server.bus.RxBus
+import quant.test.server.event.OnDeviceConnectedEvent
 import quant.test.server.exception.ExceptionHandler
 import quant.test.server.model.DeviceItem
+import quant.test.server.prefs.PrefsKey
+import quant.test.server.prefs.SharedPrefs
 import quant.test.server.service.ClientService
 import quant.test.server.widget.DeviceListCell
 
 import java.util.concurrent.Executors
-
 /**
  * Created by Administrator on 2017/2/15.
  */
 class MainController implements Initializable{
+    @FXMLViewFlowContext
+    ViewFlowContext context
     @FXML
-    private JFXListView deviceList
+    JFXDrawer drawer
+    @FXML
+    Label button1
+    @FXML
+    Label button2
+
+    FlowHandler flowHandler
+    @FXML
+    JFXListView deviceList
     final def executorService
     def serverSocket
     @Override
     void initialize(URL location, ResourceBundle resources) {
+        // create the inner flow and content
+        context = new ViewFlowContext();
+        // set the default controller
+        Flow innerFlow = new Flow(DeviceInfoController.class);
+
+        flowHandler = innerFlow.createHandler(context);
+        context.register("ContentFlowHandler", flowHandler);
+        context.register("ContentFlow", innerFlow);
+        drawer.setContent(flowHandler.start(new AnimatedFlowContainer(Duration.millis(320), ContainerAnimations.SWIPE_LEFT)));
+        context.register("ContentPane", drawer.getContent().get(0));
+
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler())
         deviceList.setItems(FXCollections.observableArrayList())
         deviceList.setCellFactory({new DeviceListCell()})
+
+        deviceList.depthProperty().set(4)
+
+        bindNodeToController(button1,DeviceInfoController.class,innerFlow)
+
         //初始化调试桥
-        initBridge()
+        initBridge(SharedPrefs.get(PrefsKey.ADB))
     }
 
     /**
@@ -96,12 +134,15 @@ class MainController implements Initializable{
             @Override
             public void deviceChanged(IDevice iDevice, int i) {
                 if(null!=iDevice&&IDevice.CHANGE_BUILD_INFO==i){
+                    println iDevice.serialNumber
                     if(iDevice.serialNumber.equals(iDevice.properties["gsm.serial"])){
                         //代表为有线连接
                     } else {
                         //代表为无线连接
                     }
-                    deviceList.getItems().add(DeviceItem.form(iDevice))
+                    def deviceItem=DeviceItem.form(iDevice)
+                    deviceList.getItems().add(deviceItem)
+                    RxBus.post(new OnDeviceConnectedEvent(deviceItem))
                 }
                 println "deviceChanged:${iDevice} state:$i device-state:$iDevice.state";
             }
@@ -111,6 +152,16 @@ class MainController implements Initializable{
             waitDevicesList(bridge)
             //创造服务socket
             connectSocket(bridge)
+        })
+    }
+
+    def bindNodeToController(Node node, Class<?> controllerClass, Flow flow) {
+        flow.withGlobalLink(node.getId(), controllerClass);
+        node.setOnMouseClicked({
+            flowHandler.handle(node.id)
+            int selectedIndex=deviceList.getSelectionModel().selectedIndex
+            //切换面板后,仍然发送当前事件,否则会造成面板
+            RxBus.post(new OnDeviceConnectedEvent(deviceList.items.get(0>selectedIndex?0:selectedIndex)))
         })
     }
 

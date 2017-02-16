@@ -1,33 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.jfoenix.controls.JFXDrawer?>
 <?import com.jfoenix.controls.JFXListView?>
 <?import com.jfoenix.controls.JFXSnackbar?>
-<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.*?>
+<?import java.lang.String?>
 <StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
 	xmlns="http://javafx.com/javafx/2.2" fx:controller="quant.test.server.controller.MainController">
 	<!-- Header -->
-	<HBox>
+	<BorderPane >
 
-		<JFXListView fx:id="deviceList" styleClass="custom-jfx-list-view" minWidth="100" maxWidth="400" prefWidth="240">
-			<Label text="Text1"/>
-			<Label text="Text2"/>
-			<Label text="Text3"/>
-		</JFXListView>
-		<VBox HBox.hgrow="ALWAYS" >
+		<center>
 
-			<HBox HBox.hgrow="ALWAYS" style="-fx-background-color: #00c853" prefHeight="60" alignment="CENTER">
-				<Label text="Button1" prefWidth="60" prefHeight="60"/>
-				<Label text="Button1" prefWidth="60" prefHeight="60"/>
-				<Label text="Button1" prefWidth="60" prefHeight="60"/>
-				<Label text="Button1" prefWidth="60" prefHeight="60"/>
-				<Label text="Button1" prefWidth="60" prefHeight="60"/>
-			</HBox>
+			<VBox >
+				<HBox HBox.hgrow="ALWAYS"  prefHeight="60" alignment="CENTER">
+					<Label fx:id="button1" text="Button1" prefWidth="60" prefHeight="60"/>
+					<Label fx:id="button2" text="Button2" prefWidth="60" prefHeight="60"/>
+				</HBox>
 
-			<StackPane  style="-fx-background-color: #2962ff" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" />
-		</VBox>
+				<JFXDrawer fx:id="drawer" style="-fx-background-color: white"  direction="LEFT" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS">
+					<styleClass>
+						<String fx:value="body" />
+					</styleClass>
+				</JFXDrawer>
+			</VBox>
+		</center>
 
-	</HBox>
+		<left >
+			<JFXListView fx:id="deviceList" styleClass="jfx-list-view" minWidth="240" maxWidth="400" style="-fx-background-color: white">
+				<BorderPane.margin>
+					<Insets left="0" top="0" right="4" bottom="8"/>
+				</BorderPane.margin>
+			</JFXListView>
+		</left>
+
+
+	</BorderPane>
 
 	<JFXSnackbar fx:id="snackBar" prefWidth="300" />
 

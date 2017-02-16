@@ -48,7 +48,11 @@ class DeviceItem {
         serialNumber.equals(gsmSerial)
     }
 
-    def getProperty(key){
+    def getDeviceProperty(){
+        properties
+    }
+
+    def getDeviceProperty(key){
         properties[key]
     }
 

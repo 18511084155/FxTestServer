@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<HBox fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
+	  xmlns="http://javafx.com/javafx/2.2"  alignment="CENTER" >
+	<children >
+
+		<ImageView fx:id="imageView" fitWidth="120"  >
+			<HBox.margin>
+				<Insets left="8" right="8" top="8" bottom="8"/>
+			</HBox.margin>
+			<Image  url="@/image/ic_settings_input_hdmi.png"  />
+		</ImageView>
+
+		<VBox HBox.hgrow="ALWAYS" alignment="CENTER_LEFT">
+
+			<HBox.margin>
+				<Insets top="12" right="12" bottom="12"/>
+			</HBox.margin>
+			<Label fx:id="deviceName" text="mx5" styleClass="item-label" />
+
+			<JFXTreeTableView fx:id="treeTableView"  minWidth="100" maxWidth="240" VBox.vgrow="NEVER"  >
+				<columns>
+					<JFXTreeTableColumn fx:id="deviceKey"
+										text="Key" minWidth="0" prefWidth="120" style="-fx-alignment: center-left; -fx-padding: 0 12 0 12"/>
+					<JFXTreeTableColumn fx:id="deviceValue"
+										text="Value" minWidth="0" prefWidth="120" style="-fx-alignment: center-left; -fx-padding: 0 12 0 12"/>
+				</columns>
+			</JFXTreeTableView>
+
+
+			<HBox alignment="CENTER">
+				<VBox HBox.hgrow="ALWAYS">
+
+					<HBox alignment="CENTER_LEFT">
+
+						<ImageView>
+							<Image  url="@/image/ic_settings_input_hdmi.png"  />
+						</ImageView>
+
+						<Label text="用数据线将手机连接电脑" alignment="CENTER"/>
+					</HBox>
+
+					<Label text="用数据线将手机连接电脑" />
+				</VBox>
+
+				<JFXButton fx:id="applyButton" text="应用"  styleClass="custom-jfx-button-raised"/>
+
+			</HBox>
+		</VBox>
+
+	</children>
+</HBox>
