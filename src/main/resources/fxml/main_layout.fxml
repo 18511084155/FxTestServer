@@ -16,15 +16,14 @@
 
 			<VBox >
 				<HBox HBox.hgrow="ALWAYS"  prefHeight="60" alignment="CENTER">
-					<Label fx:id="button1" text="Button1" prefWidth="60" prefHeight="60"/>
-					<Label fx:id="button2" text="Button2" prefWidth="60" prefHeight="60"/>
+					<Label fx:id="buttonDeviceInfo" text="设备信息" prefWidth="60" prefHeight="60"/>
+					<Label fx:id="buttonTask" text="任务计划" prefWidth="60" prefHeight="60"/>
+					<Label fx:id="buttonTest" text="测试用例" prefWidth="60" prefHeight="60"/>
+					<Label fx:id="buttonDoc" text="测试文档" prefWidth="60" prefHeight="60"/>
+					<Label fx:id="buttonMessage" text="日志消息" prefWidth="60" prefHeight="60"/>
 				</HBox>
 
-				<JFXDrawer fx:id="drawer" style="-fx-background-color: white"  direction="LEFT" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS">
-					<styleClass>
-						<String fx:value="body" />
-					</styleClass>
-				</JFXDrawer>
+				<StackPane fx:id="contentPane" style="-fx-background-color: white"  VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS"/>
 			</VBox>
 		</center>
 

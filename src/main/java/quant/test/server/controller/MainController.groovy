@@ -1,23 +1,22 @@
 package quant.test.server.controller
 import com.android.ddmlib.AndroidDebugBridge
 import com.android.ddmlib.IDevice
-import com.jfoenix.controls.JFXDrawer
 import com.jfoenix.controls.JFXListView
-import io.datafx.controller.flow.Flow
-import io.datafx.controller.flow.FlowHandler
-import io.datafx.controller.flow.container.AnimatedFlowContainer
-import io.datafx.controller.flow.container.ContainerAnimations
-import io.datafx.controller.flow.context.FXMLViewFlowContext
-import io.datafx.controller.flow.context.ViewFlowContext
+import javafx.application.Platform
 import javafx.collections.FXCollections
 import javafx.fxml.FXML
+import javafx.fxml.FXMLLoader
 import javafx.fxml.Initializable
-import javafx.scene.Node
+import javafx.scene.control.Control
 import javafx.scene.control.Label
-import javafx.util.Duration
+import javafx.scene.layout.Pane
+import javafx.scene.layout.StackPane
+import quant.test.server.animation.PaneTransition
+import quant.test.server.anntation.FXMLLayout
 import quant.test.server.bus.RxBus
 import quant.test.server.event.OnDeviceConnectedEvent
 import quant.test.server.exception.ExceptionHandler
+import quant.test.server.log.Log
 import quant.test.server.model.DeviceItem
 import quant.test.server.prefs.PrefsKey
 import quant.test.server.prefs.SharedPrefs
@@ -29,46 +28,68 @@ import java.util.concurrent.Executors
  * Created by Administrator on 2017/2/15.
  */
 class MainController implements Initializable{
-    @FXMLViewFlowContext
-    ViewFlowContext context
+    static String TAG="MainController"
+    final def executorService=Executors.newCachedThreadPool()
     @FXML
-    JFXDrawer drawer
-    @FXML
-    Label button1
-    @FXML
-    Label button2
-
-    FlowHandler flowHandler
+    StackPane contentPane
     @FXML
     JFXListView deviceList
-    final def executorService
+    @FXML
+    Label buttonDeviceInfo
+    @FXML
+    Label buttonMessage
+
     def serverSocket
+    def cachePane=[:]
+    int lastIndex
     @Override
     void initialize(URL location, ResourceBundle resources) {
-        // create the inner flow and content
-        context = new ViewFlowContext();
-        // set the default controller
-        Flow innerFlow = new Flow(DeviceInfoController.class);
-
-        flowHandler = innerFlow.createHandler(context);
-        context.register("ContentFlowHandler", flowHandler);
-        context.register("ContentFlow", innerFlow);
-        drawer.setContent(flowHandler.start(new AnimatedFlowContainer(Duration.millis(320), ContainerAnimations.SWIPE_LEFT)));
-        context.register("ContentPane", drawer.getContent().get(0));
-
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler())
         deviceList.setItems(FXCollections.observableArrayList())
         deviceList.setCellFactory({new DeviceListCell()})
 
-        deviceList.depthProperty().set(4)
 
-        bindNodeToController(button1,DeviceInfoController.class,innerFlow)
-
+        bindPane(0,buttonDeviceInfo,DeviceInfoController.class,true,true)
+        bindPane(1,buttonMessage,MessageController.class,true,false)
         //初始化调试桥
         initBridge(SharedPrefs.get(PrefsKey.ADB))
     }
 
     /**
+     * 绑定panel
+     * @param fxml
+     * @param attach
+     */
+    def bindPane(int index,Control control,Class clazz,boolean attach,boolean defaultPane) {
+        if(attach&&!cachePane[index]){
+            ensurePane(clazz, index,defaultPane)
+        }
+        control.setOnMouseClicked({
+            ensurePane(clazz,index,defaultPane)
+            def currentPane=cachePane[index]
+            def lastPane=cachePane[lastIndex]
+            new PaneTransition(currentPane,lastPane,index<lastIndex?-contentPane.width:contentPane.width).start()
+            lastIndex=index
+        })
+    }
+
+    private void ensurePane(Class clazz, int index,boolean defaultPane) {
+        def fxml
+        def annotation = clazz.getAnnotation(FXMLLayout.class)
+        !annotation?:(fxml=annotation.value())
+        if(!fxml){
+            throw new IllegalArgumentException("must use controller and config FXMLLayout!")
+        } else if(!cachePane[index]){
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource(fxml))
+            Pane parent = loader.load()
+            parent.setVisible(defaultPane)
+            contentPane.children.add(parent)
+            cachePane << [(index): parent]
+        }
+    }
+
+
+/**
      * 在10秒内未取得设备代表连接异常
      *
      * @param bridge
@@ -98,13 +119,11 @@ class MainController implements Initializable{
         try {
             Socket socket
             serverSocket = new ServerSocket(5556);
-//            messageTextArea.append("打开 Socket 服务,端口:5556!\n")
+            Log.e(TAG,"打开 Socket 服务,端口:5556!")
             while (socket = serverSocket.accept()) {
                 String hostAddress = socket.getInetAddress().getHostAddress();
-//                messageTextArea.append("连接一个远程设备::" + hostAddress+"\n")
-                ClientService clientService = new ClientService(hostAddress,socket,bridge)
-//                clientService.printMessage{ messageTextArea.append(it+"\n") }
-                executorService.execute(clientService);
+                Log.e(TAG,"连接一个远程设备:" + hostAddress)
+                executorService.execute(new ClientService(hostAddress,socket,bridge))
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -120,34 +139,33 @@ class MainController implements Initializable{
         AndroidDebugBridge.addDeviceChangeListener(new AndroidDebugBridge.IDeviceChangeListener() {
             @Override
             public void deviceConnected(IDevice iDevice) {
-                println "DeviceConnected:${iDevice.serialNumber}($iDevice.state)";
+                Log.e(TAG,"设备连接中断:${iDevice.serialNumber}($iDevice.state)")
             }
 
             @Override
             public void deviceDisconnected(IDevice iDevice) {
                 //设备中断
                 if (null != iDevice) {
-                    deviceList.getItems().remove(DeviceItem.form(iDevice))
+                    Platform.runLater({deviceList.getItems().remove(DeviceItem.form(iDevice))})
                 }
             }
 
             @Override
             public void deviceChanged(IDevice iDevice, int i) {
                 if(null!=iDevice&&IDevice.CHANGE_BUILD_INFO==i){
-                    println iDevice.serialNumber
                     if(iDevice.serialNumber.equals(iDevice.properties["gsm.serial"])){
                         //代表为有线连接
                     } else {
                         //代表为无线连接
                     }
                     def deviceItem=DeviceItem.form(iDevice)
-                    deviceList.getItems().add(deviceItem)
                     RxBus.post(new OnDeviceConnectedEvent(deviceItem))
+                    Platform.runLater({deviceList.getItems().add(deviceItem)})
+                    Log.e(TAG,"设备己连接:${iDevice} state:$i device-state:$iDevice.state")
                 }
-                println "deviceChanged:${iDevice} state:$i device-state:$iDevice.state";
             }
         });
-        Executors.newSingleThreadExecutor().execute({
+        executorService.execute({
             final AndroidDebugBridge bridge = AndroidDebugBridge.createBridge(adbPath as String, false)
             waitDevicesList(bridge)
             //创造服务socket
@@ -155,14 +173,5 @@ class MainController implements Initializable{
         })
     }
 
-    def bindNodeToController(Node node, Class<?> controllerClass, Flow flow) {
-        flow.withGlobalLink(node.getId(), controllerClass);
-        node.setOnMouseClicked({
-            flowHandler.handle(node.id)
-            int selectedIndex=deviceList.getSelectionModel().selectedIndex
-            //切换面板后,仍然发送当前事件,否则会造成面板
-            RxBus.post(new OnDeviceConnectedEvent(deviceList.items.get(0>selectedIndex?0:selectedIndex)))
-        })
-    }
 
 }

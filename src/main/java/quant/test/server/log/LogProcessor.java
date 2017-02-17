@@ -1,20 +1,23 @@
 package quant.test.server.log;
 
-import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
+import quant.test.server.observable.DataObservable;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Observer;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Created by Administrator on 2017/2/16.
  */
 public class LogProcessor extends Thread {
     private final LinkedList<LogItem> logItems=new LinkedList<>();
-    private final List<PipedOutputStream> pipedStreams=new ArrayList<>();
+    private final ArrayList<LogItem> originalItems=new ArrayList<>();
+    private final DataObservable observable=new DataObservable();
     public LogProcessor() {
-        super("LogThread");
+        super("log-thread");
     }
 
     @Override
@@ -25,16 +28,7 @@ public class LogProcessor extends Thread {
                 try {
                     while(!logItems.isEmpty()){
                         LogItem logItem = logItems.pollFirst();
-                        final String value="logItem:"+logItem.threadName+" "+logItem.tag+" "+logItem.value+" size:"+logItems.size();
-                        System.out.println(value);
-                        pipedStreams.forEach(stream->{
-                            byte[] bytes = value.getBytes();
-                            try {
-                                stream.write(bytes,0,bytes.length);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        });
+                        observable.notifyObservers(logItem);
                     }
                     logItems.wait();
                 } catch (InterruptedException e) {
@@ -47,31 +41,38 @@ public class LogProcessor extends Thread {
     public void process(LogItem item) {
         synchronized (logItems){
             logItems.addLast(item);
+            originalItems.add(item);
             logItems.notify();
         }
     }
 
-    public PipedInputStream newPipedStream() {
-        PipedInputStream pipedInputStream=new PipedInputStream();
-        PipedOutputStream pipedOutputStream=new PipedOutputStream();
-        try {
-            pipedInputStream.connect(pipedOutputStream);
-            pipedStreams.add(pipedOutputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return pipedInputStream;
+    public void registerObservable(Observer observer){
+        this.observable.addObserver(observer);
     }
 
-    public void destroyStream(){
-        if(!pipedStreams.isEmpty()){
-            pipedStreams.forEach(s -> {
-                try {
-                    s.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-        }
+    public void unregisterObservable(Observer observer){
+        this.observable.deleteObserver(observer);
     }
+
+    /**
+     * 过滤文字
+     * @param text
+     */
+    public List<LogItem> filterLog(String text){
+        return originalItems.stream().
+                filter(item -> item.tag.contains(text) || item.value.contains(text)).
+                collect(Collectors.toList());
+    }
+
+    /**
+     * 正则过滤条目
+     * @param regex
+     */
+    public List<LogItem> matcherLog(String regex){
+        final Pattern pattern = Pattern.compile(regex);
+        return originalItems.stream().
+                filter(item -> pattern.matcher(item.tag).matches() || pattern.matcher(item.value).matches()).
+                collect(Collectors.toList());
+    }
+
 }

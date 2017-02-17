@@ -20,7 +20,8 @@ class StageManager {
     Stage stage(stage,url,int width,int height){
         stage?:(stage=new Stage())
         FXMLLoader loader=new FXMLLoader(url)
-        Scene scene=new Scene(loader.load(),width,height)
+        def parent = loader.load()
+        Scene scene=new Scene(parent,width,height)
         def controller = loader.getController()
         !controller?:stageItems.put(controller,stage)
 

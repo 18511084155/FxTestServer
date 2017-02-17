@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.*?>
+<?import de.jensd.fx.fontawesome.Icon?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
+	  xmlns="http://javafx.com/javafx/2.2"
+	  fx:controller="quant.test.server.controller.MessageController"
+	  alignment="CENTER_LEFT">
+	<children >
+
+		<Label fx:id="deviceName" text="异常日志" alignment="CENTER_LEFT"  styleClass="item-label" >
+			<VBox.margin>
+				<Insets right="8" top="4" bottom="2"/>
+			</VBox.margin>
+		</Label>
+
+		<JFXTreeTableView fx:id="treeTableView"  minWidth="100" minHeight="160" maxHeight="240" >
+
+			<VBox.margin>
+				<Insets left="8" right="8" top="8" bottom="8"/>
+			</VBox.margin>
+
+			<columns>
+				<JFXTreeTableColumn fx:id="filePath"
+									text="文件名" minWidth="0" prefWidth="120" style="-fx-alignment: center-left; -fx-padding: 0 12 0 12"/>
+				<JFXTreeTableColumn fx:id="fileName"
+									text="文件路径" minWidth="0" prefWidth="120" style="-fx-alignment: center-left; -fx-padding: 0 12 0 12"/>
+				<JFXTreeTableColumn fx:id="createTime"
+									text="创建时间" minWidth="0" prefWidth="200" style="-fx-alignment: center-left; -fx-padding: 0 12 0 12"/>
+			</columns>
+		</JFXTreeTableView>
+
+		<HBox alignment="CENTER_LEFT" >
+			<JFXComboBox id="jfxComboBox"  prefHeight="18" prefWidth="120" promptText="全部">
+				<HBox.margin>
+					<Insets left="12" right="12"/>
+				</HBox.margin>
+				<items>
+					<FXCollections fx:factory="observableArrayList" >
+						<Label text="Info" styleClass="item-label"/>
+						<Label text="Warning" styleClass="item-label"/>
+						<Label text="Error" styleClass="item-label"/>
+					</FXCollections>
+				</items>
+			</JFXComboBox>
+
+			<JFXTextField fx:id="searchField" prefWidth="200" HBox.hgrow="ALWAYS"  style="-fx-padding: 5 0 5 0" promptText="过滤关键字" >
+				<HBox.margin>
+					<Insets left="12" right="12"/>
+				</HBox.margin>
+			</JFXTextField>
+
+			<JFXCheckBox text="正则" alignment="CENTER">
+				<HBox.margin>
+					<Insets left="12" right="12"/>
+				</HBox.margin>
+			</JFXCheckBox>
+
+			<Icon fx:id="buttonTrash" awesomeIcon="TRASH"  size="1.2em" prefWidth="24" prefHeight="24" />
+
+			<JFXToggleNode styleClass="toggle-icon1">
+				<Icon awesomeIcon="FILTER"  size="1.2em"  />
+			</JFXToggleNode>
+
+			<JFXToggleNode styleClass="toggle-icon1">
+				<Icon awesomeIcon="TRASH"  size="1.2em"  />
+			</JFXToggleNode>
+		</HBox>
+
+		<TextArea fx:id="messageArea" editable="false"  VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS">
+			<VBox.margin>
+				<Insets left="8" right="8" top="8" bottom="8"/>
+			</VBox.margin>
+		</TextArea>
+	</children>
+
+</VBox>

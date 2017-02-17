@@ -2,18 +2,24 @@ package quant.test.server.service
 import com.android.ddmlib.AndroidDebugBridge
 import com.android.ddmlib.IDevice
 import groovy.json.JsonSlurper
+import quant.test.server.command.Command
+import quant.test.server.log.Log
+import quant.test.server.model.DeviceItem
+import quant.test.server.model.Property
+import quant.test.server.protocol.Json
+import quant.test.server.protocol.What
+
 /**
  * Created by czz on 2017/2/3.
  * 客户端服务对象
  */
 class ClientService implements Runnable{
-    final int CONNECT_COMPLETE=3
+    final static String TAG="ClientService"
     final PrintWriter printWriter
     final AndroidDebugBridge bridge
     final Socket socket
     final def address
     def reader
-    def callback
 
     ClientService(address, socket, AndroidDebugBridge bridge) {
         this.address=address
@@ -93,7 +99,7 @@ class ClientService implements Runnable{
         //如果未连接.尝试连接
         if(deviceItem){
             //连接己连接成功,根据状态状态设备设备是否需要尝试重联,如 offline
-            callback("设备:${address} Adb己连接")
+            Log.e(TAG,"设备:${address} Adb己连接")
             sendMessage(What.ADB.CONNECT_COMPLETE,address,null)
             sendMessage(What.ADB.LOG,address,"设备:${address} Adb己连接")
         } else {
@@ -111,12 +117,12 @@ class ClientService implements Runnable{
                 //设备中断,查看设备为无线连接,或是有线,若为无线,则尝试重联,有线
                 if (null != iDevice) {
                     String deviceAddress = iDevice.properties[Property.DHCP_WLAN0_IPADDRESS]
-                    callback("Device interrupt:" + deviceAddress)
+                    Log.e(TAG,"设备连接中断:$deviceAddress")
                     if (address.equals(deviceAddress)) {
                         //当前设备中断,设置重连
                         sendMessage(What.ADB.ADB_INTERRUPT,address,null)//设备adb中断
                         sendMessage(What.ADB.LOG,address,"设备:${deviceAddress} 中断,尝试重联...")
-                        callback("Send message:" + deviceAddress);
+                        Log.e(TAG,"发送消息:$deviceAddress")
                         checkAdbConnect(address)
                     }
                 }
@@ -172,7 +178,7 @@ class ClientService implements Runnable{
         boolean result = true;
         while (!bridge.hasInitialDeviceList()) {
             if (count++ > 20) {
-                callback("InitialDeviceList time out")
+                Log.e(TAG,"初始化连接设备列表超时!")
                 result = false
             }
             Thread.sleep(1000);
@@ -211,9 +217,5 @@ class ClientService implements Runnable{
         }
     }
 
-
-    def printMessage(messageCallback){
-        this.callback=messageCallback
-    }
 
 }

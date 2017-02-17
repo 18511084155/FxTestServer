@@ -1,18 +1,19 @@
 package quant.test.server.log;
 
-import java.io.PipedInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.UnknownHostException;
+import java.util.List;
+import java.util.Observer;
 
 /**
  * Created by Administrator on 2017/2/16.
  */
 public class Log {
     private static final LogProcessor processor=new LogProcessor();
-    public static final int INFO=1;
-    public static final int WARNING=2;
-    public static final int ERROR=3;
+    public static final int INFO=0;
+    public static final int WARNING=1;
+    public static final int ERROR=2;
 
     public static void startProcess(){
         processor.start();
@@ -24,7 +25,7 @@ public class Log {
     }
 
     public static final void w(String TAG,String info){
-        processLog(WARNING,TAG,info);
+        processLog(WARNING, TAG, info);
     }
     public static final void e(String TAG,String info){
         processLog(ERROR,TAG,info);
@@ -33,16 +34,32 @@ public class Log {
         processLog(ERROR,TAG,getStackTraceString(e));
     }
 
-    public static final PipedInputStream newPipedStream(){
-        return processor.newPipedStream();
-    }
-
-    public static final void destroyStream(){
-        processor.destroyStream();
-    }
-
     private static void processLog(int level, String tag, String info) {
         processor.process(new LogItem(level, tag, info));
+    }
+
+    public static void registerObservable(Observer observer){
+        processor.registerObservable(observer);
+    }
+
+    /**
+     * 过滤文字
+     * @param text
+     */
+    public List<LogItem> filterLog(String text){
+        return processor.matcherLog(text);
+    }
+
+    /**
+     * 正则过滤条目
+     * @param regex
+     */
+    public List<LogItem> matcherLog(String regex){
+        return processor.matcherLog(regex);
+    }
+
+    public static void unregisterObservable(Observer observer){
+        processor.unregisterObservable(observer);
     }
 
     /**
