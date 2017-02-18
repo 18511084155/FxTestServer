@@ -7,10 +7,12 @@ import javafx.collections.FXCollections
 import javafx.event.Event
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
+import javafx.scene.control.Label
 import quant.test.server.anntation.FXMLLayout
 import quant.test.server.bus.RxBus
-import quant.test.server.event.OnDeviceConnectedEvent
+import quant.test.server.event.OnDeviceSelectedEvent
 import quant.test.server.model.DeviceProperty
+import quant.test.server.model.Property
 
 import javax.annotation.PreDestroy
 /**
@@ -18,6 +20,22 @@ import javax.annotation.PreDestroy
  */
 @FXMLLayout("fxml/device_info_layout.fxml")
 class DeviceInfoController implements Initializable{
+    @FXML
+    Label mobileModel
+    @FXML
+    Label mobileBrand
+    @FXML
+    Label mobileSerialno
+    @FXML
+    Label mobileImei
+    @FXML
+    Label mobileVersion
+    @FXML
+    Label mobileVersionCode
+    @FXML
+    Label mobileCpu
+    @FXML
+    Label mobileIpAddress
     @FXML
     JFXTreeTableView treeTableView
     @FXML
@@ -33,7 +51,16 @@ class DeviceInfoController implements Initializable{
         deviceKey.setCellValueFactory({ deviceKey.validateValue(it)?it.value.value.key: deviceKey.getComputedValue(it) })
         deviceValue.setCellValueFactory({ deviceValue.validateValue(it)? it.value.value.value: deviceValue.getComputedValue(it) })
 
-        RxBus.subscribe(OnDeviceConnectedEvent.class){
+        RxBus.subscribe(OnDeviceSelectedEvent.class){
+            mobileModel.setText(it.item.toString())
+            mobileBrand.setText(it.item.brand)
+            mobileSerialno.setText(it.item.serialNumber)
+            mobileImei.setText(it.item.serialNumber)
+            mobileVersion.setText(it.item.sdk)
+            mobileVersionCode.setText(it.item.release)
+            mobileCpu.setText(it.item.getDeviceProperty(Property.RO_PRODUCT_CPU_ABI))
+            mobileIpAddress.setText(it.item.getDeviceProperty(Property.DHCP_WLAN0_IPADDRESS))
+
             deviceProperties.clear()
             it.item.deviceProperty.each { property->
                 deviceProperties.add(new DeviceProperty(property.key,property.value))

@@ -18,7 +18,7 @@ import javafx.scene.layout.StackPane
 import quant.test.server.animation.PaneTransition
 import quant.test.server.anntation.FXMLLayout
 import quant.test.server.bus.RxBus
-import quant.test.server.event.OnDeviceConnectedEvent
+import quant.test.server.event.OnDeviceSelectedEvent
 import quant.test.server.exception.ExceptionHandler
 import quant.test.server.log.Log
 import quant.test.server.model.DeviceItem
@@ -58,6 +58,13 @@ class MainController implements Initializable{
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler())
         deviceList.setItems(FXCollections.observableArrayList())
         deviceList.setCellFactory({new DeviceListCell()})
+        deviceList.setOnMouseClicked({
+            def selectedItem=deviceList.getSelectionModel().getSelectedItem()
+            if(selectedItem){
+                RxBus.post(new OnDeviceSelectedEvent(selectedItem as DeviceItem))
+            }
+        })
+
         ToggleGroup toggleGroup=new ToggleGroup()
         buttonDeviceInfo.setToggleGroup(toggleGroup)
         buttonTask.setToggleGroup(toggleGroup)
@@ -172,7 +179,10 @@ class MainController implements Initializable{
                         //代表为无线连接
                     }
                     def deviceItem=DeviceItem.form(iDevice)
-                    RxBus.post(new OnDeviceConnectedEvent(deviceItem))
+                    if(deviceList.items.isEmpty()){
+                        //首次信息初始化
+                        RxBus.post(new OnDeviceSelectedEvent(deviceItem))
+                    }
                     Platform.runLater({deviceList.getItems().add(deviceItem)})
                     Log.e(TAG,"设备己连接:${iDevice} state:$i device-state:$iDevice.state")
                 }
