@@ -3,12 +3,16 @@ import com.android.ddmlib.AndroidDebugBridge
 import com.android.ddmlib.IDevice
 import com.jfoenix.controls.JFXListView
 import javafx.application.Platform
+import javafx.beans.value.ChangeListener
+import javafx.beans.value.ObservableValue
 import javafx.collections.FXCollections
 import javafx.fxml.FXML
 import javafx.fxml.FXMLLoader
 import javafx.fxml.Initializable
-import javafx.scene.control.Control
-import javafx.scene.control.Label
+import javafx.scene.control.Toggle
+import javafx.scene.control.ToggleButton
+import javafx.scene.control.ToggleGroup
+import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
 import javafx.scene.layout.StackPane
 import quant.test.server.animation.PaneTransition
@@ -33,47 +37,56 @@ class MainController implements Initializable{
     @FXML
     StackPane contentPane
     @FXML
+    HBox tabLayout
+    @FXML
     JFXListView deviceList
     @FXML
-    Label buttonDeviceInfo
+    ToggleButton buttonDeviceInfo
     @FXML
-    Label buttonMessage
+    ToggleButton buttonTask
+    @FXML
+    ToggleButton buttonTest
+    @FXML
+    ToggleButton buttonDoc
+    @FXML
+    ToggleButton buttonMessage
 
     def serverSocket
     def cachePane=[:]
-    int lastIndex
     @Override
     void initialize(URL location, ResourceBundle resources) {
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler())
         deviceList.setItems(FXCollections.observableArrayList())
         deviceList.setCellFactory({new DeviceListCell()})
+        ToggleGroup toggleGroup=new ToggleGroup()
+        buttonDeviceInfo.setToggleGroup(toggleGroup)
+        buttonTask.setToggleGroup(toggleGroup)
+        buttonTest.setToggleGroup(toggleGroup)
+        buttonDoc.setToggleGroup(toggleGroup)
+        buttonMessage.setToggleGroup(toggleGroup)
+        final def controllerArray=[DeviceInfoController.class,null,null,null,MessageController.class]
 
-
-        bindPane(0,buttonDeviceInfo,DeviceInfoController.class,true,true)
-        bindPane(1,buttonMessage,MessageController.class,true,false)
+        toggleGroup.selectToggle(buttonDeviceInfo)
+        def listener={ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle selectedToggle->
+            int index=tabLayout.children.indexOf(selectedToggle)
+            def oldIndex = tabLayout.children.indexOf(oldValue)
+            -1!=index?: oldValue.setSelected(true)
+            if(-1!=index&&-1!=oldIndex&&oldIndex!=index&&controllerArray[index]&&controllerArray[oldIndex]){
+                loadPane(controllerArray[index],index,false)
+                def currentPane=cachePane[index]
+                def lastPane=cachePane[oldIndex]
+                new PaneTransition(lastPane,currentPane,index>oldIndex?-contentPane.width:contentPane.width).start()
+            }
+        } as ChangeListener
+        toggleGroup.selectedToggleProperty().addListener(listener)
+        //装载默认面板
+        loadPane(controllerArray[0],0,true)
         //初始化调试桥
         initBridge(SharedPrefs.get(PrefsKey.ADB))
     }
 
-    /**
-     * 绑定panel
-     * @param fxml
-     * @param attach
-     */
-    def bindPane(int index,Control control,Class clazz,boolean attach,boolean defaultPane) {
-        if(attach&&!cachePane[index]){
-            ensurePane(clazz, index,defaultPane)
-        }
-        control.setOnMouseClicked({
-            ensurePane(clazz,index,defaultPane)
-            def currentPane=cachePane[index]
-            def lastPane=cachePane[lastIndex]
-            new PaneTransition(currentPane,lastPane,index<lastIndex?-contentPane.width:contentPane.width).start()
-            lastIndex=index
-        })
-    }
 
-    private void ensurePane(Class clazz, int index,boolean defaultPane) {
+    private void loadPane(Class clazz, int index, boolean defaultPane) {
         def fxml
         def annotation = clazz.getAnnotation(FXMLLayout.class)
         !annotation?:(fxml=annotation.value())
@@ -89,7 +102,7 @@ class MainController implements Initializable{
     }
 
 
-/**
+    /**
      * 在10秒内未取得设备代表连接异常
      *
      * @param bridge
@@ -139,13 +152,13 @@ class MainController implements Initializable{
         AndroidDebugBridge.addDeviceChangeListener(new AndroidDebugBridge.IDeviceChangeListener() {
             @Override
             public void deviceConnected(IDevice iDevice) {
-                Log.e(TAG,"设备连接中断:${iDevice.serialNumber}($iDevice.state)")
             }
 
             @Override
             public void deviceDisconnected(IDevice iDevice) {
                 //设备中断
                 if (null != iDevice) {
+                    Log.e(TAG,"设备连接中断:${iDevice.serialNumber}($iDevice.state)")
                     Platform.runLater({deviceList.getItems().remove(DeviceItem.form(iDevice))})
                 }
             }

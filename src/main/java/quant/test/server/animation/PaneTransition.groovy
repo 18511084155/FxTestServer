@@ -17,28 +17,28 @@ class PaneTransition {
         if(0>left){
             //right->left
             node1.setTranslateX(0)
-            KeyValue keyValue1 = new KeyValue(node1.translateXProperty(), -left, Interpolator.LINEAR)
-            KeyFrame keyFrame1 = new KeyFrame(Duration.millis(300), keyValue1)
+            KeyValue keyValue1 = new KeyValue(node1.translateXProperty(), left, Interpolator.EASE_IN)
+            KeyFrame keyFrame1 = new KeyFrame(Duration.millis(400), keyValue1)
 
-            node2.setTranslateX(left)
-            KeyValue keyValue2 = new KeyValue(node1.translateXProperty(), 0, Interpolator.LINEAR)
-            KeyFrame keyFrame2 = new KeyFrame(Duration.millis(300), keyValue2)
+            node2.setTranslateX(Math.abs(left))
+            KeyValue keyValue2 = new KeyValue(node2.translateXProperty(), 0, Interpolator.EASE_IN)
+            KeyFrame keyFrame2 = new KeyFrame(Duration.millis(400), keyValue2)
             timeline.getKeyFrames().addAll(keyFrame1,keyFrame2)
         } else {
             //left->right
-            KeyValue keyValue1 = new KeyValue(node1.translateXProperty(), left, Interpolator.LINEAR)
-            KeyFrame keyFrame1 = new KeyFrame(Duration.millis(300), keyValue1)
+            KeyValue keyValue1 = new KeyValue(node1.translateXProperty(), left, Interpolator.EASE_IN)
+            KeyFrame keyFrame1 = new KeyFrame(Duration.millis(400), keyValue1)
 
             node2.setTranslateX(-left)
-            KeyValue keyValue2 = new KeyValue(node1.translateXProperty(), 0, Interpolator.LINEAR)
-            KeyFrame keyFrame2 = new KeyFrame(Duration.millis(300), keyValue2)
+            KeyValue keyValue2 = new KeyValue(node2.translateXProperty(), 0, Interpolator.EASE_IN)
+            KeyFrame keyFrame2 = new KeyFrame(Duration.millis(400), keyValue2)
             timeline.getKeyFrames().addAll(keyFrame1, keyFrame2)
         }
         node1.setVisible(true)
         node2.setVisible(true)
         timeline.setOnFinished({
-            node1.setVisible(true)
-            node2.setVisible(false)
+            node1.setVisible(false)
+            node2.setVisible(true)
         })
     }
 

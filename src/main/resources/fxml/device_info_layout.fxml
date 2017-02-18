@@ -10,49 +10,48 @@
 	  xmlns="http://javafx.com/javafx/2.2" fx:controller="quant.test.server.controller.DeviceInfoController"  alignment="CENTER" >
 	<children >
 
-		<ImageView fx:id="imageView" fitWidth="120"  >
+		<GridPane  HBox.hgrow="ALWAYS" hgap="12" vgap="12" style="-fx-padding: 4 4 4 4">
+			<GridPane.margin>
+				<Insets left="8" right="8" top="8" bottom="8"/>
+			</GridPane.margin>
+
+			<Label text="设备名称" GridPane.rowIndex="0" GridPane.columnSpan="2"/>
+			<Label text="MEIZU PRO 6s" GridPane.rowIndex="1" GridPane.columnSpan="2"/>
+			<Label text="型号:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+			<Label text="PRO 6s" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+			<Label text="序列号:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+			<Label text="86245203027195" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+
+			<Label text="IMEI:" GridPane.rowIndex="4" GridPane.columnIndex="0" />
+			<Label text="86245203027195" GridPane.rowIndex="4" GridPane.columnIndex="1" />
+
+			<Label text="Android版本:" GridPane.rowIndex="5" GridPane.columnIndex="0" />
+			<Label text="6.0" GridPane.rowIndex="5" GridPane.columnIndex="1" />
+
+			<Label text="版本号:" GridPane.rowIndex="6" GridPane.columnIndex="0" />
+			<Label text="6.0" GridPane.rowIndex="6" GridPane.columnIndex="1" />
+
+			<Label text="CPU:" GridPane.rowIndex="7" GridPane.columnIndex="0" />
+			<Label text="mtk" GridPane.rowIndex="7" GridPane.columnIndex="1" />
+
+			<Label text="IP:" GridPane.rowIndex="8" GridPane.columnIndex="0" />
+			<Label text="192.168.1.5" GridPane.rowIndex="8" GridPane.columnIndex="1" />
+
+		</GridPane>
+
+
+		<JFXTreeTableView fx:id="treeTableView"  minWidth="100" maxWidth="540" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS"  >
 			<HBox.margin>
 				<Insets left="8" right="8" top="8" bottom="8"/>
 			</HBox.margin>
-			<Image  url="@/image/ic_settings_input_hdmi.png"  />
-		</ImageView>
-
-		<VBox HBox.hgrow="ALWAYS" alignment="CENTER_LEFT">
-
-			<HBox.margin>
-				<Insets top="12" right="12" bottom="12"/>
-			</HBox.margin>
-			<Label fx:id="deviceName" text="mx5" styleClass="item-label" />
-
-			<JFXTreeTableView fx:id="treeTableView"  minWidth="100" maxWidth="240" VBox.vgrow="NEVER"  >
-				<columns>
-					<JFXTreeTableColumn fx:id="deviceKey"
-										text="Key" minWidth="0" prefWidth="120" style="-fx-alignment: center-left; -fx-padding: 0 12 0 12"/>
-					<JFXTreeTableColumn fx:id="deviceValue"
-										text="Value" minWidth="0" prefWidth="120" style="-fx-alignment: center-left; -fx-padding: 0 12 0 12"/>
-				</columns>
-			</JFXTreeTableView>
-
-
-			<HBox alignment="CENTER">
-				<VBox HBox.hgrow="ALWAYS">
-
-					<HBox alignment="CENTER_LEFT">
-
-						<ImageView>
-							<Image  url="@/image/ic_settings_input_hdmi.png"  />
-						</ImageView>
-
-						<Label text="用数据线将手机连接电脑" alignment="CENTER"/>
-					</HBox>
-
-					<Label text="用数据线将手机连接电脑" />
-				</VBox>
-
-				<JFXButton fx:id="applyButton" text="应用"  styleClass="custom-jfx-button-raised"/>
-
-			</HBox>
-		</VBox>
+			<columns>
+				<JFXTreeTableColumn fx:id="deviceKey"
+									text="Key" minWidth="0" prefWidth="120" style="-fx-alignment: center-left; -fx-padding: 0 12 0 12"/>
+				<JFXTreeTableColumn fx:id="deviceValue"
+									text="Value" minWidth="0" prefWidth="120" style="-fx-alignment: center-left; -fx-padding: 0 12 0 12"/>
+			</columns>
+		</JFXTreeTableView>
 
 	</children>
 </HBox>

@@ -2,6 +2,7 @@ package quant.test.server.controller
 import com.jfoenix.controls.JFXTreeTableColumn
 import com.jfoenix.controls.JFXTreeTableView
 import com.jfoenix.controls.RecursiveTreeItem
+import javafx.application.Platform
 import javafx.collections.FXCollections
 import javafx.event.Event
 import javafx.fxml.FXML
@@ -37,8 +38,15 @@ class DeviceInfoController implements Initializable{
             it.item.deviceProperty.each { property->
                 deviceProperties.add(new DeviceProperty(property.key,property.value))
             }
-            treeTableView.setRoot(new RecursiveTreeItem<DeviceProperty>(deviceProperties, { it.getChildren() }))
-            treeTableView.setShowRoot(false)
+            if(Platform.fxApplicationThread){
+                treeTableView.setRoot(new RecursiveTreeItem<DeviceProperty>(deviceProperties, { it.getChildren() }))
+                treeTableView.setShowRoot(false)
+            } else {
+                Platform.runLater({
+                    treeTableView.setRoot(new RecursiveTreeItem<DeviceProperty>(deviceProperties, { it.getChildren() }))
+                    treeTableView.setShowRoot(false)
+                })
+            }
         }
     }
 

@@ -35,7 +35,7 @@
 		</JFXTreeTableView>
 
 		<HBox alignment="CENTER_LEFT" >
-			<JFXComboBox id="jfxComboBox"  prefHeight="18" prefWidth="120" promptText="全部">
+			<JFXComboBox id="jfxComboBox" editable="true" prefHeight="18" prefWidth="120" promptText="全部">
 				<HBox.margin>
 					<Insets left="12" right="12"/>
 				</HBox.margin>

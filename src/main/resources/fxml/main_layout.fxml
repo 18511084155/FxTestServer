@@ -7,20 +7,65 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.*?>
 <?import java.lang.String?>
+<?import com.jfoenix.controls.JFXToggleButton?>
+<?import de.jensd.fx.fontawesome.Icon?>
+<?import com.jfoenix.controls.JFXToggleNode?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.control.Button?>
 <StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
-	xmlns="http://javafx.com/javafx/2.2" fx:controller="quant.test.server.controller.MainController">
+		   xmlns="http://javafx.com/javafx/2.2" fx:controller="quant.test.server.controller.MainController">
 	<!-- Header -->
 	<BorderPane >
 
 		<center>
 
 			<VBox >
-				<HBox HBox.hgrow="ALWAYS"  prefHeight="60" alignment="CENTER">
-					<Label fx:id="buttonDeviceInfo" text="设备信息" prefWidth="60" prefHeight="60"/>
-					<Label fx:id="buttonTask" text="任务计划" prefWidth="60" prefHeight="60"/>
-					<Label fx:id="buttonTest" text="测试用例" prefWidth="60" prefHeight="60"/>
-					<Label fx:id="buttonDoc" text="测试文档" prefWidth="60" prefHeight="60"/>
-					<Label fx:id="buttonMessage" text="日志消息" prefWidth="60" prefHeight="60"/>
+				<HBox fx:id="tabLayout" HBox.hgrow="ALWAYS"   alignment="CENTER" style="-fx-background-color: white">
+					<VBox.margin>
+						<Insets bottom="4"/>
+					</VBox.margin>
+					<ToggleButton fx:id="buttonDeviceInfo" styleClass="custom-tab-button" text="设备信息" contentDisplay="TOP">
+						<HBox.margin>
+							<Insets left="4" top="4" right="4" bottom="4"/>
+						</HBox.margin>
+						<graphic>
+							<Icon awesomeIcon="TABLET" size="2.0em" style=";" styleClass="tab_icon" />
+						</graphic>
+					</ToggleButton>
+					<ToggleButton fx:id="buttonTask" styleClass="custom-tab-button" text="任务计划" contentDisplay="TOP">
+						<HBox.margin>
+							<Insets left="4" top="4" right="4" bottom="4"/>
+						</HBox.margin>
+						<graphic>
+							<Icon awesomeIcon="TASKS" size="2em" style=";" styleClass="tab_icon" />
+						</graphic>
+					</ToggleButton>
+					<ToggleButton fx:id="buttonTest" styleClass="custom-tab-button" text="测试用例" contentDisplay="TOP">
+						<HBox.margin>
+							<Insets left="4" top="4" right="4" bottom="4"/>
+						</HBox.margin>
+						<graphic>
+							<Icon awesomeIcon="BUG" size="2em" style=";" styleClass="tab_icon" />
+						</graphic>
+					</ToggleButton>
+					<ToggleButton fx:id="buttonDoc" styleClass="custom-tab-button" text="测试文档" contentDisplay="TOP">
+						<HBox.margin>
+							<Insets left="4" top="4" right="4" bottom="4"/>
+						</HBox.margin>
+						<graphic>
+							<Icon awesomeIcon="CUBE" size="2em" style=";" styleClass="tab_icon" />
+						</graphic>
+					</ToggleButton>
+					<ToggleButton fx:id="buttonMessage" styleClass="custom-tab-button" text="日志消息" contentDisplay="TOP">
+						<HBox.margin>
+							<Insets left="4" top="4" right="4" bottom="4"/>
+						</HBox.margin>
+						<graphic>
+							<Icon awesomeIcon="INFO" size="2em" style=";" styleClass="tab_icon" />
+						</graphic>
+					</ToggleButton>
 				</HBox>
 
 				<StackPane fx:id="contentPane" style="-fx-background-color: white"  VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS"/>

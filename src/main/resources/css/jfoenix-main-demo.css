@@ -124,10 +124,17 @@
  ******************************************************************************/
 
 .icon{
-	-fx-text-fill: #FE774D;
-	-fx-padding: 10.0;
+	-fx-text-fill: #4059A9;
+	-fx-padding: 4.0;
 	-fx-cursor: hand;
 }
+
+.tab_icon{
+	-fx-text-fill: #4059A9;
+	-fx-padding: 4.0;
+	-fx-cursor: hand;
+}
+
 
 .icons-rippler{
 	-jfx-rippler-fill: #FE774D;
@@ -339,6 +346,25 @@
 *                                                                              *
 *******************************************************************************/
 
+.custom-tab-button  {
+	-fx-padding: 4 12 4 12;
+	-fx-font-size: 14.0px;
+	-jfx-button-type: RAISED;
+	-fx-background-color: transparent;
+	-fx-border-width: 2;
+	-fx-border-color: transparent;
+	-fx-text-fill: #43609C;
+}
+.custom-tab-button:selected  {
+	-fx-padding: 4 12 4 12;
+	-fx-font-size: 14.0px;
+	-jfx-button-type: RAISED;
+	-fx-background-color: #43609C02;
+	-fx-border-width: 2;
+	-fx-border-color: #43609C11;
+	-fx-border-radius: 4;
+	-fx-text-fill: #43609C;
+}
 
 .custom-jfx-button-raised .jfx-rippler{
 	-jfx-rippler-fill: YELLOW;
@@ -483,7 +509,7 @@
 
 
 .list-cell:selected {
-	-fx-background-color: transparent;
+	-fx-background-color: #4059A9;
 }
 
 .jfx-list-cell .jfx-rippler {
