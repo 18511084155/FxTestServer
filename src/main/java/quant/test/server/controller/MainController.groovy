@@ -71,23 +71,23 @@ class MainController implements Initializable{
         buttonTest.setToggleGroup(toggleGroup)
         buttonDoc.setToggleGroup(toggleGroup)
         buttonMessage.setToggleGroup(toggleGroup)
-        final def controllerArray=[DeviceInfoController.class,null,null,null,MessageController.class]
 
         toggleGroup.selectToggle(buttonDeviceInfo)
+        final def controllerArray=[DeviceInfoController.class,TaskController.class,TestCaseController.class,TestDocController.class,MessageController.class]
         def listener={ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle selectedToggle->
             int index=tabLayout.children.indexOf(selectedToggle)
             def oldIndex = tabLayout.children.indexOf(oldValue)
             -1!=index?: oldValue.setSelected(true)
-            if(-1!=index&&-1!=oldIndex&&oldIndex!=index&&controllerArray[index]&&controllerArray[oldIndex]){
+            if(-1!=index&&-1!=oldIndex&&oldIndex!=index){
                 loadPane(controllerArray[index],index,false)
-                def currentPane=cachePane[index]
-                def lastPane=cachePane[oldIndex]
-                new PaneTransition(lastPane,currentPane,index>oldIndex?-contentPane.width:contentPane.width).start()
+                new PaneTransition(cachePane[oldIndex],cachePane[index],index>oldIndex?-contentPane.width:contentPane.width).start()
             }
         } as ChangeListener
         toggleGroup.selectedToggleProperty().addListener(listener)
         //装载默认面板
         loadPane(controllerArray[0],0,true)
+        //装载消息面板
+        loadPane(controllerArray[4],4,false)
         //初始化调试桥
         initBridge(SharedPrefs.get(PrefsKey.ADB))
     }
@@ -178,12 +178,15 @@ class MainController implements Initializable{
                     } else {
                         //代表为无线连接
                     }
-                    def deviceItem=DeviceItem.form(iDevice)
-                    if(deviceList.items.isEmpty()){
-                        //首次信息初始化
-                        RxBus.post(new OnDeviceSelectedEvent(deviceItem))
-                    }
-                    Platform.runLater({deviceList.getItems().add(deviceItem)})
+                    Platform.runLater({
+                        def deviceItem=DeviceItem.form(iDevice)
+                        deviceList.getItems().add(deviceItem)
+                        if(1==deviceList.items.size()){
+                            //首次信息初始化
+                            deviceList.selectionModel.select(0)
+                            RxBus.post(new OnDeviceSelectedEvent(deviceItem))
+                        }
+                    })
                     Log.e(TAG,"设备己连接:${iDevice} state:$i device-state:$iDevice.state")
                 }
             }

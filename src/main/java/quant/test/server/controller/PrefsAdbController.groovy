@@ -17,22 +17,14 @@ import quant.test.server.prefs.SharedPrefs
  * Created by cz on 2017/2/15.
  */
 class PrefsAdbController implements Initializable{
-    @FXML
-    StackPane root
-    @FXML
-    JFXTextField pathField
-    @FXML
-    JFXTreeTableView<EnvironmentItem> treeTableView
-    @FXML
-    JFXTreeTableColumn envKey
-    @FXML
-    JFXTreeTableColumn envValue
-    @FXML
-    JFXTreeTableColumn envValid
-    @FXML
-    JFXButton applyButton
-    @FXML
-    JFXSnackbar snackBar;
+    @FXML StackPane root
+    @FXML JFXTextField pathField
+    @FXML JFXTreeTableView<EnvironmentItem> treeTableView
+    @FXML JFXTreeTableColumn envKey
+    @FXML JFXTreeTableColumn envValue
+    @FXML JFXTreeTableColumn envValid
+    @FXML JFXButton applyButton
+    @FXML JFXSnackbar snackBar;
 
     @FXML
     public void handleEnvClick(Event event) {

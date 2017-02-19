@@ -20,28 +20,17 @@ import javax.annotation.PreDestroy
  */
 @FXMLLayout("fxml/device_info_layout.fxml")
 class DeviceInfoController implements Initializable{
-    @FXML
-    Label mobileModel
-    @FXML
-    Label mobileBrand
-    @FXML
-    Label mobileSerialno
-    @FXML
-    Label mobileImei
-    @FXML
-    Label mobileVersion
-    @FXML
-    Label mobileVersionCode
-    @FXML
-    Label mobileCpu
-    @FXML
-    Label mobileIpAddress
-    @FXML
-    JFXTreeTableView treeTableView
-    @FXML
-    JFXTreeTableColumn deviceKey
-    @FXML
-    JFXTreeTableColumn deviceValue
+    @FXML Label mobileModel
+    @FXML Label mobileBrand
+    @FXML Label mobileSerialno
+    @FXML Label mobileImei
+    @FXML Label mobileVersion
+    @FXML Label mobileVersionCode
+    @FXML Label mobileCpu
+    @FXML Label mobileIpAddress
+    @FXML JFXTreeTableView treeTableView
+    @FXML JFXTreeTableColumn deviceKey
+    @FXML JFXTreeTableColumn deviceValue
 
     def deviceProperties
 

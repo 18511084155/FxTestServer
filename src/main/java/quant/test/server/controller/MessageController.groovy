@@ -13,10 +13,8 @@ import javax.annotation.PreDestroy
  */
 @FXMLLayout("fxml/message_layout.fxml")
 class MessageController implements Initializable,Observer{
-    @FXML
-    TextArea messageArea
-    @FXML
-    Icon buttonTrash
+    @FXML TextArea messageArea
+    @FXML Icon buttonTrash
     @Override
     void initialize(URL location, ResourceBundle resources) {
         Log.registerObservable(this)
