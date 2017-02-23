@@ -1,8 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.control.Accordion?>
-<StackPane fx:id="task_case" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" >
-		<Accordion id="accordion_layout" />
+<?import com.jfoenix.controls.*?>
+<?import de.jensd.fx.fontawesome.Icon?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.*?>
+<StackPane fx:id="task_case"
+		   xmlns:fx="http://javafx.com/fxml/1"
+		   xmlns="http://javafx.com/javafx/2.2"
+		   fx:controller="quant.test.server.controller.TestCaseController">
+
+
+
+	<JFXTreeTableView fx:id="treeTableView">
+
+		<StackPane.margin>
+			<Insets left="4" right="4" top="4" bottom="4"/>
+		</StackPane.margin>
+
+		<columns>
+			<JFXTreeTableColumn fx:id="testCaseName"
+								text="测试用例" minWidth="0" prefWidth="120" style="-fx-alignment: center-left; -fx-padding: 0 12 0 12"/>
+			<JFXTreeTableColumn fx:id="testApp"
+								text="测试应用" minWidth="0" prefWidth="80" style="-fx-alignment: center-left; -fx-padding: 0 12 0 12"/>
+			<JFXTreeTableColumn fx:id="testVersion"
+								text="测试版本" minWidth="0" prefWidth="80" style="-fx-alignment: center-left; -fx-padding: 0 12 0 12"/>
+			<JFXTreeTableColumn fx:id="testFile"
+								text="测试包" minWidth="0" prefWidth="200" style="-fx-alignment: center-left; -fx-padding: 0 12 0 12"/>
+			<JFXTreeTableColumn fx:id="testCaseFile"
+								text="用例包" minWidth="0" prefWidth="200" style="-fx-alignment: center-left; -fx-padding: 0 12 0 12"/>
+		</columns>
+	</JFXTreeTableView>
+
+	<JFXButton alignment="BOTTOM_RIGHT" StackPane.alignment="BOTTOM_RIGHT" ripplerFill="#4059A9" buttonType="RAISED" style="-fx-background-radius: 32;-fx-background-color: white" fx:id="addTaskCase" AnchorPane.bottomAnchor="24.0"  AnchorPane.rightAnchor="24.0">
+		<StackPane.margin>
+			<Insets right="16" bottom="16"/>
+		</StackPane.margin>
+		<graphic>
+			<Icon awesomeIcon="PLUS" size="1.6em" styleClass="icon" />
+		</graphic>
+	</JFXButton>
+
+
 </StackPane>
 

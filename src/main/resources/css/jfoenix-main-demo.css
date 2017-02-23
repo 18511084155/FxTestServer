@@ -137,7 +137,7 @@
 
 
 .icons-rippler{
-	-jfx-rippler-fill: #FE774D;
+	-jfx-rippler-fill: #4285F4;
 	-jfx-mask-type: CIRCLE;
 }
 
@@ -658,7 +658,7 @@
 }
 
 .toggle-icon1 .jfx-rippler{
-	-jfx-rippler-fill: rgba(66.0,133.0,244.0,0.29885056614875793);
+	-jfx-rippler-fill: rgba(255,0,0,0.29885056614875793);
 	-jfx-mask-type: CIRCLE;
 }
 
@@ -1043,3 +1043,223 @@
 .jfx-scroll-pane .condensed-header{
 	-fx-background-image: url("../bg4.jpg");
 }
+
+/*******************************************************************************
+*                                                                              *
+* Context menu                                                                 *
+*                                                                              *
+*******************************************************************************/
+
+
+.context-menu {
+	-fx-background-color: white;
+	-fx-text-fill: white;
+	-fx-padding: 0 0 0 0;
+}
+
+.menu-item .label {
+	-fx-text-fill: black;
+	-fx-padding: 8 16 8 16;
+}
+
+.menu-item:focused .label {
+	-fx-text-fill: white;
+}
+.menu-item:focused {
+	-fx-background-color: #4059A9;
+}
+
+/*******************************************************************************
+*                                                                              *
+* spinner menu                                                                 *
+*                                                                              *
+*******************************************************************************/
+
+.spinner > .text-field {
+	-fx-text-fill: black;
+	-fx-accent-text-fill:white;
+	-fx-border-width: 1;
+	-fx-background-color: transparent;
+	-fx-border-color: #BCBCBC;
+	-fx-border-insets: 0 8 0 0;
+	-fx-accent: #4059A9 ;
+}
+
+.spinner > .text-field:focused {
+	-fx-text-fill: black;
+	-fx-accent-text-fill:white;
+	-fx-border-width: 1;
+	-fx-background-color: transparent;
+	-fx-border-color: #4059A9;
+	-fx-border-insets: 0 8 0 0;
+	-fx-accent: #4059A9 ;
+}
+
+
+.spinner {
+	-fx-background-color: transparent;
+	-fx-border-image-width: 0;
+}
+
+
+.increment-arrow-button{
+	-fx-background-color: #EBEBEB;
+	-fx-border-width: 1;
+	-fx-border-color:#BCBCBC ;
+}
+
+.decrement-arrow-button{
+	-fx-background-color: #EBEBEB;
+	-fx-border-width: 1;
+	-fx-border-color:#BCBCBC ;
+}
+
+.increment-arrow-button:hover{
+	-fx-background-color: #EBEBEB;
+}
+
+.decrement-arrow-button:hover{
+	-fx-background-color: #EBEBEB;
+}
+
+.increment-arrow-button:pressed{
+	-fx-background-color: #BCBCBC;
+}
+
+.decrement-arrow-button:pressed{
+	-fx-background-color: #BCBCBC;
+}
+
+.date-cell:hover {
+	-fx-background-color: #4059A9 ;
+	/* etc */
+}
+
+
+/*******************************************************************************
+ *                                                                             *
+ * DatePicker                                                                  *
+ *                                                                             *
+ ******************************************************************************/
+
+.date-picker{
+	-fx-background-color: transparent;
+	-fx-border-width: 1;
+	-fx-border-color: #BCBCBC;
+}
+
+.date-picker:focused{
+	-fx-background-color: transparent;
+	-fx-border-width: 1;
+	-fx-border-color: #4059A9;
+}
+
+.date-picker > .arrow-button > .arrow {
+	-fx-shape: "M0,0v9h9V0H0z M2,8H1V7h1V8z M2,6H1V5h1V6z M2,4H1V3h1V4z M4,8H3V7h1V8z M4,6H3V5h1V6z M4,4H3V3h1V4z M6,8H5V7h1V8z M6,6H5 V5h1V6z M6,4H5V3h1V4z M8,8H7V7h1V8z M8,6H7V5h1V6z M8,4H7V3h1V4z";
+	-fx-background-color: -fx-mark-highlight-color, -fx-mark-color;
+	-fx-scale-shape: true;
+}
+
+.date-picker > .text-field {
+	-fx-text-fill: black;
+	-fx-accent-text-fill:white;
+	-fx-border-width: 1;
+	-fx-background-color: transparent;
+	-fx-accent: #4059A9 ;
+}
+
+.date-picker > .text-field:focused {
+	-fx-text-fill: black;
+	-fx-accent-text-fill:white;
+	-fx-background-color: transparent;
+	-fx-accent: #4059A9 ;
+}
+
+.date-picker .text-input{
+	-fx-background-radius: 0, 0;
+	-fx-background-color: transparent, white;
+}
+
+.date-picker > .arrow-button {
+	-fx-background-color: #EBEBEB;
+	-fx-background-radius: 0;
+}
+
+.date-picker > .arrow-button:hover {
+	-fx-background-color: #BCBCBC;
+	-fx-background-radius: 0;
+	-fx-border-radius: 0;
+}
+
+.date-picker > .arrow-button:pressed {
+	-fx-background-color: #BCBCBC;
+	-fx-background-radius: 0;
+}
+
+.date-picker > .arrow-button:pressed > .arrow {
+	-fx-background-color: #DDDDDD;
+	-fx-background-radius: 0;
+}
+
+.date-picker-popup {
+	-fx-background-color: white;
+	-fx-background-insets: 0;
+}
+
+.date-picker-popup > .month-year-pane {
+	-fx-background-color: white;
+	-fx-background-insets: 0;
+}
+
+.date-picker-popup > * > .spinner > .button {
+	-fx-padding: 0.25em 0.583333em 0.25em 0.583333em; /* 3 7 3 7 */
+}
+
+.date-picker-popup > * > .spinner > .button {
+	-fx-background-color: white;
+	-fx-background-insets: 0;
+}
+
+.date-picker-popup > * > .spinner {
+	-fx-background-color: white;
+	-fx-background-insets: 0;
+}
+
+.date-picker-popup > * > .spinner > .button:hover {
+	-fx-background-color: #dadada;
+}
+
+.date-picker-popup > * > .spinner > .button:armed {
+	-fx-background-color: #606060;
+}
+
+.date-picker-popup > * > .spinner > .button > .left-arrow,
+.date-picker-popup > * > .spinner > .button > .right-arrow {
+	-fx-background-color: #606060;
+	-fx-background-insets: 0;
+	-fx-effect: null;
+}
+
+.date-picker-popup > * > .spinner > .button:pressed > .left-arrow,
+.date-picker-popup > * > .spinner > .button:pressed > .right-arrow {
+	-fx-background-color: white;
+	-fx-background-insets: 0;
+}
+
+.date-picker-popup > .calendar-grid {
+	-fx-background-color: white;
+	/*-fx-background-insets: 1 0 0 0;*/
+	-fx-padding: 0;
+}
+
+.date-picker-popup > * > .previous-month,
+.date-picker-popup > * > .next-month {
+	-fx-background-color: white;
+	-fx-opacity: 0.3;
+}
+
+.date-picker-popup > * > .day-name-cell,
+.date-picker-popup > * > .week-number-cell {
+	-fx-font-size: 0.75em;
+}
+

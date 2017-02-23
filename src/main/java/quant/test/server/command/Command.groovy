@@ -1,12 +1,14 @@
 package quant.test.server.command
 
 import groovy.transform.Canonical
+import quant.test.server.log.Log
+import quant.test.server.service.StreamGobbler
 
 /**
  * Created by cz on 2017/2/4.
  */
 class Command {
-
+    static final String TAG="Command"
     static def exec(String command){
         Result result=new Result()
         try{
@@ -20,6 +22,25 @@ class Command {
             e.printStackTrace()
         }
         result
+    }
+
+    static def exec(command,closure){
+        int exitValue=-1
+        try{
+            def process=command?.execute()
+            process.inputStream.withReader {reader->reader.readLines().each {
+                closure(it)
+            }}
+            process.errorStream.withReader {reader->reader.readLines().each {
+                closure(it)
+            }}
+            process.waitFor()
+            exitValue=process.exitValue()
+            process.destroy()
+        } catch (e){
+            e.printStackTrace()
+        }
+        exitValue
     }
 
     static def shell(shell,String...params){
@@ -49,12 +70,13 @@ class Command {
             def env=processBuilder.environment()
             env+=(System.getenv())
             def process = processBuilder.start()
-            process.inputStream.withReader {reader->reader.readLines().each {closure(it)}}
+            new StreamGobbler(process.inputStream,closure).start()
             process.waitFor()
             exitValue=process.exitValue()
             process.destroy()
         } catch (Exception e) {
             e.printStackTrace();
+            Log.e(TAG,e)
         }
         exitValue
     }

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXCheckBox?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import quant.test.server.widget.TimeSpinner?>
+<GridPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
+		   style="-fx-background-color: white"
+		   xmlns="http://javafx.com/javafx/2.2"
+		  fx:controller="quant.test.server.controller.AddTaskController" hgap="12" vgap="16" alignment="CENTER" >
+	<children >
+		<Label alignment="CENTER" text="添加计划任务" style="-fx-font-size: 32;-fx-text-fill: #4059A9;-fx-padding: 32 0 32 0" GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.columnSpan="3" />
+
+		<Label text="任务名称:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+		<JFXTextField promptText="请输入新增任务名称" labelFloat="true" style="-fx-padding: 0 12 0 12; "  GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.columnSpan="2"/>
+
+		<Label text="起始时间:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+		<TimeSpinner GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+		<DatePicker editable="false" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+
+		<Label text="结束时间:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+		<TimeSpinner GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+		<DatePicker editable="false" GridPane.rowIndex="3" GridPane.columnIndex="2" />
+
+		<JFXCheckBox text="是否循环" GridPane.rowIndex="4" GridPane.columnSpan="3"/>
+
+
+		<HBox GridPane.rowIndex="5" GridPane.columnSpan="3" alignment="BOTTOM_RIGHT">
+			<JFXButton fx:id="cancelButton" text="取消" styleClass="custom-jfx-button-raised">
+					<HBox.margin>
+						<Insets right="8" />
+					</HBox.margin>
+			</JFXButton>
+
+			<JFXButton fx:id="applyButton" text="确定" styleClass="custom-jfx-button-raised"/>
+		</HBox>
+	</children>
+</GridPane>
+

@@ -24,7 +24,7 @@ public class Main extends Application {
         } else {
             //主界面
             primaryStage.setTitle("调试程序");
-            stageManager.stage(primaryStage, getClass().getClassLoader().getResource("fxml/main_layout.fxml"), 840, 720);
+            stageManager.stage(primaryStage, getClass().getClassLoader().getResource("fxml/main_layout.fxml"), 900, 720);
         }
 
         //结束监听

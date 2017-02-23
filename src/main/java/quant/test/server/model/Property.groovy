@@ -526,4 +526,9 @@ interface Property {
     final def DEBUG_HWC_BQ_COUNT='debug.hwc.bq_count'
     final def INIT_SVC_MSENSORD='init.svc.msensord'
     final def RO_MEIZU_TPID='ro.meizu.tpid'
+    final def PERSIST_RADIO_IMEI1="persist.radio.imei1"
+    final def RO_RIL_OEM_IMEI="persist.radio.imei1"
+    final def PERSIST_RADIO_IMEI="persist.radio.imei1"
+
+
 }

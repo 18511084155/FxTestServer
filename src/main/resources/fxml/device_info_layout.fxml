@@ -10,7 +10,7 @@
 	  xmlns="http://javafx.com/javafx/2.2" fx:controller="quant.test.server.controller.DeviceInfoController"  alignment="CENTER" >
 	<children >
 
-		<GridPane  HBox.hgrow="ALWAYS" hgap="12" vgap="12" style="-fx-padding: 4 4 4 4">
+		<GridPane  HBox.hgrow="ALWAYS" maxWidth="320" minWidth="120" hgap="12" vgap="12" style="-fx-padding: 4 4 4 4">
 			<GridPane.margin>
 				<Insets left="8" right="8" top="8" bottom="8"/>
 			</GridPane.margin>
@@ -42,7 +42,7 @@
 		</GridPane>
 
 
-		<JFXTreeTableView fx:id="treeTableView"  minWidth="100" maxWidth="540" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS"  >
+		<JFXTreeTableView fx:id="treeTableView"  minWidth="100" prefWidth="320" maxWidth="540" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS"  >
 			<HBox.margin>
 				<Insets left="8" right="8" top="8" bottom="8"/>
 			</HBox.margin>

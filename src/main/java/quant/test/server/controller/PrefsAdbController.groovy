@@ -74,6 +74,11 @@ class PrefsAdbController implements Initializable{
                 def adbText=pathField.text
                 //判断是否以Separator结尾,不为则补足
                 adbText.endsWith(fileSeparator)?:(adbText+=fileSeparator)
+
+                //保存sdk目录
+                def file=new File(adbText)
+                def sdkPath=!file.exists()?:file.parentFile.absolutePath
+
                 if(System.properties["os.name"].startsWith("Windows")){
                     //windows  file.separator=/  path.separator=;
                     adbText+="adb.exe"
@@ -83,6 +88,7 @@ class PrefsAdbController implements Initializable{
                 }
                 //保存路径
                 SharedPrefs.save(PrefsKey.ADB,adbText)
+                SharedPrefs.save(PrefsKey.SDK,sdkPath)
                 def stageManager=StageManager.instance
                 stageManager.getStage(this)?.hide()
                 stageManager.newStage(getClass().getClassLoader().getResource("fxml/main_layout.fxml"),800,720)?.show()

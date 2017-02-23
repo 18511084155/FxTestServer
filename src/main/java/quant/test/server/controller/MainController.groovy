@@ -22,8 +22,10 @@ import quant.test.server.event.OnDeviceSelectedEvent
 import quant.test.server.exception.ExceptionHandler
 import quant.test.server.log.Log
 import quant.test.server.model.DeviceItem
+import quant.test.server.model.TestCaseItem
 import quant.test.server.prefs.PrefsKey
 import quant.test.server.prefs.SharedPrefs
+import quant.test.server.service.ActionService
 import quant.test.server.service.ClientService
 import quant.test.server.widget.DeviceListCell
 
@@ -57,7 +59,23 @@ class MainController implements Initializable{
     void initialize(URL location, ResourceBundle resources) {
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler())
         deviceList.setItems(FXCollections.observableArrayList())
-        deviceList.setCellFactory({new DeviceListCell()})
+        deviceList.setCellFactory({
+            def listCell=new DeviceListCell()
+            listCell.initContextMenu()
+            listCell.setStartAction(){
+                //启动任务
+                def sdkPath=SharedPrefs.get(PrefsKey.SDK)
+                TestCaseItem item=new TestCaseItem("测试Demo","/Users/cz/Desktop/runApk/app-debug.apk","/Users/cz/Desktop/runApk/app-debug-androidTest-unaligned.apk")
+                executorService.execute(new ActionService(sdkPath,null,it,item))
+            }
+            listCell.setPauseAction(){
+                println "pause action!"
+            }
+            listCell.setStopAction(){
+                println "stop action!"
+            }
+            listCell
+        })
         deviceList.setOnMouseClicked({
             def selectedItem=deviceList.getSelectionModel().getSelectedItem()
             if(selectedItem){

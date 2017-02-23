@@ -30,8 +30,6 @@ class ClientService implements Runnable{
 
     @Override
     void run() {
-        //查看连接设备
-        checkAdbConnect(address)
         //等待 socket 信息
         waitSocketMessage()
     }
@@ -44,10 +42,17 @@ class ClientService implements Runnable{
             def line
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))
             while (null!=reader&&(line = reader.readLine()) != null) {
-                def item = new JsonSlurper().parseText(line)
-                println item
+                def item
+                try{
+                    item = new JsonSlurper().parseText(line)
+                } catch (Exception e){
+                    printf "message:$line 解析失败!\n"
+                }
                 if (item) {
-                    if (What.ADB.CONNECT == item.what) {
+                    if(What.ADB.ADB_DEVICE_ID==item.what){
+                        //获取设备id,查看连接设备
+                        checkAdbConnect(address,item.message)
+                    } else if (What.ADB.CONNECT == item.what) {
                         connectDevice(item.address)
                     }
                 }
@@ -87,14 +92,17 @@ class ClientService implements Runnable{
      * 检测adb是否连接上
      * 1:无线,但是未连上
      * 2:有线,连上但是未显示,或者 offline 状态,或者未连上 adb
-     *
+     *861322030453548
      */
-    def checkAdbConnect(address) {
+    def checkAdbConnect(address,deviceId) {
         //检测机器是否连接
         def deviceItem=[]
         sendMessage(What.ADB.LOG,address,"开始连接Adb:$address")
         devices?.each {
-            if (address.equals(it.properties[Property.DHCP_WLAN0_IPADDRESS])) {deviceItem<<DeviceItem.form(it)}
+            if (deviceId?.equals(it.properties[Property.RO_RIL_OEM_IMEI])||
+                    deviceId?.equals(it.properties[Property.PERSIST_RADIO_IMEI])) {
+                deviceItem<<DeviceItem.form(it)
+            }
         }
         //如果未连接.尝试连接
         if(deviceItem){
@@ -116,13 +124,14 @@ class ClientService implements Runnable{
             public void deviceDisconnected(IDevice iDevice) {
                 //设备中断,查看设备为无线连接,或是有线,若为无线,则尝试重联,有线
                 if (null != iDevice) {
-                    String deviceAddress = iDevice.properties[Property.DHCP_WLAN0_IPADDRESS]
-                    Log.e(TAG,"设备连接中断:$deviceAddress")
-                    if (address.equals(deviceAddress)) {
+                    def id=iDevice.properties[Property.RO_RIL_OEM_IMEI]
+                    !id?:iDevice.properties[Property.PERSIST_RADIO_IMEI]
+                    Log.e(TAG,"设备连接中断:$iDevice.serialNumber")
+                    if (deviceId.equals(id)) {
                         //当前设备中断,设置重连
                         sendMessage(What.ADB.ADB_INTERRUPT,address,null)//设备adb中断
-                        sendMessage(What.ADB.LOG,address,"设备:${deviceAddress} 中断,尝试重联...")
-                        Log.e(TAG,"发送消息:$deviceAddress")
+                        sendMessage(What.ADB.LOG,address,"设备:${iDevice.serialNumber} 中断,尝试重联...")
+                        Log.e(TAG,"发送消息:$iDevice.serialNumber")
                         checkAdbConnect(address)
                     }
                 }

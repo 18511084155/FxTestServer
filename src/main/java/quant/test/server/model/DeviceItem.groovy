@@ -70,6 +70,6 @@ class DeviceItem {
 
     @Override
     String toString() {
-        "$model $brand Android:$sdk ${isUsbConnect()?'Usb':'无线'} (${state?:"unknown"})"
+        "$model $brand Android:$sdk ${isUsbConnect()?'Usb':'无线'}_${state?:"unknown"}"
     }
 }

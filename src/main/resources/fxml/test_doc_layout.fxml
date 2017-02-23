@@ -12,9 +12,9 @@
 <StackPane fx:id="task_doc" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" >
 	<JFXTreeTableView fx:id="treeTableView">
 
-		<VBox.margin>
-			<Insets left="12" right="12" top="12" bottom="12"/>
-		</VBox.margin>
+		<StackPane.margin>
+			<Insets left="4" right="4" top="4" bottom="4"/>
+		</StackPane.margin>
 
 		<columns>
 			<JFXTreeTableColumn fx:id="filePath"
