@@ -14,6 +14,6 @@ class TestCaseController implements Initializable{
     @FXML JFXButton addTaskCase
     @Override
     void initialize(URL location, ResourceBundle resources) {
-        addTaskCase.setOnMouseClicked({StageManager.instance.newStage(getClass().getClassLoader().getResource("fxml/add_task_case_layout.fxml"),480,400)?.show()})
+        addTaskCase.setOnMouseClicked({StageManager.instance.newStage(getClass().getClassLoader().getResource("fxml/add_task_case_layout.fxml"),720,640)?.show()})
     }
 }

@@ -9,6 +9,11 @@ package quant.test.server.model
  *
  */
 class TaskItem {
+    int caseId;
     String name
-    long endTime
+    int uid
+    long st
+    long et
+    boolean cycle
+    boolean invalid
 }

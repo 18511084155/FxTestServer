@@ -1,32 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.jfoenix.controls.*?>
+<?import de.jensd.fx.fontawesome.Icon?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import quant.test.server.validator.ApkFileValidator?>
+<?import quant.test.server.validator.EmptyValidator?>
 <?import quant.test.server.widget.drag.DragTextField?>
 <StackPane fx:id="task_case"
 		   xmlns:fx="http://javafx.com/fxml/1"
 		   xmlns="http://javafx.com/javafx/2.2"
 		   fx:controller="quant.test.server.controller.AddTestCaseController">
-	<GridPane hgap="12" vgap="16" alignment="CENTER" minWidth="240" prefWidth="360" maxWidth="480">
+	<GridPane hgap="12" vgap="24" alignment="CENTER" minWidth="240" prefWidth="480" maxWidth="640">
 		<children >
 			<Label alignment="CENTER" text="添加测试用例" style="-fx-font-size: 32;-fx-text-fill: #4059A9;-fx-padding: 32 0 32 0" GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.columnSpan="3" />
 
 			<Label text="用例名称:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
-			<JFXTextField promptText="请输入新增用例名称" labelFloat="true" style="-fx-padding: 0 12 0 12; "  GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.columnSpan="2"/>
+			<JFXTextField fx:id="testCaseName" promptText="请输入新增用例名称" labelFloat="true" style="-fx-padding: 0 0 0 0; "  GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.columnSpan="2">
+				<validators>
+					<EmptyValidator message="请输入一个测试用例名称,长度大于2!">
+						<Icon awesomeIcon="WARNING" style="-fx-font-family: FontAwesome;" />
+					</EmptyValidator>
+				</validators>
+			</JFXTextField>
 
 			<Label text="测试apk:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
-			<DragTextField GridPane.rowIndex="2" GridPane.columnIndex="1" prefWidth="240"/>
-			<JFXButton text="..." style="-fx-padding: 0 0 0 0;" ripplerFill="#4059A9" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
-			<JFXSpinner fx:id="apkSpinner" GridPane.rowIndex="2" GridPane.columnIndex="3"/>
+			<DragTextField fx:id="testCaseApk1" editable="false" GridPane.rowIndex="2" GridPane.columnIndex="1" prefWidth="360">
+				<validators>
+					<ApkFileValidator message="请拖动或选择一个apk文件!">
+						<Icon awesomeIcon="WARNING" style="-fx-font-family: FontAwesome;" />
+					</ApkFileValidator>
+				</validators>
+			</DragTextField>
+			<StackPane GridPane.rowIndex="2" GridPane.columnIndex="2">
+				<JFXButton fx:id="fileChoose1" text="..." style="-fx-padding: 0 4 0 4;" ripplerFill="#4059A9" />
+				<JFXSpinner fx:id="apkSpinner1" visible="false"/>
+			</StackPane>
 
 			<Label text="用例apk:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
-			<DragTextField GridPane.rowIndex="3" GridPane.columnIndex="1" prefWidth="240"/>
-			<JFXButton text="..." style="-fx-padding: 0 0 0 0;" ripplerFill="#4059A9" GridPane.rowIndex="3" GridPane.columnIndex="2" />
-			<JFXSpinner fx:id="caseSpinner" GridPane.rowIndex="3" GridPane.columnIndex="3"/>
+			<DragTextField fx:id="testCaseApk2" editable="false" GridPane.rowIndex="3" GridPane.columnIndex="1" prefWidth="240">
+				<validators>
+					<ApkFileValidator message="请请拖动或选择一个apk文件!">
+						<Icon awesomeIcon="WARNING" style="-fx-font-family: FontAwesome;" />
+					</ApkFileValidator>
+				</validators>
+			</DragTextField>
 
-			<JFXTextArea disable="true" style="-fx-border-color: transparent" GridPane.rowIndex="4" GridPane.columnSpan="3" prefHeight="160" GridPane.hgrow="ALWAYS"/>
+			<StackPane GridPane.rowIndex="3" GridPane.columnIndex="2" >
+				<JFXButton fx:id="fileChoose2" text="..." style="-fx-padding: 0 4 0 4;" ripplerFill="#4059A9" />
+				<JFXSpinner fx:id="caseSpinner2" visible="false"/>
+			</StackPane>
+
+			<TextArea fx:id="messageArea" editable="false" GridPane.rowIndex="4" GridPane.columnSpan="3"  minHeight="120" prefHeight="200" maxHeight="360" GridPane.hgrow="ALWAYS">
+				<VBox.margin>
+					<Insets left="8" right="8" top="8" bottom="8"/>
+				</VBox.margin>
+			</TextArea>
 
 			<HBox GridPane.rowIndex="5" GridPane.columnSpan="3" GridPane.hgrow="ALWAYS" alignment="BOTTOM_RIGHT">
 				<JFXButton fx:id="cancelButton" text="取消" styleClass="custom-jfx-button-raised">

@@ -1,5 +1,6 @@
 package quant.test.server.command
 
+import groovy.json.JsonSlurper
 import groovy.transform.Canonical
 import quant.test.server.log.Log
 import quant.test.server.service.StreamGobbler
@@ -106,10 +107,23 @@ class Command {
             matcher?(matcher[0][index]):null
         }
 
+        def out2Map(){
+            def item
+            try{
+                item = new JsonSlurper().parseText(out.toString())
+            } catch (Exception e){
+                printf "message:$line 解析失败!\n"
+            }
+            def params=[:]
+            !item?:item.each{params<<[(it.key):it.value]}
+            params
+        }
+
         def errorMatcher(regex,index=1){
             def matcher=error.toString()=~regex
             matcher?(matcher[0][index]):null
         }
+
 
     }
 

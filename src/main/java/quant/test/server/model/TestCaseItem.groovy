@@ -6,13 +6,21 @@ package quant.test.server.model
  * 测试用例名称/测试主apk/测试用例apk
  */
 class TestCaseItem {
-    String name
-    String apkPath
-    String testPath
+    int id//用例id
+    long ct//创建时间
+    int uid//操作用例用户uid
+    String name//用例名称
+    String apk1//主包
+    String apk2//测试用例包
+    String appName//应用名称
+    String appVersion//应用版本
+    String apk1Md5//应用签名md5
+    String apk2Md5//测试用例签名md5
+
 
     TestCaseItem(String name, String apkPath, String testPath) {
         this.name = name
-        this.apkPath = apkPath
-        this.testPath = testPath
+        this.apk1 = apkPath
+        this.apk2 = testPath
     }
 }

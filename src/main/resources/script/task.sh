@@ -52,10 +52,14 @@ exportEnv(){
 
 # 获取apk文件签名md5
 apkMd5(){
-	cert_XSA1=`jar tf $1 | grep SA`
+	folder=$(pwd)
+	cert_XSA1=`jar tf $apkFile | grep SA`
 	# 解压RSA文件
-	jar xf $1 $cert_XSA1
-	echo $(keytool -printcert -file $cert_XSA1 | grep MD5)
+	jar xf $apkFile $cert_XSA1
+	md5=$(keytool -printcert -file $cert_XSA1 | grep MD5)
+	# 删除解压包的临时文件
+	rm -rf ${folder}"/META-INF"
+	echo $md5 | awk '{print $2}'
 }
 
 #比较两个apk文件签名

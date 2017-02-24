@@ -4,19 +4,14 @@ package quant.test.server.prefs
  * Created by cz on 2017/2/15.
  */
 class SharedPrefs {
-    final static def CONFIG_PATH="TestServer/config"
     final static def CONFIG_NAME="config.properties"
     /**
      * 存储key value
      * @param adbPath
      */
     static def save(key,value){
-        def configFolder=new File(System.properties["user.home"],CONFIG_PATH)
-        if(!configFolder.exists()){
-            configFolder.mkdirs()
-        }
         Properties properties=new Properties()
-        def file=new File(configFolder,CONFIG_NAME)
+        def file=new File(FileManager.CONFIG_FOLDER,CONFIG_NAME)
         if(file.exists()){
             properties.load(new FileInputStream(file))
         }
@@ -30,7 +25,7 @@ class SharedPrefs {
      */
     static String get(key) {
         def value
-        def configFolder=new File(System.properties["user.home"],CONFIG_PATH)
+        def configFolder=FileManager.CONFIG_FOLDER
         if(configFolder.exists()) {
             Properties properties = new Properties()
             def file = new File(configFolder, CONFIG_NAME)
