@@ -107,6 +107,16 @@ class Command {
             matcher?(matcher[0][index]):null
         }
 
+        def out2LazyMap(){
+            def item
+            try{
+                item = new JsonSlurper().parseText(out.toString())
+            } catch (Exception e){
+                printf "message:$line 解析失败!\n"
+            }
+            item
+        }
+
         def out2Map(){
             def item
             try{

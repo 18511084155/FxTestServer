@@ -8,7 +8,7 @@ package quant.test.server.model
  *
  *
  */
-class TaskItem {
+class TestPlanItem {
     int caseId;
     String name
     int uid

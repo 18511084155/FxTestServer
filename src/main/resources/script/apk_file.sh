@@ -13,12 +13,36 @@ exportEnv(){
 	export PATH=${PATH}:${envPath}/build-tools/22.0.1/;
 }
 
+
+# 开始分析
+startAnalysis(){
+    info=$(aapt dump badging $1)
+    package=$(echo $info | awk '/package/{gsub("name=|'"'"'","");  print $2}')
+    # 检测是否为test包,还是安装包 test包以.test结尾
+
+	# 以下三个通用字段
+    sdkVersion=$(aapt dump badging $1 | awk '/sdkVersion:/{gsub("sdkVersion:|'"'"'","");  print}')
+    targetSdkVersion=$(aapt dump badging $1 | awk '/targetSdkVersion:/{gsub("targetSdkVersion:|'"'"'","");  print}')
+
+    keyMd5=$(apkMd5 $1)
+	if [ "test" != ${package##*.} ]
+	then
+		# 非测试包
+    	versionName=$(echo $info | awk '/package/{gsub("versionName=|'"'"'","");  print $4}')
+    	label=$(aapt dump badging $1 | awk '/application-label:/{gsub("application-label:|'"'"'","");  print}')
+    	message $package $versionName $label $sdkVersion $targetSdkVersion $keyMd5
+	else
+		# 测试包
+		testMessage $package $sdkVersion $targetSdkVersion $keyMd5
+	fi
+}
+
 # 获取apk文件签名md5
 apkMd5(){
 	folder=$(pwd)
-	cert_XSA1=`jar tf $apkFile | grep SA`
+	cert_XSA1=`jar tf $1 | grep SA`
 	# 解压RSA文件
-	jar xf $apkFile $cert_XSA1
+	jar xf $1 $cert_XSA1
 	md5=$(keytool -printcert -file $cert_XSA1 | grep MD5)
 	# 删除解压包的临时文件
 	rm -rf ${folder}"/META-INF"
@@ -26,30 +50,19 @@ apkMd5(){
 }
 
 
-# 开始分析
-startAnalysis(){
-    info=$(aapt dump badging $apkFile)
-    package=$(echo $info | awk '/package/{gsub("name=|'"'"'","");  print $2}')
-    versionName=$(echo $info | awk '/package/{gsub("versionName=|'"'"'","");  print $4}')
-
-    label=$(aapt dump badging $apkFile | awk '/application-label:/{gsub("application-label:|'"'"'","");  print}')
-    sdkVersion=$(aapt dump badging $apkFile | awk '/sdkVersion:/{gsub("sdkVersion:|'"'"'","");  print}')
-    targetSdkVersion=$(aapt dump badging $apkFile | awk '/targetSdkVersion:/{gsub("targetSdkVersion:|'"'"'","");  print}')
-
-    keyMd5=$(apkMd5 $apkFile)
-    message $package $versionName $label $sdkVersion $targetSdkVersion $keyMd5
-
-}
-
 # package versionName,label sdkVersion  targetSdkVersion md5
 message(){
-	echo "{\"package\": \"${1}\",\"versionName\": \"${2}\",\"label\": \"${3}\",\"sdkVersion\": ${4},\"targetSdkVersion\": ${5},\"md5\": \"${6}\"}"
+	echo "{\"package\": \"${1}\",\"versionName\": \"${2}\",\"label\": \"${3}\",\"sdkVersion\": ${4},\"targetSdkVersion\": ${5},\"md5\": \"${6}\",\"test\": false}"
+}
+
+testMessage(){
+	echo "{\"package\": \"${1}\",\"sdkVersion\": ${2},\"targetSdkVersion\": ${3},\"md5\": \"${4}\",\"test\": true}"
 }
 
 # 导入环境变量
 # exportEnv
 # 提取信息
-startAnalysis
+startAnalysis $apkFile
 
 
 

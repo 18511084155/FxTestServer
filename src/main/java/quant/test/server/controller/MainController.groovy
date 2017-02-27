@@ -91,7 +91,7 @@ class MainController implements Initializable{
         buttonMessage.setToggleGroup(toggleGroup)
 
         toggleGroup.selectToggle(buttonDeviceInfo)
-        final def controllerArray=[DeviceInfoController.class,TaskController.class,TestCaseController.class,TestDocController.class,MessageController.class]
+        final def controllerArray=[DeviceInfoController.class,TestPlanController.class,TestCaseController.class,TestDocController.class,MessageController.class]
         def listener={ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle selectedToggle->
             int index=tabLayout.children.indexOf(selectedToggle)
             def oldIndex = tabLayout.children.indexOf(oldValue)

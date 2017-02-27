@@ -3,7 +3,7 @@ package quant.test.server.service
 import quant.test.server.command.Command
 import quant.test.server.log.Log
 import quant.test.server.model.DeviceItem
-import quant.test.server.model.TaskItem
+import quant.test.server.model.TestPlanItem
 import quant.test.server.model.TestCaseItem
 
 /**
@@ -14,10 +14,10 @@ class ActionService implements Runnable{
     static final String TAG="ActionService"
     final TestCaseItem testCaseItem
     final DeviceItem deviceItem
-    final TaskItem taskItem
+    final TestPlanItem taskItem
     final String adbPath
 
-    ActionService(String adbPath,TaskItem taskItem, DeviceItem deviceItem, TestCaseItem testCaseItem) {
+    ActionService(String adbPath,TestPlanItem taskItem, DeviceItem deviceItem, TestCaseItem testCaseItem) {
         this.adbPath=adbPath
         this.taskItem = taskItem
         this.deviceItem = deviceItem

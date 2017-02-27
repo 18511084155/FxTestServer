@@ -1,42 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.jfoenix.controls.JFXButton?>
-<?import com.jfoenix.controls.JFXCheckBox?>
-<?import com.jfoenix.controls.JFXTextField?>
+<?import com.jfoenix.controls.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import quant.test.server.widget.MyDatePicker?>
 <?import quant.test.server.widget.TimeSpinner?>
-<GridPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
-		   style="-fx-background-color: white"
+<StackPane fx:id="root"
+		   xmlns:fx="http://javafx.com/fxml/1"
 		   xmlns="http://javafx.com/javafx/2.2"
-		  fx:controller="quant.test.server.controller.AddTaskController" hgap="12" vgap="16" alignment="CENTER" >
-	<children >
-		<Label alignment="CENTER" text="添加计划任务" style="-fx-font-size: 32;-fx-text-fill: #4059A9;-fx-padding: 32 0 32 0" GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.columnSpan="3" />
+		   style="-fx-background-color: white"
+		   fx:controller="quant.test.server.controller.AddTestPlanController">
+	<GridPane hgap="12" vgap="16" alignment="CENTER" minWidth="480" prefWidth="480" maxWidth="600">
+		<children >
+			<Label alignment="CENTER" text="添加计划任务" style="-fx-font-size: 32;-fx-text-fill: #4059A9;-fx-padding: 32 0 32 0" GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.columnSpan="3" />
 
-		<Label text="任务名称:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
-		<JFXTextField promptText="请输入新增任务名称" labelFloat="true" style="-fx-padding: 0 12 0 12; "  GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.columnSpan="2"/>
+			<Label text="任务名称:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+			<JFXTextField fx:id="testPlanName" promptText="请输入新增任务名称"  labelFloat="true"  GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.columnSpan="2"/>
 
-		<Label text="起始时间:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
-		<TimeSpinner GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-		<DatePicker editable="false" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+			<Label text="起始时间:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+			<TimeSpinner fx:id="startTimeSpinner" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+			<MyDatePicker fx:id="startDatePicker" editable="false" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
 
-		<Label text="结束时间:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
-		<TimeSpinner GridPane.rowIndex="3" GridPane.columnIndex="1"/>
-		<DatePicker editable="false" GridPane.rowIndex="3" GridPane.columnIndex="2" />
+			<Label text="结束时间:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+			<TimeSpinner fx:id="endTimeSpinner" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+			<MyDatePicker fx:id="endDatePicker" editable="false" GridPane.rowIndex="3" GridPane.columnIndex="2" />
 
-		<JFXCheckBox text="是否循环" GridPane.rowIndex="4" GridPane.columnSpan="3"/>
+			<Label text="当前任务列表:" GridPane.rowIndex="4" GridPane.columnIndex="0" GridPane.columnSpan="3"/>
+			<JFXTreeTableView fx:id="treeTableView" GridPane.rowIndex="5" GridPane.columnIndex="0" GridPane.columnSpan="3" GridPane.hgrow="ALWAYS">
+
+				<StackPane.margin>
+					<Insets left="4" right="4" top="4" bottom="4"/>
+				</StackPane.margin>
+
+				<columns>
+					<JFXTreeTableColumn fx:id="testPlanColumn"
+										text="计划名称" minWidth="0" prefWidth="120" style="-fx-alignment: center-left; -fx-padding: 0 12 0 12"/>
+					<JFXTreeTableColumn fx:id="startTimeColumn"
+										text="起始时间" minWidth="0" prefWidth="120" style="-fx-alignment: center-left; -fx-padding: 0 12 0 12"/>
+					<JFXTreeTableColumn fx:id="endTimeColumn"
+										text="结束时间" minWidth="0" prefWidth="120" style="-fx-alignment: center-left; -fx-padding: 0 12 0 12"/>
+					<JFXTreeTableColumn fx:id="isCycle"
+										text="循环执行" minWidth="0" prefWidth="80" style="-fx-alignment: center-left; -fx-padding: 0 12 0 12"/>
+				</columns>
+			</JFXTreeTableView>
+
+			<JFXCheckBox fx:id="cycleCheckBox" text="任务是否循环" GridPane.rowIndex="6" GridPane.columnSpan="3"/>
 
 
-		<HBox GridPane.rowIndex="5" GridPane.columnSpan="3" alignment="BOTTOM_RIGHT">
-			<JFXButton fx:id="cancelButton" text="取消" styleClass="custom-jfx-button-raised">
-					<HBox.margin>
-						<Insets right="8" />
-					</HBox.margin>
-			</JFXButton>
+			<HBox GridPane.rowIndex="7" GridPane.columnSpan="3" alignment="BOTTOM_RIGHT">
 
-			<JFXButton fx:id="applyButton" text="确定" styleClass="custom-jfx-button-raised"/>
-		</HBox>
-	</children>
-</GridPane>
+				<GridPane.margin>
+					<Insets bottom="16" />
+				</GridPane.margin>
+				<JFXButton fx:id="cancelButton" text="取消" styleClass="custom-jfx-button-raised">
+						<HBox.margin>
+							<Insets right="8" />
+						</HBox.margin>
+				</JFXButton>
+
+				<JFXButton fx:id="applyButton" text="确定" styleClass="custom-jfx-button-raised"/>
+			</HBox>
+		</children>
+	</GridPane>
+
+	<JFXSnackbar fx:id="snackBar" prefWidth="320" />
+</StackPane>
 

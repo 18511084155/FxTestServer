@@ -1,5 +1,6 @@
 package quant.test.server.controller
 import com.jfoenix.controls.*
+import com.sun.javafx.PlatformUtil
 import javafx.beans.value.ChangeListener
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
@@ -24,7 +25,7 @@ class PrefsAdbController implements Initializable{
     @FXML JFXTreeTableColumn envValue
     @FXML JFXTreeTableColumn envValid
     @FXML JFXButton applyButton
-    @FXML JFXSnackbar snackBar;
+    @FXML JFXSnackbar snackBar
 
     @FXML
     public void handleEnvClick(Event event) {
@@ -79,10 +80,10 @@ class PrefsAdbController implements Initializable{
                 def file=new File(adbText)
                 def sdkPath=!file.exists()?:file.parentFile.absolutePath
 
-                if(System.properties["os.name"].startsWith("Windows")){
+                if(PlatformUtil.isWindows()){
                     //windows  file.separator=/  path.separator=;
                     adbText+="adb.exe"
-                } else if(System.properties["os.name"].startsWith("Mac")){
+                } else if(PlatformUtil.isLinux()||PlatformUtil.isMac()){
                     //osx file.separator=\  path.separator=:
                     adbText+="adb"
                 }

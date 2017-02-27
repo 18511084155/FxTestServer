@@ -111,7 +111,7 @@ public class TimeSpinner extends Spinner<LocalTime> {
         // and vetoes any edits that are not valid. We just make sure we have
         // two colons and only digits in between:
 
-        TextFormatter<LocalTime> textFormatter = new TextFormatter<LocalTime>(localTimeConverter, LocalTime.now(), c -> {
+        TextFormatter<LocalTime> textFormatter = new TextFormatter<>(localTimeConverter, LocalTime.now(), c -> {
             String newText = c.getControlNewText();
             if (newText.matches("[0-9]{0,2}:[0-9]{0,2}:[0-9]{0,2}")) {
                 return c ;
@@ -123,8 +123,6 @@ public class TimeSpinner extends Spinner<LocalTime> {
         // delegating to the current editing mode:
 
         SpinnerValueFactory<LocalTime> valueFactory = new SpinnerValueFactory<LocalTime>() {
-
-
             {
 
                 setConverter(localTimeConverter);

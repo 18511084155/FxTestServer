@@ -8,7 +8,7 @@
 <?import quant.test.server.validator.ApkFileValidator?>
 <?import quant.test.server.validator.EmptyValidator?>
 <?import quant.test.server.widget.drag.DragTextField?>
-<StackPane fx:id="task_case"
+<StackPane fx:id="root"
 		   xmlns:fx="http://javafx.com/fxml/1"
 		   xmlns="http://javafx.com/javafx/2.2"
 		   fx:controller="quant.test.server.controller.AddTestCaseController">
@@ -49,7 +49,7 @@
 
 			<StackPane GridPane.rowIndex="3" GridPane.columnIndex="2" >
 				<JFXButton fx:id="fileChoose2" text="..." style="-fx-padding: 0 4 0 4;" ripplerFill="#4059A9" />
-				<JFXSpinner fx:id="caseSpinner2" visible="false"/>
+				<JFXSpinner fx:id="apkSpinner2" visible="false"/>
 			</StackPane>
 
 			<TextArea fx:id="messageArea" editable="false" GridPane.rowIndex="4" GridPane.columnSpan="3"  minHeight="120" prefHeight="200" maxHeight="360" GridPane.hgrow="ALWAYS">
@@ -70,5 +70,6 @@
 		</children>
 	</GridPane>
 
+	<JFXSnackbar fx:id="snackBar" prefWidth="320" />
 </StackPane>
 
