@@ -46,6 +46,7 @@ class DbHelper implements DbInterface{
         statement.setLong(12,System.currentTimeMillis())
         statement.setInt(13,item.uid)
         statement.execute()
+        statement.closed?:statement.close()
     }
 
     @Override
@@ -95,12 +96,36 @@ class DbHelper implements DbInterface{
             item.uid=resultSet.getInt(13)
             items<<item
         }
+        statement.closed?:statement.close()
         return items
     }
 
     @Override
     void insertTestPlan(TestPlanItem item) {
-
+        def connection=Database.connection
+        PreparedStatement statement = connection.prepareStatement("INSERT INTO $Database.TEST_PLAN(" +
+                "name," +
+                "test_case_id," +
+                "test_case," +
+                "uid," +
+                "st," +
+                "et," +
+                "start_date," +
+                "end_date," +
+                "cycle," +
+                "invalid) VALUES(?,?,?,?,?,?,?,?,?,?)")
+        statement.setString(1,item.name)
+        statement.setInt(2,item.caseId)
+        statement.setInt(3,item.testCase)
+        statement.setInt(4,item.uid)
+        statement.setLong(5,item.st)
+        statement.setLong(6,item.et)
+        statement.setString(7,item.startDate)
+        statement.setString(8,item.endDate)
+        statement.setBoolean(9,item.cycle)
+        statement.setBoolean(10,item.invalid)
+        statement.execute()
+        statement.closed?:statement.close()
     }
 
     @Override
@@ -115,6 +140,36 @@ class DbHelper implements DbInterface{
 
     @Override
     List<TestPlanItem> queryTestPlan() {
-        return null
+        def connection=Database.connection
+        Statement statement = connection.createStatement()
+        ResultSet resultSet=statement.executeQuery("SELECT " +
+                "name," +
+                "test_case_id," +
+                "test_case," +
+                "uid," +
+                "st," +
+                "et," +
+                "start_date," +
+                "end_date," +
+                "cycle," +
+                "invalid FROM "+
+                "$Database.TEST_PLAN ORDER BY _id DESC ")
+        def items=[]
+        while(resultSet.next()){
+            def item=new TestPlanItem()
+            item.name=resultSet.getString(1)
+            item.caseId=resultSet.getInt(2)
+            item.testCase=resultSet.getInt(3)
+            item.uid=resultSet.getInt(4)
+            item.st=resultSet.getLong(5)
+            item.et=resultSet.getLong(6)
+            item.startDate=resultSet.getString(7)
+            item.endDate=resultSet.getString(8)
+            item.cycle=resultSet.getBoolean(9)
+            item.invalid=resultSet.getBoolean(10)
+            items<<item
+        }
+        statement.closed?:statement.close()
+        return items
     }
 }

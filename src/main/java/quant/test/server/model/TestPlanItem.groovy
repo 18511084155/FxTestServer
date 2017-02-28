@@ -9,11 +9,19 @@ package quant.test.server.model
  *
  */
 class TestPlanItem {
-    int caseId;
+    int caseId
     String name
+    String testCase
+    String startDate
+    String endDate
+    boolean cycle
+    boolean invalid
     int uid
     long st
     long et
-    boolean cycle
-    boolean invalid
+
+    @Override
+    String toString() {
+        return name
+    }
 }

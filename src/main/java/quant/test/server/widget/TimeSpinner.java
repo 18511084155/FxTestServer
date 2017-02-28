@@ -4,12 +4,15 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.input.InputEvent;
 import javafx.util.StringConverter;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TimeSpinner extends Spinner<LocalTime> {
     // Mode represents the unit that is currently being edited.
@@ -169,7 +172,26 @@ public class TimeSpinner extends Spinner<LocalTime> {
 
     }
 
+    public void setEditError(boolean error){
+        TextField editor = getEditor();
+        String textColor=error?"#ff0000":"#000000";
+        String borderColor=error?"#ff0000":"#BCBCBC";
+        editor.setStyle("-fx-text-fill: "+textColor+";-fx-border-color: "+borderColor+";-fx-border-width: 1;");
+    }
+
+
     public TimeSpinner() {
         this(LocalTime.now());
+    }
+
+    public long getTimeMillis(){
+        int intValue=-1;
+        Pattern pattern = Pattern.compile("(\\d{1,2}):(\\d{1,2}):(\\d{1,2})");
+        Matcher matcher = pattern.matcher(getEditor().getText());
+        if(matcher.find()) {
+            LocalTime localTime = LocalTime.of(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2)), Integer.parseInt(matcher.group(3)));
+            intValue=localTime.toSecondOfDay();
+        }
+        return intValue;
     }
 }

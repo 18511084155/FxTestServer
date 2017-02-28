@@ -4,7 +4,6 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import quant.test.server.widget.MyDatePicker?>
 <?import quant.test.server.widget.TimeSpinner?>
 <StackPane fx:id="root"
 		   xmlns:fx="http://javafx.com/fxml/1"
@@ -20,14 +19,21 @@
 
 			<Label text="起始时间:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
 			<TimeSpinner fx:id="startTimeSpinner" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-			<MyDatePicker fx:id="startDatePicker" editable="false" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+			<DatePicker fx:id="startDatePicker" editable="false" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
 
 			<Label text="结束时间:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
 			<TimeSpinner fx:id="endTimeSpinner" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
-			<MyDatePicker fx:id="endDatePicker" editable="false" GridPane.rowIndex="3" GridPane.columnIndex="2" />
+			<DatePicker fx:id="endDatePicker" editable="false" GridPane.rowIndex="3" GridPane.columnIndex="2" />
 
-			<Label text="当前任务列表:" GridPane.rowIndex="4" GridPane.columnIndex="0" GridPane.columnSpan="3"/>
-			<JFXTreeTableView fx:id="treeTableView" GridPane.rowIndex="5" GridPane.columnIndex="0" GridPane.columnSpan="3" GridPane.hgrow="ALWAYS">
+			<Label text="测试用例:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+			<JFXComboBox id="jfxComboBox" styleClass="jfx-combo-box" prefWidth="360" GridPane.rowIndex="4" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" editable="true" >
+			<GridPane.margin>
+				<Insets left="12" right="12"/>
+			</GridPane.margin>
+			</JFXComboBox>
+
+			<Label text="任务列表:" GridPane.rowIndex="5" GridPane.columnIndex="0" GridPane.columnSpan="3"/>
+			<JFXTreeTableView fx:id="treeTableView" GridPane.rowIndex="6" GridPane.columnIndex="0" GridPane.columnSpan="3" GridPane.hgrow="ALWAYS">
 
 				<StackPane.margin>
 					<Insets left="4" right="4" top="4" bottom="4"/>
@@ -45,10 +51,10 @@
 				</columns>
 			</JFXTreeTableView>
 
-			<JFXCheckBox fx:id="cycleCheckBox" text="任务是否循环" GridPane.rowIndex="6" GridPane.columnSpan="3"/>
+			<JFXCheckBox fx:id="cycleCheckBox" text="任务是否循环" GridPane.rowIndex="7" GridPane.columnSpan="3"/>
 
 
-			<HBox GridPane.rowIndex="7" GridPane.columnSpan="3" alignment="BOTTOM_RIGHT">
+			<HBox GridPane.rowIndex="8" GridPane.columnSpan="3" alignment="BOTTOM_RIGHT">
 
 				<GridPane.margin>
 					<Insets bottom="16" />
@@ -63,6 +69,20 @@
 			</HBox>
 		</children>
 	</GridPane>
+
+	<JFXDialog fx:id="dialog">
+		<JFXDialogLayout>
+			<heading>
+				<Label>添加计划提示</Label>
+			</heading>
+			<body>
+				<Label>当前没有测试用例可以使用,请先添加一个测试用例后,再添加任务计划!</Label>
+			</body>
+			<actions>
+				<JFXButton fx:id="acceptButton" styleClass="dialog-accept" text="退出"/>
+			</actions>
+		</JFXDialogLayout>
+	</JFXDialog>
 
 	<JFXSnackbar fx:id="snackBar" prefWidth="320" />
 </StackPane>

@@ -31,6 +31,12 @@ package quant.test.server
 //println exitValue
 
 
+def items=[1,2,3,4]
+items.each {
+    if(it>3){return}
+    println it
+}
+
 
 
 

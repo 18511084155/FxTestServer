@@ -22,7 +22,7 @@ class Database {
             //初始化测试用例表
             statement.execute("CREATE TABLE IF NOT EXISTS test_case(_id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT, apk1 TEXT,apk2 TEXT,app_name TEXT,app_version TEXT,package TEXT,test_package TEXT,sdk INTEGER,target_sdk INTEGER,md5_1 TEXT,md5_2 TEXT ,ct LONG,uid INTEGER)")
             //初始化测试计划列表
-            statement.execute("CREATE TABLE IF NOT EXISTS test_plan(name TEXT,test_case_id INTEGER,uid INTEGER,st LONG,et LONG,cycle BOOLEAN,invalid BOOLEAN)")
+            statement.execute("CREATE TABLE IF NOT EXISTS test_plan(_id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT,test_case_id INTEGER,test_case TEXT,uid INTEGER,st LONG,et LONG,start_date LONG,end_date LONG,cycle BOOLEAN,invalid BOOLEAN)")
         } catch (ex) {
             ex.printStackTrace()
         } finally {

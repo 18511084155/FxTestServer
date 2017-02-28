@@ -8,9 +8,11 @@
 <?import javafx.scene.layout.VBox?>
 <StackPane fx:id="task_item" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" >
 		<VBox style="-fx-padding: 12 12 12 12; -fx-border-radius: 5 5 0 0" alignment="CENTER_LEFT">
-			<Label fx:id="timeLabel" text="运行时间:6:00-7:00" />
+			<Label fx:id="planLabel" text="常规计划" />
 			<Label fx:id="caseLabel" text="测试用例:网络常规测试" />
-			<Label fx:id="deviceLabel" text="运行设备:mx3 mx6"/>
+			<Label fx:id="startTimeLabel" text="起始时间:6:00-7:00" />
+			<Label fx:id="endTimeLabel" text="结束时间:6:00-7:00" />
+			<Label fx:id="cycleLabel" text="循环执行:"/>
 		</VBox>
 </StackPane>
 

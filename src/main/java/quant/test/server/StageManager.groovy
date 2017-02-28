@@ -22,14 +22,14 @@ class StageManager {
         stage(item,null,url,width,height)
     }
 
-    Stage stage(stage,Map map,url,int width,int height){
+    Stage stage(stage,args,url,int width,int height){
         stage?:(stage=new Stage())
         FXMLLoader loader=new FXMLLoader(url)
         def parent = loader.load()
         Scene scene=new Scene(parent,width,height)
         def controller = loader.getController()
-        if(map&&controller instanceof InitializableArgs){
-            controller.setArgs(map)
+        if(args&&controller instanceof InitializableArgs){
+            controller.setArgs(args)
         }
         !controller?:stageItems.put(controller,stage)
 
@@ -44,8 +44,8 @@ class StageManager {
         stage(null,null,url,width,height);
     }
 
-    Stage newStage(url,Map map,int width,int height){
-        stage(null,map,url,width,height);
+    Stage newStage(url,args,int width,int height){
+        stage(null,args,url,width,height);
     }
 
     Stage getStage(controller){
