@@ -24,4 +24,21 @@ class TestCaseProperty extends RecursiveTreeObject<TestCaseProperty> {
     SimpleStringProperty apk2Md5//测试用例签名md5
     SimpleLongProperty ct
 
+    TestCaseProperty(TestCaseItem item){
+        id=new SimpleIntegerProperty(item.id)
+        uid=new SimpleIntegerProperty(item.uid)
+        sdkVersion=new SimpleIntegerProperty(item.sdkVersion)
+        targetSdkVersion=new SimpleIntegerProperty(item.targetSdkVersion)
+        name=new SimpleStringProperty(item.name)
+        apk1=new SimpleStringProperty(item.apk1)
+        apk2=new SimpleStringProperty(item.apk2)
+        appName=new SimpleStringProperty(item.appName)
+        apkPackage=new SimpleStringProperty(item.apkPackage)
+        testPackage=new SimpleStringProperty(item.testPackage)
+        appVersion=new SimpleStringProperty(item.appVersion)
+        apk1Md5=new SimpleStringProperty(item.apk1Md5)
+        apk2Md5=new SimpleStringProperty(item.apk2Md5)
+        ct=new SimpleLongProperty(item.ct)
+    }
+
 }

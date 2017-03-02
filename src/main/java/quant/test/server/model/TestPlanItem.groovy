@@ -1,5 +1,4 @@
 package quant.test.server.model
-
 /**
  * Created by cz on 2017/2/22.
  * 任务计划

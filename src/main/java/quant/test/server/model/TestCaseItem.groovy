@@ -1,7 +1,4 @@
 package quant.test.server.model
-import javafx.beans.property.SimpleIntegerProperty
-import javafx.beans.property.SimpleLongProperty
-import javafx.beans.property.SimpleStringProperty
 /**
  * Created by cz on 2017/2/22.
  * 测试用例条目
@@ -32,22 +29,9 @@ class TestCaseItem {
         this.apk2 = testPath
     }
 
-    TestCaseProperty createProperty(){
-        def property=new TestCaseProperty()
-        property.id=new SimpleIntegerProperty(id)
-        property.uid=new SimpleIntegerProperty(uid)
-        property.sdkVersion=new SimpleIntegerProperty(sdkVersion)
-        property.targetSdkVersion=new SimpleIntegerProperty(targetSdkVersion)
-        property.name=new SimpleStringProperty(name)
-        property.apk1=new SimpleStringProperty(apk1)
-        property.apk2=new SimpleStringProperty(apk2)
-        property.appName=new SimpleStringProperty(appName)
-        property.apkPackage=new SimpleStringProperty(apkPackage)
-        property.testPackage=new SimpleStringProperty(testPackage)
-        property.appVersion=new SimpleStringProperty(appVersion)
-        property.apk1Md5=new SimpleStringProperty(apk1Md5)
-        property.apk2Md5=new SimpleStringProperty(apk2Md5)
-        property.ct=new SimpleLongProperty(ct)
-        property
+
+    @Override
+    String toString() {
+        return name
     }
 }

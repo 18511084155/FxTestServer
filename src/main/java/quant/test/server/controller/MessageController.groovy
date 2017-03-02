@@ -3,6 +3,7 @@ import de.jensd.fx.fontawesome.Icon
 import javafx.application.Platform
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
+import javafx.scene.control.ComboBox
 import javafx.scene.control.TextArea
 import quant.test.server.anntation.FXMLLayout
 import quant.test.server.log.Log
@@ -14,6 +15,7 @@ import javax.annotation.PreDestroy
 @FXMLLayout("fxml/message_layout.fxml")
 class MessageController implements Initializable,Observer{
     @FXML TextArea messageArea
+    @FXML ComboBox comboBox
     @FXML Icon buttonTrash
     @Override
     void initialize(URL location, ResourceBundle resources) {

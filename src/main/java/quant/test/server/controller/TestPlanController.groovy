@@ -8,13 +8,13 @@ import javafx.fxml.FXMLLoader
 import javafx.fxml.Initializable
 import javafx.scene.control.Label
 import javafx.scene.control.ScrollPane
+import javafx.util.Pair
 import quant.test.server.StageManager
 import quant.test.server.anntation.FXMLLayout
 import quant.test.server.bus.RxBus
 import quant.test.server.database.DbHelper
 import quant.test.server.event.OnTestCaseAddedEvent
 import quant.test.server.event.OnTestPlanAddedEvent
-import quant.test.server.model.TestCaseItem
 import quant.test.server.model.TestPlanItem
 import rx.Observable
 import rx.Subscriber
@@ -32,8 +32,7 @@ class TestPlanController implements Initializable{
     def planItems=[]
     @Override
     void initialize(URL location, ResourceBundle resources) {
-        initTestPlanItems()
-        initTestCaseItems()
+        initTestItems()
 
         JFXDepthManager.setDepth(addTask, 1)
         Platform.runLater({scrollPane.requestLayout()})
@@ -51,30 +50,22 @@ class TestPlanController implements Initializable{
      * 初始化测试计划条目
      * @return
      */
-    private Subscription initTestPlanItems() {
+    private Subscription initTestItems() {
         Observable.create({ Subscriber subscriber ->
-            def items = DbHelper.helper.queryTestPlan()
-            !items ?: subscriber.onNext(items)
+            def testPlanItems = DbHelper.helper.queryTestPlan()
+            def testCaseItems = DbHelper.helper.queryTestCase()
+            subscriber.onNext(new Pair(testPlanItems,testCaseItems))
             subscriber.onCompleted()
-        } as Observable.OnSubscribe<List<TestCaseItem>>).
-                subscribeOn(Schedulers.io()).subscribe({ items ->
-                        planItems+=items
-                        Platform.runLater({ items.each { addTaskPlan(it) }
-                    })
+        } as Observable.OnSubscribe<Pair>).subscribeOn(Schedulers.io()).subscribe({ pair ->
+            def items=pair.key
+            if(pair.key) {
+                planItems += items
+                Platform.runLater({ items.each { addTaskPlan(it) } })
+            }
+            !pair.value?:initAddButton()
         }, { it.printStackTrace() })
     }
 
-    /**
-     * 初始化测试用例条目
-     */
-    def initTestCaseItems() {
-        Observable.create({ Subscriber subscriber ->
-            def items = DbHelper.helper.queryTestCase()
-            !items ?: subscriber.onNext(items)
-            subscriber.onCompleted()
-        } as Observable.OnSubscribe<List<TestCaseItem>>).
-                subscribeOn(Schedulers.io()).subscribe({ items -> initAddButton() }, { it.printStackTrace() })
-    }
 
     private initAddButton() {
         if(Platform.fxApplicationThread){
@@ -98,14 +89,14 @@ class TestPlanController implements Initializable{
         child.setStyle("-fx-background-color: ${colorItems[(int) ((Math.random()*12)%12)]}")
         JFXDepthManager.setDepth(child, 1)
         Label planLabel=child.lookup("#planLabel")
-        planLabel.setText(item.name)
+        planLabel.setText("任务计划:$item.name")
         Label caseLabel=child.lookup("#caseLabel")
-        caseLabel.setText(item.testCase)
+        caseLabel.setText("执行用例:$item.testCase")
 
         Label startTimeLabel=child.lookup("#startTimeLabel")
-        startTimeLabel.setText(item.startDate)
+        startTimeLabel.setText("起始时间:$item.startDate")
         Label endTimeLabel=child.lookup("#endTimeLabel")
-        endTimeLabel.setText(item.endDate)
+        endTimeLabel.setText("结束时间:$item.endDate")
         Label cycleLabel=child.lookup("#cycleLabel")
         cycleLabel.setText("循环执行:${item.cycle?"YES":"NO"}")
         masonryPane.children.add(child)

@@ -4,6 +4,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import quant.test.server.widget.datepicker.MyDatePicker?>
 <?import quant.test.server.widget.TimeSpinner?>
 <StackPane fx:id="root"
 		   xmlns:fx="http://javafx.com/fxml/1"
@@ -19,18 +20,15 @@
 
 			<Label text="起始时间:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
 			<TimeSpinner fx:id="startTimeSpinner" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-			<DatePicker fx:id="startDatePicker" editable="false" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+			<MyDatePicker fx:id="startDatePicker" editable="false" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
 
 			<Label text="结束时间:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
 			<TimeSpinner fx:id="endTimeSpinner" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
-			<DatePicker fx:id="endDatePicker" editable="false" GridPane.rowIndex="3" GridPane.columnIndex="2" />
+			<MyDatePicker fx:id="endDatePicker" editable="false" GridPane.rowIndex="3" GridPane.columnIndex="2" />
 
 			<Label text="测试用例:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-			<JFXComboBox id="jfxComboBox" styleClass="jfx-combo-box" prefWidth="360" GridPane.rowIndex="4" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" editable="true" >
-			<GridPane.margin>
-				<Insets left="12" right="12"/>
-			</GridPane.margin>
-			</JFXComboBox>
+			<ComboBox fx:id="comboBox" styleClass="jfx-combo-box" minWidth="120" maxWidth="600" GridPane.rowIndex="4" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" editable="false" >
+			</ComboBox>
 
 			<Label text="任务列表:" GridPane.rowIndex="5" GridPane.columnIndex="0" GridPane.columnSpan="3"/>
 			<JFXTreeTableView fx:id="treeTableView" GridPane.rowIndex="6" GridPane.columnIndex="0" GridPane.columnSpan="3" GridPane.hgrow="ALWAYS">

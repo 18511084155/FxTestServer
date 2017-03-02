@@ -29,7 +29,7 @@ class StageManager {
         Scene scene=new Scene(parent,width,height)
         def controller = loader.getController()
         if(args&&controller instanceof InitializableArgs){
-            controller.setArgs(args)
+            controller.initializeWithArgs(args)
         }
         !controller?:stageItems.put(controller,stage)
 

@@ -184,7 +184,21 @@ public class TimeSpinner extends Spinner<LocalTime> {
         this(LocalTime.now());
     }
 
-    public long getTimeMillis(){
+    public String getText(){
+        return getEditor().getText();
+    }
+
+    public LocalTime getLocalTime(){
+        LocalTime localTime=null;
+        Pattern pattern = Pattern.compile("(\\d{1,2}):(\\d{1,2}):(\\d{1,2})");
+        Matcher matcher = pattern.matcher(getEditor().getText());
+        if(matcher.find()) {
+            localTime = LocalTime.of(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2)), Integer.parseInt(matcher.group(3)));
+        }
+        return localTime;
+    }
+
+    public long getTimeSecond(){
         int intValue=-1;
         Pattern pattern = Pattern.compile("(\\d{1,2}):(\\d{1,2}):(\\d{1,2})");
         Matcher matcher = pattern.matcher(getEditor().getText());

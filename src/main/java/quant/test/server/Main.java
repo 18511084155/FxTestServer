@@ -11,6 +11,9 @@ import quant.test.server.util.TextUtils;
 
 import java.io.File;
 
+/**
+ * persist.service.bdroid.bdaddress 型号相同
+ */
 public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{

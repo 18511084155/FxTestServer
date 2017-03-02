@@ -3,155 +3,314 @@ import com.jfoenix.controls.*
 import javafx.application.Platform
 import javafx.beans.value.ChangeListener
 import javafx.beans.value.ObservableValue
+import javafx.collections.FXCollections
+import javafx.collections.ObservableList
 import javafx.fxml.FXML
+import javafx.scene.control.ComboBox
 import javafx.scene.control.DateCell
 import javafx.scene.control.DatePicker
+import javafx.scene.control.TreeItem
 import javafx.scene.layout.StackPane
 import javafx.util.Callback
 import quant.test.server.StageManager
+import quant.test.server.bus.RxBus
 import quant.test.server.callback.InitializableArgs
 import quant.test.server.database.DbHelper
+import quant.test.server.event.OnTestPlanAddedEvent
 import quant.test.server.model.TestCaseItem
 import quant.test.server.model.TestPlanItem
+import quant.test.server.model.TestPlanProperty
 import quant.test.server.widget.TimeSpinner
 import quant.test.server.widget.datepicker.DateCellItem
+import quant.test.server.widget.datepicker.MyDatePicker
 import rx.Observable
 import rx.schedulers.Schedulers
 
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.ZoneId
 /**
  * Created by cz on 2017/2/23.
  */
-class AddTestPlanController implements InitializableArgs<List<TestPlanItem>>{
+class AddTestPlanController implements InitializableArgs<List<TestPlanItem>>,ChangeListener<String>{
     @FXML StackPane root
     @FXML JFXSnackbar snackBar
     @FXML JFXTextField testPlanName
     @FXML TimeSpinner startTimeSpinner
-    @FXML DatePicker startDatePicker
+    @FXML MyDatePicker startDatePicker
     @FXML TimeSpinner endTimeSpinner
-    @FXML DatePicker endDatePicker
-    @FXML JFXComboBox<TestCaseItem> jfxComboBox
+    @FXML MyDatePicker endDatePicker
+    @FXML ComboBox<TestCaseItem> comboBox
     @FXML JFXCheckBox cycleCheckBox
     @FXML JFXButton cancelButton
     @FXML JFXButton applyButton
     @FXML JFXDialog dialog
     @FXML JFXButton acceptButton
+
+    @FXML JFXTreeTableView treeTableView
+    @FXML JFXTreeTableColumn testPlanColumn
+    @FXML JFXTreeTableColumn startTimeColumn
+    @FXML JFXTreeTableColumn endTimeColumn
+    @FXML JFXTreeTableColumn isCycle
+
     List<TestPlanItem> items
-    def lastTime1,lastTime2
-    TestPlanItem endItem
+    def TestCaseItem selectCaseItem
+
 
     @Override
-    void setArgs(List<TestPlanItem> items) {
+    void initializeWithArgs(List<TestPlanItem> items) {
         this.items=items
-    }
-
-    @Override
-    void initialize(URL location, ResourceBundle resources) {
+        snackBar.registerSnackbarContainer(root)
         //初始化警告dialog
         initAlertDialog()
         //2:检索出所有记录,做任务时间过滤
         //1:制定输入起始时间
         //2:制定输入结束时间
         //文字变化监听
-        snackBar.registerSnackbarContainer(root)
-        startTimeSpinner.editor.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                //检测时间变化
-                //3:如果是循环执行任务,必须不在循环时间段内
-                def timeMillis=startTimeSpinner.timeMillis
-                if(-1<timeMillis){
-                    if(cycleCheckBox.isSelected()){
-                        //如果为循环时间
-                        //1:必须小于结束时间
-                        if(timeMillis>=endTimeSpinner.timeMillis){
-                            //提示选择异常
-                            Platform.runLater({
-                                startTimeSpinner.setEditError(true)
-                                snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("选择时间段必须小于结束时间!",null,3000, null))
-                            })
-                        } else if(checkCycleTimeRange(items,timeMillis)){
-                            //2:必须在己存在计划范围外
-                            Platform.runLater({
-                                startTimeSpinner.setEditError(true)
-                                snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("选择时间段重复,请查看己存在计划,并重新选择!",null,3000, null))
-                            })
-                        } else {
-                            startTimeSpinner.setEditError(false)
-                        }
-                    } else {
-                        //如果不循环
-                    }
-                }
-            }
+        initDateAction()
 
-        })
+        //初始化起始的本地时间
+        initLocalTime(items)
 
-        startTimeSpinner.editor.focusedProperty().addListener({ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue->
-            if(newValue){
-                //获取焦点,记录原始时间
-                lastTime1=startTimeSpinner.editor.text
-                println "get:$startTimeSpinner.editor.text"
-            } else {
-                //失去焦点,判断时间是否符合
-                value2TimeMillis(startTimeSpinner.editor.text)
-            }
-        } as ChangeListener<Boolean>)
-
-        startDatePicker.setOnAction({
-            LocalDate date = startDatePicker.getValue();
-            println "Selected date: " + date
-            startDatePicker.show();
-            startDatePicker.requestFocus();
-        });
-
-
-        //选中循环监听
-        cycleCheckBox.selectedProperty().addListener({ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue->
-            startDatePicker.setDisable(newValue)
-            endDatePicker.setDisable(newValue)
-        } as ChangeListener<Boolean>)
-
-
-        if(!items){
-            //没有任何记录
-            //添加2小时,默认
-            LocalTime nowTime=LocalTime.now()
-            startTimeSpinner.valueFactory.setValue(nowTime)
-            endTimeSpinner.valueFactory.setValue(nowTime.plusHours(2))
-            startDatePicker.setValue(LocalDate.now())
-            endDatePicker.setValue(LocalDate.now())
-        } else {
-            //有记录,过滤记录时间,取最大的时间,往后推
-            items.each { !endItem&&endItem.et>=it.et?:(endItem=it) }
-
-            //操作时间
-            LocalTime localTime
-            if(endItem.cycle){
-                //循环时间节点
-                localTime=LocalTime.now()
-                endItem.et<localTime.toSecondOfDay()?:(localTime=LocalTime.ofSecondOfDay(endItem.et))
-            } else {
-                Calendar calendar=Calendar.instance
-                calendar.setTimeInMillis(endItem.et)
-                startDatePicker.setValue(new LocalDate(calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH)+1,calendar.get(Calendar.DAY_OF_MONTH)))
-                endDatePicker.setValue(new LocalDate(calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH)+1,calendar.get(Calendar.DAY_OF_MONTH)))
-                localTime= LocalTime.of(calendar.get(Calendar.HOUR),calendar.get(Calendar.MINUTE),calendar.get(Calendar.SECOND))
-            }
-            //开始时间
-            startTimeSpinner.valueFactory.setValue(localTime)
-            //结束时间
-            endTimeSpinner.valueFactory.setValue(localTime.plusHours(2))
-        }
-
-        startDatePicker.setDayCellFactory({
-            new DateCellItem(LocalDate.now())
-        } as Callback<DatePicker, DateCell>)
+        comboBox.valueProperty().addListener({ObservableValue observable, TestCaseItem oldValue, TestCaseItem newValue->
+            this.selectCaseItem=newValue
+        } as ChangeListener<TestCaseItem>)
 
         cancelButton.setOnMouseClicked({StageManager.instance.getStage(this)?.hide()})
         applyButton.setOnMouseClicked({ addTestPlan() })
 
+    }
+    /**
+     * 初始化起始本地时间
+     * @param items
+     */
+    private void initLocalTime(List<TestPlanItem> items) {
+        if (!items) {
+            //没有任何记录
+            //添加2小时,默认
+            LocalTime nowTime = LocalTime.now()
+            startTimeSpinner.valueFactory.setValue(nowTime)
+            endTimeSpinner.valueFactory.setValue(nowTime.plusHours(2))
+            //操作时间
+            startDatePicker.setValue(LocalDate.now())
+            endDatePicker.setValue(LocalDate.now())
+        } else {
+            //初始化测试计划表格
+            initTestPlan(items)
+            //有记录,过滤记录时间,取最大的时间,往后推
+            refreshLocalTime()
+        }
+
+    }
+
+    @Override
+    void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+        //检测时间变化
+        if(cycleCheckBox.isSelected()){
+            notifyCycleTimeTextChanged()
+        } else {
+            notifyTimeTextChanged()
+        }
+    }
+
+    /**
+     * 刷新当前条目状态信息
+     */
+    private void refreshLocalTime() {
+        //设定起始一次性任务时间
+        startTimeSpinner.editor.textProperty().removeListener(this)
+        endTimeSpinner.editor.textProperty().removeListener(this)
+        if(cycleCheckBox.isSelected()){
+            TestPlanItem endCycleItem
+            items.each { !it.cycle || (endCycleItem && endCycleItem.et >= it.et) ?: (endCycleItem = it) }
+            //设定循环任务起始时间
+
+            LocalTime localTime = LocalTime.now()
+            if (endCycleItem&&endCycleItem.et >= localTime.toSecondOfDay()) {
+                localTime=getTimeSecond(endCycleItem.endDate)
+            }
+            startTimeSpinner.valueFactory.setValue(localTime)
+            endTimeSpinner.valueFactory.setValue(localTime.plusHours(2))
+            startDatePicker.setValue(LocalDate.now())
+            endDatePicker.setValue(LocalDate.now())
+        } else {
+            TestPlanItem endItem
+            items.each { it.cycle || (endItem && endItem.et >= it.et) ?: (endItem = it) }
+
+            def localDateTime=LocalDateTime.now()
+            def endMillis=localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+            if (endItem&&endItem.et > endMillis) {
+                Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT+8"))
+                calendar.setTimeInMillis(endItem.et)
+
+                localDateTime=new LocalDate(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH))
+                def localTime=new LocalTime(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), calendar.get(Calendar.SECOND),0)
+                startTimeSpinner.valueFactory.setValue(localTime)
+                endTimeSpinner.valueFactory.setValue(localTime.plusHours(2))
+
+                startDatePicker.setValue(localDateTime)
+                endDatePicker.setValue(localDateTime)
+            } else {
+                final def localDate=localDateTime.toLocalDate()
+                def localTime = localDateTime.toLocalTime()
+                startTimeSpinner.valueFactory.setValue(localTime)
+                endTimeSpinner.valueFactory.setValue(localTime.plusHours(2))
+                startDatePicker.setValue(localDate)
+                endDatePicker.setValue(localDate)
+
+            }
+            startDatePicker.setDayCellFactory({ new DateCellItem(localDateTime) } as Callback<DatePicker, DateCell>)
+            endDatePicker.setDayCellFactory({ new DateCellItem(localDateTime) } as Callback<DatePicker, DateCell>)
+        }
+        startTimeSpinner.editor.textProperty().addListener(this)
+        endTimeSpinner.editor.textProperty().addListener(this)
+    }
+
+    /**
+     * 初始化日期事件
+     * @param items
+     */
+    private void initDateAction() {
+        startTimeSpinner.editor.textProperty().addListener(this)
+        endTimeSpinner.editor.textProperty().addListener(this)
+        startDatePicker.setOnAction({
+            notifyTimeTextChanged()
+            startDatePicker.show();
+            startDatePicker.requestFocus();
+        });
+
+        //选中循环监听
+        cycleCheckBox.selectedProperty().addListener({ ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ->
+            //更新计划
+            initTestPlan(items)
+            //更新当前本地时间显示
+            refreshLocalTime()
+            //根据循环任务显示日历
+            startDatePicker.setDisable(newValue)
+            endDatePicker.setDisable(newValue)
+            if(newValue){
+                notifyCycleTimeTextChanged()
+            } else {
+                //不循环的执行任务
+                notifyTimeTextChanged()
+            }
+        } as ChangeListener<Boolean>)
+    }
+
+    /**
+     * 通知循环时间变化检测
+     */
+    private void notifyCycleTimeTextChanged() {
+        def startTimeSecond = startTimeSpinner.timeSecond
+        def endTimeSecond = endTimeSpinner.timeSecond
+        if (-1 < startTimeSecond) {
+            //如果为循环时间
+            //1:必须小于结束时间
+            int index = items.findIndexOf { it.cycle && it.st <= startTimeSecond && it.et >= startTimeSecond }
+            if (startTimeSecond >= endTimeSpinner.timeSecond) {
+                //提示选择异常
+                Platform.runLater({
+                    startTimeSpinner.setEditError(true)
+                    snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("选择时间段必须小于结束时间!", null, 2000, null))
+                })
+            } else if (-1 < index) {
+                //2:必须在己存在计划范围外
+                Platform.runLater({
+                    startTimeSpinner.setEditError(true)
+                    treeTableView.selectionModel.select(index)
+                    snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("选择时间段重复,请查看己存在计划,并重新选择!", null, 2000, null))
+                })
+            } else if (items.find { it.cycle && startTimeSecond <= it.st && endTimeSecond >= it.et }) {
+                //3:所选时间范围,必须在所有计划外
+                Platform.runLater({
+                    startTimeSpinner.setEditError(true)
+                    endTimeSpinner.setEditError(true)
+                    snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("选择时间己包含其他计划,请重新选择!", null, 2000, null))
+                })
+            } else {
+                startTimeSpinner.setEditError(false)
+                endTimeSpinner.setEditError(false)
+                snackBar.popupContainer
+            }
+        }
+        startDatePicker.setEditError(false)
+        endDatePicker.setEditError(false)
+    }
+
+    /**
+     * 通知时间变化检测
+     */
+    private void notifyTimeTextChanged() {
+        def startSecond=startTimeSpinner.timeSecond
+        def endSecond=endTimeSpinner.timeSecond
+        if (-1 < startSecond&&-1<endSecond) {
+            LocalDateTime startDate=new LocalDateTime(startDatePicker.value,startTimeSpinner.localTime)
+            LocalDateTime endDate=new LocalDateTime(endDatePicker.value,endTimeSpinner.localTime)
+            def startMillis=startDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+            def endMillis=endDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+
+            //1:必须小于结束时间
+            int index = items.findIndexOf { !it.cycle && it.st <= startMillis && it.et >= startMillis }
+            if (startMillis >= endMillis) {
+                //提示选择异常
+                Platform.runLater({
+                    startTimeSpinner.setEditError(true)
+                    startDatePicker.setEditError(true)
+                    snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("选择时间段必须小于结束时间!", null, 2000, null))
+                })
+            } else if (-1 < index) {
+                //2:必须在己存在计划范围外
+                Platform.runLater({
+                    startTimeSpinner.setEditError(true)
+                    startDatePicker.setEditError(true)
+                    treeTableView.selectionModel.select(index)
+                    snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("选择时间段重复,请查看己存在计划,并重新选择!", null, 2000, null))
+                })
+            } else if (items.find { !it.cycle && startMillis <= it.st && endMillis >= it.et }) {
+                //3:所选时间范围,必须在所有计划外
+                Platform.runLater({
+                    startTimeSpinner.setEditError(true)
+                    endTimeSpinner.setEditError(true)
+                    startDatePicker.setEditError(true)
+                    endDatePicker.setEditError(true)
+                    snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("选择时间己包含其他计划,请重新选择!", null, 2000, null))
+                })
+            } else {
+                startTimeSpinner.setEditError(false)
+                endTimeSpinner.setEditError(false)
+                startDatePicker.setEditError(false)
+                endDatePicker.setEditError(false)
+            }
+        }
+    }
+
+/**
+     * 初始化测试计算表
+     * @param testPlanItems
+     */
+    def initTestPlan(List<TestPlanItem> items) {
+        if(items){
+            def root=treeTableView.root
+            def filterItems=items.findAll {cycleCheckBox.isSelected()?it.cycle:!it.cycle}
+            if(root){
+                //清空所有,再添加新的
+                def treeItems=[]
+                root.children.clear()
+                filterItems?.each {treeItems<<new TreeItem(new TestPlanProperty(it))}
+                !treeItems?:root.children.addAll(treeItems)
+            } else {
+                testPlanColumn.setCellValueFactory({ testPlanColumn.validateValue(it)?it.value.value.name: testPlanColumn.getComputedValue(it) })
+                startTimeColumn.setCellValueFactory({ startTimeColumn.validateValue(it)? it.value.value.startDate: startTimeColumn.getComputedValue(it) })
+                endTimeColumn.setCellValueFactory({ endTimeColumn.validateValue(it)? it.value.value.endDate: endTimeColumn.getComputedValue(it) })
+                isCycle.setCellValueFactory({ isCycle.validateValue(it)? it.value.value.cycle: isCycle.getComputedValue(it) })
+                ObservableList<TestPlanProperty> testPlanItems = FXCollections.observableArrayList();
+                filterItems.each {testPlanItems.add(new TestPlanProperty(it))}
+                treeTableView.setRoot(new RecursiveTreeItem<TestPlanProperty>(testPlanItems, { it.getChildren() }))
+                treeTableView.setShowRoot(false);
+            }
+
+        }
     }
 
     /**
@@ -162,72 +321,111 @@ class AddTestPlanController implements InitializableArgs<List<TestPlanItem>>{
         dialog.setTransitionType(JFXDialog.DialogTransition.CENTER);
         acceptButton.setOnMouseClicked({ StageManager.instance.getStage(this)?.hide() })
         //查询用户所有测试用例列,没有测试用例,无法添加
-        Observable.create({DbHelper.helper.queryTestCase() } as Observable.OnSubscribe).
-                observeOn(Schedulers.io()).subscribe({
+        Observable.create({
+            def items=DbHelper.helper.queryTestCase()
+            !items?:it.onNext(items)
+            it.onCompleted()
+        } as Observable.OnSubscribe).
+                observeOn(Schedulers.io()).subscribe({ items->
                 Platform.runLater({
-                    if (!it) {
+                    if (!items) {
                         dialog.setOverlayClose(false)
                         dialog.show(root)
                     } else {
-                        jfxComboBox.getItems().addAll(it)
+                        comboBox.getItems().addAll(items)
+                        comboBox.getSelectionModel().selectFirst()
+                        selectCaseItem=items[0]
                     }
                 })
             },{it.printStackTrace()})
     }
 
+
     /**
-     * 检测循环时间段
-     * @param testPlanItems
-     * @param l
+     * 检验测试信息
      */
-    def checkCycleTimeRange(List<TestPlanItem> items, long seconds) {
-        boolean result=false
-        items?.each {
-            if(!it.cycle&&it.st<=seconds&&it.et>=seconds){
-                result=true
-                return
+    private boolean validatorTestInfo() {
+        boolean result = false
+        def startSecond = startTimeSpinner.timeSecond
+        def endSecond = endTimeSpinner.timeSecond
+        if (cycleCheckBox.isSelected()) {
+            if (!testPlanName.text) {
+                snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("请输入计划名称!", null, 3000, null))
+            } else if (startTimeSpinner.timeSecond >= endTimeSpinner.timeSecond) {
+                //提示选择异常
+                Platform.runLater({
+                    snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("选择时间段必须小于结束时间!", null, 3000, null))
+                })
+            } else if (-1 < items.findIndexOf { !it.cycle && it.st <= startSecond && it.et >= endSecond }) {
+                //2:必须在己存在计划范围外
+                Platform.runLater({
+                    snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("选择时间段重复,请查看己存在计划,并重新选择!", null, 3000, null))
+                })
+            } else {
+                result = true
+            }
+        } else {
+            LocalDateTime startDate=new LocalDateTime(startDatePicker.value,startTimeSpinner.localTime)
+            LocalDateTime endDate=new LocalDateTime(endDatePicker.value,endTimeSpinner.localTime)
+            def startMillis=startDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+            def endMillis=endDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+            if (!testPlanName.text) {
+                snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("请输入计划名称!", null, 3000, null))
+            } else if (startMillis >= endMillis) {
+                //提示选择异常
+                Platform.runLater({
+                    snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("选择时间段必须小于结束时间!", null, 3000, null))
+                })
+            } else if (-1 < items.findIndexOf { !it.cycle && it.st <= startMillis && it.et >= endMillis }) {
+                //2:必须在己存在计划范围外
+                Platform.runLater({
+                    snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("选择时间段重复,请查看己存在计划,并重新选择!", null, 3000, null))
+                })
+            } else {
+                result = true
             }
         }
         result
     }
 
 
-    /**
-     * 时间格式化串格式化为毫秒值
-     * @param value
-     */
-    def value2TimeMillis(value){
-        int intValue=-1
+    def getTimeSecond(value){
+        LocalTime localTime
         def matcher=value=~/(\d{1,2}):(\d{1,2}):(\d{1,2})/
         if(matcher) {
-            def localTime = LocalTime.of(Integer.parseInt(matcher[0][1]), Integer.parseInt(matcher[0][2]), Integer.parseInt(matcher[0][3]))
-            intValue=localTime.toSecondOfDay()
+            localTime = LocalTime.of(Integer.parseInt(matcher[0][0]), Integer.parseInt(matcher[0][1]), Integer.parseInt(matcher[0][2]))
         }
-        intValue
+        localTime
     }
-
-
 
     /**
      * 添加任务计划
      */
     def addTestPlan() {
-        //添加任务
-        if(cycleCheckBox.isSelected()){
-            if(!testPlanName.text){
-                snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("请输入计划名称!",null,3000, null))
-            } else if(startTimeSpinner.timeMillis>=endTimeSpinner.timeMillis){
-                //提示选择异常
-                Platform.runLater({ snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("选择时间段必须小于结束时间!",null,3000, null)) })
-            } else if(checkCycleTimeRange(items,startTimeSpinner.timeMillis)){
-                //2:必须在己存在计划范围外
-                Platform.runLater({ snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("选择时间段重复,请查看己存在计划,并重新选择!",null,3000, null)) })
+        //任务可以添加,生成对象,然后添加
+        if(validatorTestInfo()){
+            TestPlanItem planItem=new TestPlanItem()
+            planItem.name=testPlanName.text
+            planItem.caseId=selectCaseItem.id
+            planItem.testCase=selectCaseItem.name
+
+            if(cycleCheckBox.isSelected()){
+                planItem.st=startTimeSpinner.timeSecond
+                planItem.et=endTimeSpinner.timeSecond
+                planItem.startDate=startTimeSpinner.text
+                planItem.endDate=endTimeSpinner.text
             } else {
-                //任务可以添加,生成对象,然后添加
-
-                DbHelper.helper.insertTestPlan()
-
+                LocalDateTime startDate=new LocalDateTime(startDatePicker.value,startTimeSpinner.localTime)
+                LocalDateTime endDate=new LocalDateTime(endDatePicker.value,endTimeSpinner.localTime)
+                planItem.st=startDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                planItem.et=endDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                planItem.startDate=startDate.toLocalDate().toString()+" "+startDate.toLocalTime().toString()
+                planItem.endDate=endDate.toLocalDate().toString()+" "+endDate.toLocalTime().toString()
             }
+            planItem.cycle=cycleCheckBox.isSelected()
+            DbHelper.helper.insertTestPlan(planItem)
+            RxBus.post(new OnTestPlanAddedEvent(planItem))
+            StageManager.instance.getStage(this)?.hide()
         }
     }
 

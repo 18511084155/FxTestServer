@@ -24,7 +24,6 @@ import rx.schedulers.Schedulers
  */
 @FXMLLayout("fxml/testcase_layout.fxml")
 class TestCaseController implements Initializable{
-    ObservableList<TestCaseProperty> testCaseItems = FXCollections.observableArrayList();
     @FXML JFXTreeTableView treeTableView
     @FXML JFXTreeTableColumn testCaseName
     @FXML JFXTreeTableColumn testApp
@@ -52,7 +51,7 @@ class TestCaseController implements Initializable{
                 createTreeTable([it.testCaseItem])
             } else {
                 //添加到顶部
-                root.children.add(0,new TreeItem(it.testCaseItem.createProperty()))
+                root.children.add(0,new TreeItem(new TestCaseProperty(it.testCaseItem)))
             }
         })
     }
@@ -67,7 +66,9 @@ class TestCaseController implements Initializable{
         testVersion.setCellValueFactory({ testVersion.validateValue(it)? it.value.value.appVersion: testVersion.getComputedValue(it) })
         testFile.setCellValueFactory({ testFile.validateValue(it)? it.value.value.apk1: testFile.getComputedValue(it) })
         testCaseFile.setCellValueFactory({ testCaseFile.validateValue(it)? it.value.value.apk2: testCaseFile.getComputedValue(it) })
-        items.each {testCaseItems.add(it.createProperty())}
+
+        ObservableList<TestCaseProperty> testCaseItems = FXCollections.observableArrayList();
+        items.each {testCaseItems.add(new TestCaseProperty(it))}
         treeTableView.setRoot(new RecursiveTreeItem<TestCaseProperty>(testCaseItems, { it.getChildren() }))
         treeTableView.setShowRoot(false);
 

@@ -35,7 +35,7 @@
 		</JFXTreeTableView>
 
 		<HBox alignment="CENTER_LEFT" >
-			<JFXComboBox id="jfxComboBox" editable="true" prefHeight="18" prefWidth="120" promptText="全部">
+			<ComboBox id="comboBox" editable="false" prefHeight="18" prefWidth="120" promptText="全部">
 				<HBox.margin>
 					<Insets left="12" right="12"/>
 				</HBox.margin>
@@ -46,7 +46,7 @@
 						<Label text="Error" styleClass="item-label"/>
 					</FXCollections>
 				</items>
-			</JFXComboBox>
+			</ComboBox>
 
 			<JFXTextField fx:id="searchField" prefWidth="200" HBox.hgrow="ALWAYS"  style="-fx-padding: 5 0 5 0" promptText="过滤关键字" >
 				<HBox.margin>
