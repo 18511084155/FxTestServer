@@ -26,6 +26,14 @@
 					<VBox.margin>
 						<Insets bottom="4"/>
 					</VBox.margin>
+					<ToggleButton fx:id="buttonRunInfo" styleClass="custom-tab-button" text="运行信息" contentDisplay="TOP">
+						<HBox.margin>
+							<Insets left="4" top="4" right="4" bottom="4"/>
+						</HBox.margin>
+						<graphic>
+								<Icon awesomeIcon="GLOBE" size="2.0em" style=";" styleClass="tab_icon" />
+						</graphic>
+					</ToggleButton>
 					<ToggleButton fx:id="buttonDeviceInfo" styleClass="custom-tab-button" text="设备信息" contentDisplay="TOP">
 						<HBox.margin>
 							<Insets left="4" top="4" right="4" bottom="4"/>

@@ -52,7 +52,6 @@ class AddTestPlanController implements InitializableArgs<List<TestPlanItem>>,Cha
     @FXML JFXTreeTableColumn testPlanColumn
     @FXML JFXTreeTableColumn startTimeColumn
     @FXML JFXTreeTableColumn endTimeColumn
-    @FXML JFXTreeTableColumn isCycle
 
     List<TestPlanItem> items
     def TestCaseItem selectCaseItem
@@ -303,7 +302,6 @@ class AddTestPlanController implements InitializableArgs<List<TestPlanItem>>,Cha
                 testPlanColumn.setCellValueFactory({ testPlanColumn.validateValue(it)?it.value.value.name: testPlanColumn.getComputedValue(it) })
                 startTimeColumn.setCellValueFactory({ startTimeColumn.validateValue(it)? it.value.value.startDate: startTimeColumn.getComputedValue(it) })
                 endTimeColumn.setCellValueFactory({ endTimeColumn.validateValue(it)? it.value.value.endDate: endTimeColumn.getComputedValue(it) })
-                isCycle.setCellValueFactory({ isCycle.validateValue(it)? it.value.value.cycle: isCycle.getComputedValue(it) })
                 ObservableList<TestPlanProperty> testPlanItems = FXCollections.observableArrayList();
                 filterItems.each {testPlanItems.add(new TestPlanProperty(it))}
                 treeTableView.setRoot(new RecursiveTreeItem<TestPlanProperty>(testPlanItems, { it.getChildren() }))

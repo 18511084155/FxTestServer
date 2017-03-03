@@ -17,7 +17,7 @@ public class LogProcessor extends Thread {
     private final ArrayList<LogItem> originalItems=new ArrayList<>();
     private final DataObservable observable=new DataObservable();
     public LogProcessor() {
-        super("log-thread");
+        super("com.android.ddmlib.log-thread");
     }
 
     @Override

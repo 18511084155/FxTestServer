@@ -13,7 +13,7 @@ import quant.test.server.protocol.What
  * Created by czz on 2017/2/3.
  * 客户端服务对象
  */
-class ClientService implements Runnable{
+class ClientService implements Runnable,AndroidDebugBridge.IDeviceChangeListener{
     final static String TAG="ClientService"
     final PrintWriter printWriter
     final AndroidDebugBridge bridge
@@ -31,6 +31,7 @@ class ClientService implements Runnable{
     @Override
     void run() {
         //等待 socket 信息
+        checkAdbConnect(address)
         waitSocketMessage()
     }
 
@@ -49,10 +50,7 @@ class ClientService implements Runnable{
                     printf "message:$line 解析失败!\n"
                 }
                 if (item) {
-                    if(What.ADB.ADB_DEVICE_ID==item.what){
-                        //获取设备id,查看连接设备
-                        checkAdbConnect(address,item.message)
-                    } else if (What.ADB.CONNECT == item.what) {
+                    if (What.ADB.CONNECT == item.what) {
                         connectDevice(item.address)
                     }
                 }
@@ -94,13 +92,12 @@ class ClientService implements Runnable{
      * 2:有线,连上但是未显示,或者 offline 状态,或者未连上 adb
      *861322030453548
      */
-    def checkAdbConnect(address,deviceId) {
+    def checkAdbConnect(address) {
         //检测机器是否连接
         def deviceItem=[]
         sendMessage(What.ADB.LOG,address,"开始连接Adb:$address")
         devices?.each {
-            if (deviceId?.equals(it.properties[Property.RO_RIL_OEM_IMEI])||
-                    deviceId?.equals(it.properties[Property.PERSIST_RADIO_IMEI])) {
+            if (address?.equals(it.properties[Property.DEVICE_ADDRESS])) {
                 deviceItem<<DeviceItem.form(it)
             }
         }
@@ -115,41 +112,42 @@ class ClientService implements Runnable{
             sendMessage(What.ADB.CHECK_ADB,address,null)
         }
         //添加设备监听,为此 socket 连接设备动态更新状态
-        AndroidDebugBridge.addDeviceChangeListener(new AndroidDebugBridge.IDeviceChangeListener() {
-            @Override
-            public void deviceConnected(IDevice iDevice) {
-            }
+        AndroidDebugBridge.removeDeviceChangeListener(this);
+        AndroidDebugBridge.addDeviceChangeListener(this);
+    }
 
-            @Override
-            public void deviceDisconnected(IDevice iDevice) {
-                //设备中断,查看设备为无线连接,或是有线,若为无线,则尝试重联,有线
-                if (null != iDevice) {
-                    def id=iDevice.properties[Property.RO_RIL_OEM_IMEI]
-                    !id?:iDevice.properties[Property.PERSIST_RADIO_IMEI]
-                    Log.e(TAG,"设备连接中断:$iDevice.serialNumber")
-                    if (deviceId.equals(id)) {
-                        //当前设备中断,设置重连
-                        sendMessage(What.ADB.ADB_INTERRUPT,address,null)//设备adb中断
-                        sendMessage(What.ADB.LOG,address,"设备:${iDevice.serialNumber} 中断,尝试重联...")
-                        Log.e(TAG,"发送消息:$iDevice.serialNumber")
-                        checkAdbConnect(address)
-                    }
-                }
-            }
+    @Override
+    public void deviceConnected(IDevice iDevice) {
+    }
 
-            @Override
-            public void deviceChanged(IDevice iDevice, int i) {
-                println "iDevice:$address i:$i"
-                if(null!=iDevice&&IDevice.CHANGE_BUILD_INFO==i){
-                    String deviceAddress = iDevice.properties[Property.DHCP_WLAN0_IPADDRESS]
-                    if(address==deviceAddress){
-                        //设备连接
-                        sendMessage(What.ADB.CONNECT_COMPLETE,deviceAddress,null)//设备adb
-                        sendMessage(What.ADB.LOG,address,"设备:${deviceAddress} Adb己连接")
-                    }
-                }
+    @Override
+    public void deviceDisconnected(IDevice iDevice) {
+        //设备中断,查看设备为无线连接,或是有线,若为无线,则尝试重联,有线
+        if (null != iDevice) {
+            def deviceAddress=iDevice.properties[Property.DEVICE_ADDRESS]
+            Log.e(TAG,"设备连接中断:$iDevice.serialNumber")
+            if (address.equals(deviceAddress)) {
+                //当前设备中断,设置重连
+                sendMessage(What.ADB.ADB_INTERRUPT,address,null)//设备adb中断
+                sendMessage(What.ADB.LOG,address,"设备:${iDevice.serialNumber} 中断,尝试重联...")
+                Log.e(TAG,"发送消息:$iDevice.serialNumber")
+                checkAdbConnect(address)
             }
-        });
+        }
+    }
+
+    @Override
+    public void deviceChanged(IDevice iDevice, int i) {
+        println "iDevice:$address i:$i"
+        if(null!=iDevice&&IDevice.CHANGE_BUILD_INFO==i){
+            String deviceAddress = iDevice.properties[Property.DEVICE_ADDRESS]
+            println "设备己连接:$address deviceAddress:$deviceAddress"
+            if(address.equals(deviceAddress)){
+                //设备连接
+                sendMessage(What.ADB.CONNECT_COMPLETE,deviceAddress,null)//设备adb
+                sendMessage(What.ADB.LOG,address,"设备:${deviceAddress} Adb己连接")
+            }
+        }
     }
 
     /**
@@ -225,6 +223,7 @@ class ClientService implements Runnable{
             e.printStackTrace();
         }
     }
+
 
 
 }

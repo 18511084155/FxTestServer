@@ -64,7 +64,7 @@ public class Log {
 
     /**
      * Handy function to get a loggable stack trace from a Throwable
-     * @param tr An exception to log
+     * @param tr An exception to com.android.ddmlib.log
      */
     public static String getStackTraceString(Throwable tr) {
         if (tr == null) {

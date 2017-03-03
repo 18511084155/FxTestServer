@@ -301,7 +301,7 @@ interface Property {
     final def CAMERA_DISABLE_ZSL_MODE='camera.disable_zsl_mode'
     final def RO_PRODUCT_CPU_ABILIST='ro.product.cpu.abilist'
     final def RO_MTK_AUDENH_SUPPORT='ro.mtk_audenh_support'
-    final def LOG_TAG_VIBETONZ='log.tag.VibeTonz'
+    final def LOG_TAG_VIBETONZ='com.android.ddmlib.log.tag.VibeTonz'
     final def INIT_SVC_NVRAMAGENT='init.svc.NvRAMAgent'
     final def INIT_SVC_SDCARD='init.svc.sdcard'
     final def RO_MEIZU_SECURITY='ro.meizu.security'
@@ -529,6 +529,10 @@ interface Property {
     final def PERSIST_RADIO_IMEI1="persist.radio.imei1"
     final def RO_RIL_OEM_IMEI="persist.radio.imei1"
     final def PERSIST_RADIO_IMEI="persist.radio.imei1"
+
+    final def DEVICE_IMEI="device_imei"
+    final def DEVICE_ID="device_id"
+    final def DEVICE_ADDRESS="device_address"
 
 
 }

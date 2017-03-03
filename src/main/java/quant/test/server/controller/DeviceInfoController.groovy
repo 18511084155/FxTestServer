@@ -44,11 +44,11 @@ class DeviceInfoController implements Initializable{
             mobileModel.setText(it.item.toString())
             mobileBrand.setText(it.item.brand)
             mobileSerialno.setText(it.item.serialNumber)
-            mobileImei.setText(it.item.serialNumber)
+            mobileImei.setText(it.item.getDeviceProperty(Property.DEVICE_IMEI))
             mobileVersion.setText(it.item.sdk)
             mobileVersionCode.setText(it.item.release)
             mobileCpu.setText(it.item.getDeviceProperty(Property.RO_PRODUCT_CPU_ABI))
-            mobileIpAddress.setText(it.item.getDeviceProperty(Property.DHCP_WLAN0_IPADDRESS))
+            mobileIpAddress.setText(it.item.getDeviceProperty(Property.DEVICE_ADDRESS))
 
             deviceProperties.clear()
             it.item.deviceProperty.each { property->

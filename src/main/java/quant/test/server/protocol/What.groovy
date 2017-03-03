@@ -28,6 +28,5 @@ class What {
         static final def LOG=ID+9
         static final def ADB_INTERRUPT=ID+10
         static final int ALERT_ADB_DEBUG=ID+11;//连上socket,但未root,未连接usb
-        static final int ADB_DEVICE_ID=ID+12;//检测 adb 状态
     }
 }

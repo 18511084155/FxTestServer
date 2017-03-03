@@ -36,22 +36,15 @@ import java.util.concurrent.Executors
 class MainController implements Initializable{
     static String TAG="MainController"
     final def executorService=Executors.newCachedThreadPool()
-    @FXML
-    StackPane contentPane
-    @FXML
-    HBox tabLayout
-    @FXML
-    JFXListView deviceList
-    @FXML
-    ToggleButton buttonDeviceInfo
-    @FXML
-    ToggleButton buttonTask
-    @FXML
-    ToggleButton buttonTest
-    @FXML
-    ToggleButton buttonDoc
-    @FXML
-    ToggleButton buttonMessage
+    @FXML StackPane contentPane
+    @FXML HBox tabLayout
+    @FXML JFXListView deviceList
+    @FXML ToggleButton buttonRunInfo
+    @FXML ToggleButton buttonDeviceInfo
+    @FXML ToggleButton buttonTask
+    @FXML ToggleButton buttonTest
+    @FXML ToggleButton buttonDoc
+    @FXML ToggleButton buttonMessage
 
     def serverSocket
     def cachePane=[:]
@@ -84,14 +77,15 @@ class MainController implements Initializable{
         })
 
         ToggleGroup toggleGroup=new ToggleGroup()
+        buttonRunInfo.setToggleGroup(toggleGroup)
         buttonDeviceInfo.setToggleGroup(toggleGroup)
         buttonTask.setToggleGroup(toggleGroup)
         buttonTest.setToggleGroup(toggleGroup)
         buttonDoc.setToggleGroup(toggleGroup)
         buttonMessage.setToggleGroup(toggleGroup)
 
-        toggleGroup.selectToggle(buttonDeviceInfo)
-        final def controllerArray=[DeviceInfoController.class,TestPlanController.class,TestCaseController.class,TestDocController.class,MessageController.class]
+        toggleGroup.selectToggle(buttonRunInfo)
+        final def controllerArray=[RunInfoController.class,DeviceInfoController.class,TestPlanController.class,TestCaseController.class,TestDocController.class,MessageController.class]
         def listener={ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle selectedToggle->
             int index=tabLayout.children.indexOf(selectedToggle)
             def oldIndex = tabLayout.children.indexOf(oldValue)
@@ -105,7 +99,7 @@ class MainController implements Initializable{
         //装载默认面板
         loadPane(controllerArray[0],0,true)
         //装载消息面板
-        loadPane(controllerArray[4],4,false)
+        loadPane(controllerArray[5],5,false)
         //初始化调试桥
         initBridge(SharedPrefs.get(PrefsKey.ADB))
     }
