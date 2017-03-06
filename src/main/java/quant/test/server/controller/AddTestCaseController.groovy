@@ -16,6 +16,8 @@ import quant.test.server.command.Command
 import quant.test.server.database.DbHelper
 import quant.test.server.event.OnTestCaseAddedEvent
 import quant.test.server.model.TestCaseItem
+import quant.test.server.prefs.FilePrefs
+import quant.test.server.util.FileUtils
 import quant.test.server.widget.drag.DragTextField
 
 import java.util.concurrent.Executors
@@ -138,12 +140,12 @@ class AddTestCaseController implements Initializable{
      */
     def processApkFile(file,fileChoose,apkSpinner) {
         if(file){
-            //TODO 脚本位置
             fileChoose.setVisible(false)
             apkSpinner.setVisible(true)
             messageArea.appendText("开始分析文件:$file.absolutePath\n")
             Executors.newSingleThreadScheduledExecutor().execute({
-                def result=Command.shell("/Users/cz/Desktop/master/FxTestServer/src/main/resources/script/apk_file.sh",file.absolutePath)
+                FileUtils.copyResourceFileIfNotExists(FilePrefs.SCRIPT_SCAN_APK, "script/apk_file.sh");
+                def result=Command.shell(FilePrefs.SCRIPT_SCAN_APK.absolutePath,file.absolutePath)
                 if(0<=result.exit){
                     final def params=result.out2LazyMap()
                     Platform.runLater({

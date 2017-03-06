@@ -1,7 +1,4 @@
 package quant.test.server
-
-import groovy.io.FileType
-
 /**
  * Created by cz on 2017/2/16.
  */
@@ -34,21 +31,20 @@ import groovy.io.FileType
 //println exitValue
 
 //项目代码行数
-def readProjectLine(){
-    def file=new File("/Users/cz/Desktop/master/FxTestServer/src/main/java/quant/test/server")
-    if(file.exists()){
-        def count=0
-        file.eachFileRecurse(FileType.FILES) {
-            if(it.name.endsWith('.groovy')) {
-                def lineCount=it.readLines().size()
-                println "File:$it.name line:$lineCount"
-                count+=lineCount
-            }
-        }
-        println "count$count"
-    }
-}
-
+//def readProjectLine(){
+//    def file=new File("/Users/cz/Desktop/master/FxTestServer/src/main/java/quant/test/server")
+//    if(file.exists()){
+//        def count=0
+//        file.eachFileRecurse(FileType.FILES) {
+//            if(it.name.endsWith('.groovy')) {
+//                def lineCount=it.readLines().size()
+//                println "File:$it.name line:$lineCount"
+//                count+=lineCount
+//            }
+//        }
+//        println "count$count"
+//    }
+//}
 
 
 

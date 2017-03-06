@@ -18,14 +18,14 @@ import javafx.scene.layout.StackPane
 import quant.test.server.animation.PaneTransition
 import quant.test.server.anntation.FXMLLayout
 import quant.test.server.bus.RxBus
+import quant.test.server.event.OnDeviceConnectedEvent
+import quant.test.server.event.OnDeviceDisConnectedEvent
 import quant.test.server.event.OnDeviceSelectedEvent
 import quant.test.server.exception.ExceptionHandler
 import quant.test.server.log.Log
 import quant.test.server.model.DeviceItem
-import quant.test.server.model.TestCaseItem
 import quant.test.server.prefs.PrefsKey
 import quant.test.server.prefs.SharedPrefs
-import quant.test.server.service.ActionService
 import quant.test.server.service.ClientService
 import quant.test.server.widget.DeviceListCell
 
@@ -39,7 +39,6 @@ class MainController implements Initializable{
     @FXML StackPane contentPane
     @FXML HBox tabLayout
     @FXML JFXListView deviceList
-    @FXML ToggleButton buttonRunInfo
     @FXML ToggleButton buttonDeviceInfo
     @FXML ToggleButton buttonTask
     @FXML ToggleButton buttonTest
@@ -52,23 +51,7 @@ class MainController implements Initializable{
     void initialize(URL location, ResourceBundle resources) {
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler())
         deviceList.setItems(FXCollections.observableArrayList())
-        deviceList.setCellFactory({
-            def listCell=new DeviceListCell()
-            listCell.initContextMenu()
-            listCell.setStartAction(){
-                //启动任务
-                def sdkPath=SharedPrefs.get(PrefsKey.SDK)
-                TestCaseItem item=new TestCaseItem("测试Demo","/Users/cz/Desktop/runApk/app-debug.apk","/Users/cz/Desktop/runApk/app-debug-androidTest-unaligned.apk")
-                executorService.execute(new ActionService(sdkPath,null,it,item))
-            }
-            listCell.setPauseAction(){
-                println "pause action!"
-            }
-            listCell.setStopAction(){
-                println "stop action!"
-            }
-            listCell
-        })
+        deviceList.setCellFactory({ new DeviceListCell() })
         deviceList.setOnMouseClicked({
             def selectedItem=deviceList.getSelectionModel().getSelectedItem()
             if(selectedItem){
@@ -77,15 +60,14 @@ class MainController implements Initializable{
         })
 
         ToggleGroup toggleGroup=new ToggleGroup()
-        buttonRunInfo.setToggleGroup(toggleGroup)
         buttonDeviceInfo.setToggleGroup(toggleGroup)
         buttonTask.setToggleGroup(toggleGroup)
         buttonTest.setToggleGroup(toggleGroup)
         buttonDoc.setToggleGroup(toggleGroup)
         buttonMessage.setToggleGroup(toggleGroup)
 
-        toggleGroup.selectToggle(buttonRunInfo)
-        final def controllerArray=[RunInfoController.class,DeviceInfoController.class,TestPlanController.class,TestCaseController.class,TestDocController.class,MessageController.class]
+        toggleGroup.selectToggle(buttonDeviceInfo)
+        final def controllerArray=[DeviceInfoController.class,TestPlanController.class,TestCaseController.class,TestDocController.class,MessageController.class]
         def listener={ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle selectedToggle->
             int index=tabLayout.children.indexOf(selectedToggle)
             def oldIndex = tabLayout.children.indexOf(oldValue)
@@ -99,7 +81,7 @@ class MainController implements Initializable{
         //装载默认面板
         loadPane(controllerArray[0],0,true)
         //装载消息面板
-        loadPane(controllerArray[5],5,false)
+        loadPane(controllerArray[4],4,false)
         //初始化调试桥
         initBridge(SharedPrefs.get(PrefsKey.ADB))
     }
@@ -178,7 +160,11 @@ class MainController implements Initializable{
                 //设备中断
                 if (null != iDevice) {
                     Log.e(TAG,"设备连接中断:${iDevice.serialNumber}($iDevice.state)")
-                    Platform.runLater({deviceList.getItems().remove(DeviceItem.form(iDevice))})
+                    Platform.runLater({
+                        def deviceItem=DeviceItem.form(iDevice)
+                        deviceList.getItems().remove(deviceItem)
+                        RxBus.post(new OnDeviceDisConnectedEvent(deviceItem))
+                    })
                 }
             }
 
@@ -197,6 +183,7 @@ class MainController implements Initializable{
                             //首次信息初始化
                             deviceList.selectionModel.select(0)
                             RxBus.post(new OnDeviceSelectedEvent(deviceItem))
+                            RxBus.post(new OnDeviceConnectedEvent(deviceItem))
                         }
                     })
                     Log.e(TAG,"设备己连接:${iDevice} state:$i device-state:$iDevice.state")

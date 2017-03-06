@@ -1,6 +1,6 @@
 package quant.test.server.database
 
-import quant.test.server.prefs.FileManager
+import quant.test.server.prefs.FilePrefs
 
 import java.sql.Connection
 import java.sql.DriverManager
@@ -32,7 +32,7 @@ class Database {
 
     static Connection getConnection() {
         try {
-            def localFile=new File(FileManager.DATABASE_FOLDER,DB_NAME)
+            def localFile=new File(FilePrefs.DATABASE_FOLDER,DB_NAME)
             con = DriverManager.getConnection("jdbc:sqlite:"+localFile.absolutePath)
         } catch (SQLException ex) {
             ex.printStackTrace();

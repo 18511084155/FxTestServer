@@ -12,7 +12,7 @@ import quant.test.server.util.TextUtils;
 import java.io.File;
 
 /**
- * persist.service.bdroid.bdaddress 型号相同
+ * Created by cz on 2017/3/6.
  */
 public class Main extends Application {
     @Override
@@ -30,7 +30,7 @@ public class Main extends Application {
             stageManager.stage(primaryStage, getClass().getClassLoader().getResource("fxml/main_layout.fxml"), 900, 720);
         }
 
-//        stageManager.stage(primaryStage, getClass().getClassLoader().getResource("fxml/add_task_layout.fxml"), 900, 720);
+//        stageManager.stage(primaryStage, getClass().getClassLoader().getResource("fxml/test_plan_item.fxml"), 900, 720);
 
         //结束监听
         PlatformImpl.addListener(new PlatformImpl.FinishListener() {
@@ -44,15 +44,17 @@ public class Main extends Application {
                 System.exit(0);
             }
         });
-        primaryStage.setOnCloseRequest(t -> {
+        primaryStage.setOnCloseRequest(it->{
             Platform.exit();
-
         });
         primaryStage.show();
     }
+
+
 
 
     public static void main(String[] args) {
         launch(args);
     }
 }
+

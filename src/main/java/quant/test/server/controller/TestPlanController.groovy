@@ -86,6 +86,9 @@ class TestPlanController implements Initializable{
 
     def addTaskPlan(TestPlanItem item){
         def child=FXMLLoader.load(getClass().getClassLoader().getResource("fxml/task_item.fxml"))
+        child.setMinWidth(80)
+        child.setMaxWidth(180)
+        child.setPrefWidth(120)
         child.setStyle("-fx-background-color: ${colorItems[(int) ((Math.random()*12)%12)]}")
         JFXDepthManager.setDepth(child, 1)
         Label planLabel=child.lookup("#planLabel")

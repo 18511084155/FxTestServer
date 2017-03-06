@@ -17,6 +17,8 @@ TYPE_MD5_ERROR=2
 TYPE_LOG=3
 TYPE_INSTALL_SUCCESS=4
 TYPE_INSTALL_FAILED=5
+TYPE_RUN_COMPLETE=6
+TYPE_RUN_LOOP=7
 
 
 
@@ -138,6 +140,10 @@ initTestCase(){
 			checkClient
 			# 执行测试用例
 			startTestCase
+			# 一次任务执行完毕,通知客户端,执行检测
+			message $TYPE_RUN_LOOP $$
+			# 暂停2秒,等客户端瘊定事件是否继续,若不需要,则会kill pid 结束整个事件,此处因为无法与shell进程通信.所以采取此类轮询方式
+			sleep 2
 		else
 			message $TYPE_LOG "设备:$deviceName 执行用例:${testCaseName}执行完毕!"
 			exit

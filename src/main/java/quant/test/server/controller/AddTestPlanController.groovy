@@ -243,7 +243,7 @@ class AddTestPlanController implements InitializableArgs<List<TestPlanItem>>,Cha
     private void notifyTimeTextChanged() {
         def startSecond=startTimeSpinner.timeSecond
         def endSecond=endTimeSpinner.timeSecond
-        if (-1 < startSecond&&-1<endSecond) {
+        if (-1 < startSecond&&-1<endSecond&&startDatePicker.value&&endDatePicker.value) {
             LocalDateTime startDate=new LocalDateTime(startDatePicker.value,startTimeSpinner.localTime)
             LocalDateTime endDate=new LocalDateTime(endDatePicker.value,endTimeSpinner.localTime)
             def startMillis=startDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()

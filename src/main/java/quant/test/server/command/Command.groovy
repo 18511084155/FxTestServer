@@ -44,7 +44,7 @@ class Command {
         exitValue
     }
 
-    static def shell(shell,String...params){
+    static def shell(String shell,String...params){
         Result result=new Result()
         try {
             params?.each{ shell += (" " + it.toString().replaceAll("\\s+", "_")) }

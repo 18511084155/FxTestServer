@@ -15,6 +15,15 @@ package quant.test.server.protocol
  *
  */
 class What {
+    static class SCRIPT{
+        final static int TYPE_INIT_PID=1
+        final static int TYPE_MD5_ERROR=2
+        final static int TYPE_LOG=3
+        final static int TYPE_INSTALL_SUCCESS=4
+        final static int TYPE_INSTALL_FAILED=5
+        final static int TYPE_RUN_COMPLETE=6
+        final static int TYPE_RUN_LOOP=7
+    }
     static class ADB{
         static final def ID= ADB.class.simpleName.hashCode()
         static final def CHECK_ADB=ID+1

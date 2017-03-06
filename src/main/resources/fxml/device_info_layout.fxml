@@ -10,49 +10,74 @@
 	  xmlns="http://javafx.com/javafx/2.2" fx:controller="quant.test.server.controller.DeviceInfoController"  alignment="CENTER" >
 	<children >
 
-		<GridPane  HBox.hgrow="ALWAYS" maxWidth="320" prefWidth="320" minWidth="120" hgap="12" vgap="12" style="-fx-padding: 4 4 4 4">
-			<GridPane.margin>
-				<Insets left="8" right="8" top="8" bottom="8"/>
-			</GridPane.margin>
+		<VBox>
 
-			<Label text="设备名称" GridPane.rowIndex="0" GridPane.columnSpan="2"/>
-			<Label fx:id="mobileModel" style="-fx-text-fill: black;-fx-font-size: 16" GridPane.rowIndex="1" GridPane.columnSpan="2"/>
+			<GridPane  HBox.hgrow="ALWAYS" maxWidth="320" prefWidth="320" minWidth="120" hgap="12" vgap="12" style="-fx-padding: 4 4 4 4">
+				<GridPane.margin>
+					<Insets left="8" right="8" top="8" bottom="8"/>
+				</GridPane.margin>
 
-			<Label text="型号:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-			<Label fx:id="mobileBrand" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+				<Label text="设备名称" GridPane.rowIndex="0" GridPane.columnSpan="2"/>
+				<Label fx:id="mobileModel" style="-fx-text-fill: black;-fx-font-size: 16" GridPane.rowIndex="1" GridPane.columnSpan="2"/>
 
-			<Label text="序列号:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
-			<Label fx:id="mobileSerialno" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+				<Label text="设备序列:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+				<Label fx:id="mobileSerialno" GridPane.rowIndex="2" GridPane.columnIndex="1" />
 
-			<Label text="IMEI:" GridPane.rowIndex="4" GridPane.columnIndex="0" />
-			<Label fx:id="mobileImei" GridPane.rowIndex="4" GridPane.columnIndex="1" />
+				<Label text="IMEI:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+				<Label fx:id="mobileImei" GridPane.rowIndex="3" GridPane.columnIndex="1" />
 
-			<Label text="Android版本:" GridPane.rowIndex="5" GridPane.columnIndex="0" />
-			<Label fx:id="mobileVersion" GridPane.rowIndex="5" GridPane.columnIndex="1" />
+				<Label text="设备版本:" GridPane.rowIndex="4" GridPane.columnIndex="0" />
+				<Label fx:id="mobileVersion" GridPane.rowIndex="4" GridPane.columnIndex="1" />
 
-			<Label text="版本号:" GridPane.rowIndex="6" GridPane.columnIndex="0" />
-			<Label fx:id="mobileVersionCode" GridPane.rowIndex="6" GridPane.columnIndex="1" />
+				<Label text="设备IP:" GridPane.rowIndex="5" GridPane.columnIndex="0" />
+				<Label fx:id="mobileIpAddress" GridPane.rowIndex="5" GridPane.columnIndex="1" />
 
-			<Label text="CPU:" GridPane.rowIndex="7" GridPane.columnIndex="0" />
-			<Label fx:id="mobileCpu" GridPane.rowIndex="7" GridPane.columnIndex="1" />
-
-			<Label text="IP:" GridPane.rowIndex="8" GridPane.columnIndex="0" />
-			<Label fx:id="mobileIpAddress" GridPane.rowIndex="8" GridPane.columnIndex="1" />
-
-		</GridPane>
+				<Label text="属性搜索:" GridPane.rowIndex="6" GridPane.columnIndex="0" />
+				<JFXTextField fx:id="searchField" promptText="搜索..." GridPane.rowIndex="6" GridPane.columnIndex="1" prefWidth="240"/>
+			</GridPane>
 
 
-		<JFXTreeTableView fx:id="treeTableView"  minWidth="100" prefWidth="320" maxWidth="540" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS"  >
-			<HBox.margin>
-				<Insets left="8" right="8" top="8" bottom="8"/>
-			</HBox.margin>
-			<columns>
-				<JFXTreeTableColumn fx:id="deviceKey"
-									text="Key" minWidth="0" prefWidth="120" style="-fx-alignment: center-left; -fx-padding: 0 12 0 12"/>
-				<JFXTreeTableColumn fx:id="deviceValue"
-									text="Value" minWidth="0" prefWidth="120" style="-fx-alignment: center-left; -fx-padding: 0 12 0 12"/>
-			</columns>
-		</JFXTreeTableView>
+			<JFXTreeTableView fx:id="treeTableView"  minWidth="100" prefWidth="320" maxWidth="540" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS"  >
+				<VBox.margin>
+					<Insets left="8" right="8" top="8" bottom="8"/>
+				</VBox.margin>
+				<columns>
+					<JFXTreeTableColumn fx:id="deviceKey"
+										text="Key" minWidth="0" prefWidth="120" style="-fx-alignment: center-left; -fx-padding: 0 12 0 12"/>
+					<JFXTreeTableColumn fx:id="deviceValue"
+										text="Value" minWidth="0" prefWidth="180" style="-fx-alignment: center-left; -fx-padding: 0 12 0 12"/>
+				</columns>
+			</JFXTreeTableView>
+		</VBox>
+
+		<VBox>
+			<GridPane  HBox.hgrow="ALWAYS" maxWidth="320" prefWidth="320" minWidth="120" hgap="12" vgap="12" style="-fx-padding: 4 4 4 4">
+				<GridPane.margin>
+					<Insets left="8" right="8" top="8" bottom="8"/>
+				</GridPane.margin>
+
+				<Label text="任务计划:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+				<Label fx:id="testPlanName" text="暂无任务" style="-fx-text-fill: black;-fx-font-size: 16" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+				<Label text="测试用例:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+				<Label fx:id="testCaseName" text="##" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+				<Label text="执行时间:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+				<Label fx:id="testStartTime" text="##" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+				<Label text="结束时间:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+				<Label fx:id="testEndTime" text="##" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+				<Label text="下一任务:"  GridPane.rowIndex="4" GridPane.columnIndex="0" />
+				<Label fx:id="nextTestPlan" text="##" GridPane.rowIndex="4" GridPane.columnIndex="1" style="-fx-text-fill: black;-fx-font-size: 14;-fx-padding: 0 0 0 24" />
+				<Label text="执行时间:" GridPane.rowIndex="5" GridPane.columnIndex="0" />
+				<Label fx:id="nextTestStartTime" text="##" GridPane.rowIndex="5" GridPane.columnIndex="1" style="-fx-text-fill: black;-fx-font-size: 14;-fx-padding: 0 0 0 24" />
+				<Label text="结束时间:" GridPane.rowIndex="6" GridPane.columnIndex="0" />
+				<Label fx:id="nextTestEndTime" text="##" GridPane.rowIndex="6" GridPane.columnIndex="1" style="-fx-text-fill: black;-fx-font-size: 14;-fx-padding: 0 0 0 24" />
+			</GridPane>
+
+			<JFXListView fx:id="testPlanList" styleClass="jfx-list-view">
+				<VBox.margin>
+					<Insets left="8" right="8" top="8" bottom="8"/>
+				</VBox.margin>
+			</JFXListView>
+		</VBox>
 
 	</children>
 </HBox>

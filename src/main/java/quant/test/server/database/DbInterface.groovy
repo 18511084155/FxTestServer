@@ -16,6 +16,8 @@ interface DbInterface {
 
     List<TestCaseItem> queryTestCase()
 
+    TestCaseItem queryTestCase(int id)
+
     void insertTestPlan(TestPlanItem item)
 
     void deleteTestPlan(TestPlanItem item)

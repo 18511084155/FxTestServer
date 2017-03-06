@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Label?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Rectangle?>
+<HBox fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
+	  xmlns="http://javafx.com/javafx/2.2"  alignment="CENTER">
+	<children >
+
+		<VBox alignment="CENTER">
+			<HBox.margin>
+				<Insets left="4" right="4"/>
+			</HBox.margin>
+			<Rectangle fx:id="topRect" width="4" fill="lightgray" height="56"  VBox.vgrow="ALWAYS"/>
+
+			<StackPane alignment="CENTER">
+				<Circle fx:id="innerCircle" radius="6" fill="lightgray"/>
+				<Circle fx:id="outerCircle" radius="4" fill="gray"/>
+			</StackPane>
+
+			<Rectangle fx:id="bottomRect" width="4" fill="lightgray" height="56" VBox.vgrow="ALWAYS"/>
+
+		</VBox>
+
+		<GridPane HBox.hgrow="ALWAYS" alignment="CENTER_LEFT">
+			<GridPane.margin>
+				<Insets left="8" right="8" top="8" bottom="8"/>
+			</GridPane.margin>
+
+			<Label text="任务计划:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+			<Label fx:id="testPlanName" text="暂无任务" style="-fx-text-fill: black;-fx-font-size: 16" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+			<Label text="测试用例:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+			<Label fx:id="testCaseName" text="##" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+			<Label text="执行时间:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+			<Label fx:id="testStartTime" text="##" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+			<Label text="结束时间:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+			<Label fx:id="testEndTime" text="##" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+			<Label text="周期任务:" GridPane.rowIndex="4" GridPane.columnIndex="0" />
+			<Label fx:id="planCycle" text="##" GridPane.rowIndex="4" GridPane.columnIndex="1" />
+		</GridPane>
+
+	</children>
+</HBox>

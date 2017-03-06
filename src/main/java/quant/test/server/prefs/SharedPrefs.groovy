@@ -11,7 +11,7 @@ class SharedPrefs {
      */
     static def save(key,value){
         Properties properties=new Properties()
-        def file=new File(FileManager.CONFIG_FOLDER,CONFIG_NAME)
+        def file=new File(FilePrefs.CONFIG_FOLDER,CONFIG_NAME)
         if(file.exists()){
             properties.load(new FileInputStream(file))
         }
@@ -25,7 +25,7 @@ class SharedPrefs {
      */
     static String get(key) {
         def value
-        def configFolder=FileManager.CONFIG_FOLDER
+        def configFolder=FilePrefs.CONFIG_FOLDER
         if(configFolder.exists()) {
             Properties properties = new Properties()
             def file = new File(configFolder, CONFIG_NAME)
