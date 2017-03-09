@@ -430,7 +430,7 @@ class DeviceInfoController implements Initializable,TestPlanCallback{
     void startDeviceAction(DeviceItem deviceItem, TestPlanItem item, TestCaseItem testCaseItem) {
         final String sdkPath = SharedPrefs.get(PrefsKey.SDK)
         def actionService = new ActionService(sdkPath, deviceItem, item, testCaseItem)
-        actionService.actionCallback { processMessage(item, it) }
+        actionService.actionCallback { processMessage(deviceItem,item, it) }
         runTestItems << new RunTestItem(deviceItem, item, actionService)
         threadPool.execute(actionService)
         //发送任务开始执行事件,由任围更新状态
@@ -441,14 +441,14 @@ class DeviceInfoController implements Initializable,TestPlanCallback{
      * 处理消息
      * @param message
      */
-    def processMessage(TestPlanItem testPlanItem,item){
+    def processMessage(DeviceItem deviceItem,TestPlanItem testPlanItem,item){
         //记录信息
         switch (item.type){
             case What.SCRIPT.TYPE_INSTALL_SUCCESS:
                 Log.e(TAG,"当前任务:$testPlanItem.name $item.message 安装成功!")
                 break
             case What.SCRIPT.TYPE_INSTALL_FAILED:
-                Log.e(TAG,"当前任务:$testPlanItem.name $item.message 安装失败!")
+                Log.e(TAG,"当前任务:$testPlanItem.name ${item.message} 安装失败!")
                 break
             case What.SCRIPT.TYPE_MD5_ERROR:
                 Log.e(TAG,"当前任务:$testPlanItem.name $item.message")
@@ -457,7 +457,8 @@ class DeviceInfoController implements Initializable,TestPlanCallback{
                 Log.i(TAG,item.message)
                 break
             case What.SCRIPT.TYPE_RUN_LOOP:
-                //预留其他执行事件
+                //检测任务是否正常运行,
+
                 break
             case What.SCRIPT.TYPE_RUN_COMPLETE:
                 //1:移除任务列

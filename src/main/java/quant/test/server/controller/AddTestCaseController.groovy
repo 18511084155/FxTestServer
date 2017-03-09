@@ -17,6 +17,7 @@ import quant.test.server.bus.RxBus
 import quant.test.server.command.Command
 import quant.test.server.database.DbHelper
 import quant.test.server.event.OnTestCaseAddedEvent
+import quant.test.server.log.Log
 import quant.test.server.model.TestCaseItem
 import quant.test.server.prefs.FilePrefs
 import quant.test.server.scheduler.MainThreadSchedulers
@@ -28,6 +29,7 @@ import rx.schedulers.Schedulers
  * Created by cz on 2017/2/23.
  */
 class AddTestCaseController implements Initializable{
+    final def TAG="AddTestCaseController"
     @FXML StackPane root
     @FXML JFXTextField testCaseName
     @FXML DragTextField testCaseApk1
@@ -99,6 +101,7 @@ class AddTestCaseController implements Initializable{
                 observeOn(MainThreadSchedulers.mainThread()).
                 subscribe({
                     //通知信息添加
+                    Log.e(TAG,"用户:$testCaseItem.uid 添加测试用例:$testCaseItem.name 成功!")
                     RxBus.post(new OnTestCaseAddedEvent(testCaseItem))
                     //关闭窗口,这里从上面传入,会导致null,所以重新取.
                     StageManager.instance.getStage(this)?.hide()

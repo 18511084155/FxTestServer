@@ -106,7 +106,7 @@ class Command {
             try{
                 item = new JsonSlurper().parseText(out.toString())
             } catch (Exception e){
-                printf "message:$line 解析失败!\n"
+                println "message:${out.toString()} 解析失败!"
             }
             item
         }
@@ -116,7 +116,7 @@ class Command {
             try{
                 item = new JsonSlurper().parseText(out.toString())
             } catch (Exception e){
-                printf "message:$line 解析失败!\n"
+                println "message:${out.toString()} 解析失败!"
             }
             def params=[:]
             !item?:item.each{params<<[(it.key):it.value]}

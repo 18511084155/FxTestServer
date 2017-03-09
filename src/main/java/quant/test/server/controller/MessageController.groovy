@@ -1,18 +1,25 @@
 package quant.test.server.controller
-import com.jfoenix.controls.JFXCheckBox
-import com.jfoenix.controls.JFXTextField
-import com.jfoenix.controls.JFXToggleNode
+import com.jfoenix.controls.*
 import javafx.application.Platform
 import javafx.beans.value.ChangeListener
+import javafx.collections.FXCollections
+import javafx.collections.ObservableList
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.scene.control.ComboBox
+import javafx.scene.control.TreeItem
 import org.fxmisc.richtext.StyleClassedTextArea
 import quant.test.server.anntation.FXMLLayout
+import quant.test.server.bus.RxBus
+import quant.test.server.event.OnExceptionHandleEvent
 import quant.test.server.log.Log
 import quant.test.server.log.LogItem
+import quant.test.server.model.ExceptionItem
+import quant.test.server.prefs.FilePrefs
 
 import javax.annotation.PreDestroy
+import java.time.LocalDateTime
+
 /**
  * Created by cz on 2017/2/17.
  */
@@ -24,14 +31,29 @@ class MessageController implements Initializable,Observer{
     @FXML JFXTextField searchField
     @FXML JFXCheckBox regexCheckBox
     @FXML JFXToggleNode staticNode
+
+    @FXML JFXTreeTableView treeTableView
+    @FXML JFXTreeTableColumn filePath
+    @FXML JFXTreeTableColumn fileName
+    @FXML JFXTreeTableColumn createTime
+
     @Override
     void initialize(URL location, ResourceBundle resources) {
         Log.registerObservable(this)
         initComboBox()
         initFilterLog()
+        initExceptionList()
         staticNode.selectedProperty().addListener({ observable, oldValue, newValue ->
-
         } as ChangeListener<Boolean>)
+        regexCheckBox.selectedProperty().addListener({
+            observable, oldValue, newValue -> searchField.clear() } as ChangeListener<Boolean>)
+        //异常处理
+        RxBus.subscribe(OnExceptionHandleEvent.class){ event->
+            //生成日志,更新列表
+            File file=new File(FilePrefs.EXCEPTION_FOLDER,LocalDateTime.now().toString()+".txt")
+            file.withWriter {it.write(event.stackTrace) }
+            treeTableView.root.children.add(new TreeItem(ExceptionItem.from(file)))
+        }
     }
 
     /**
@@ -70,6 +92,23 @@ class MessageController implements Initializable,Observer{
             def logItems = Log.filterLevel(selectedIndex)
             logItems.each { appendLogItem(it) }
         } as ChangeListener<String>)
+    }
+
+    /**
+     * 创建测试用例表
+     * @param testCaseItems
+     */
+    def initExceptionList() {
+        filePath.setCellValueFactory({ filePath.validateValue(it)?it.value.value.fileName: filePath.getComputedValue(it) })
+        fileName.setCellValueFactory({ fileName.validateValue(it)? it.value.value.filePath: fileName.getComputedValue(it) })
+        createTime.setCellValueFactory({ createTime.validateValue(it)? it.value.value.lastModified: createTime.getComputedValue(it) })
+
+        ObservableList<ExceptionItem> testCaseItems = FXCollections.observableArrayList();
+        def files=FilePrefs.EXCEPTION_FOLDER.listFiles()
+        files?.each { testCaseItems<< ExceptionItem.from(it) }
+        treeTableView.setRoot(new RecursiveTreeItem<ExceptionItem>(testCaseItems, { it.getChildren() }))
+        treeTableView.setShowRoot(false)
+
     }
 
     @PreDestroy

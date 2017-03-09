@@ -5,6 +5,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import quant.test.server.widget.datepicker.MyDatePicker?>
+<?import quant.test.server.widget.MyJFXSnackbar?>
 <?import quant.test.server.widget.TimeSpinner?>
 <StackPane fx:id="root"
 		   xmlns:fx="http://javafx.com/fxml/1"
@@ -80,6 +81,6 @@
 		</JFXDialogLayout>
 	</JFXDialog>
 
-	<JFXSnackbar fx:id="snackBar" prefWidth="320" />
+	<MyJFXSnackbar fx:id="snackBar" prefWidth="320" />
 </StackPane>
 

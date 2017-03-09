@@ -46,7 +46,7 @@ class ActionService implements Runnable{
                 [deviceItem.serialNumber,
                  deviceItem.toString(),
                  adbPath,testCaseItem.apk1,
-                 testCaseItem.apk2,0,et,testCaseItem.name] as String[]){
+                 testCaseItem.apk2,0,et,taskItem.name] as String[]){
             def item=getMessage(it)
             if(item){
 //                //回调信息
@@ -76,7 +76,7 @@ class ActionService implements Runnable{
         try{
             item = new JsonSlurper().parseText(message)
         } catch (Exception e){
-            Log.e(TAG,"message:$message 解析失败!\n")
+            Log.e(TAG,"message:$message 解析失败!")
         }
         item
     }

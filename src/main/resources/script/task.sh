@@ -87,6 +87,22 @@ checkClient(){
 	fi
 }
 
+#检测应用是否安装
+checkApkInstall(){
+    result=-1
+    package=$1
+    filterPackage=$(adb shell pm list packages | grep $package )
+    for line in  $filterPackage;do
+        # 去掉最后一个不知名的异常字符,不为\n 也不为空格.尼码.这里巨坑.
+        length=${#line}
+        realStr=${line:0:$length-1}
+        if [ "package:$package" = "$realStr" ];then
+             result=0
+        fi
+    done
+    return $result
+}
+
 
 #初始化数据
 prepareTestCase(){
@@ -103,12 +119,23 @@ prepareTestCase(){
 		adb -s $deviceId install $i > /dev/null
 		# 检测应用是否安装
 		filterPackage=$(adb shell pm list packages | grep $package)
-		if [ "$filterPackage"=="package:$package" ]
-		then
+		# 检测应用是否安装
+		checkApkInstall $package
+		if [ 0 -eq $? ];then
 			message $TYPE_INSTALL_SUCCESS "$package"
 		else
 			message $TYPE_INSTALL_FAILED "$package"
 		fi
+		echo "$filterPackage" | while read line;do
+            length=${#line}
+            realStr=${line:0:$length-1}
+            if [ "$package" = "$realStr" ]
+            then
+                echo "="
+            else
+                echo "!="
+            fi
+        done
 	done
 }
 

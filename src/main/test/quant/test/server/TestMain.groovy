@@ -105,4 +105,4 @@ def testTarget(){
     [file1,file2]
 }
 
-readProjectLine()
+//readProjectLine()

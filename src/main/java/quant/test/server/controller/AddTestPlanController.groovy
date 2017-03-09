@@ -1,4 +1,6 @@
 package quant.test.server.controller
+
+import com.android.ddmlib.Log
 import com.jfoenix.controls.*
 import javafx.application.Platform
 import javafx.beans.value.ChangeListener
@@ -21,6 +23,7 @@ import quant.test.server.model.TestCaseItem
 import quant.test.server.model.TestPlanItem
 import quant.test.server.model.TestPlanProperty
 import quant.test.server.scheduler.MainThreadSchedulers
+import quant.test.server.widget.MyJFXSnackbar
 import quant.test.server.widget.TimeSpinner
 import quant.test.server.widget.datepicker.DateCellItem
 import quant.test.server.widget.datepicker.MyDatePicker
@@ -35,8 +38,9 @@ import java.time.ZoneId
  * Created by cz on 2017/2/23.
  */
 class AddTestPlanController implements InitializableArgs<List<TestPlanItem>>,ChangeListener<String>{
+    final def TAG="AddTestPlanController"
     @FXML StackPane root
-    @FXML JFXSnackbar snackBar
+    @FXML MyJFXSnackbar snackBar
     @FXML JFXTextField testPlanName
     @FXML TimeSpinner startTimeSpinner
     @FXML MyDatePicker startDatePicker
@@ -130,6 +134,7 @@ class AddTestPlanController implements InitializableArgs<List<TestPlanItem>>,Cha
             if (endCycleItem&&endCycleItem.et >= localTime.toSecondOfDay()) {
                 localTime=getTimeSecond(endCycleItem.endDate)
             }
+            localTime=localTime.plusSeconds(1)
             startTimeSpinner.valueFactory.setValue(localTime)
             endTimeSpinner.valueFactory.setValue(localTime.plusHours(2))
             startDatePicker.setValue(LocalDate.now())
@@ -145,7 +150,7 @@ class AddTestPlanController implements InitializableArgs<List<TestPlanItem>>,Cha
                 calendar.setTimeInMillis(endItem.et)
 
                 def localDate=new LocalDate(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH))
-                def localTime=new LocalTime(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), calendar.get(Calendar.SECOND),0)
+                def localTime=new LocalTime(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), calendar.get(Calendar.SECOND)+1,0)
                 localDateTime=new LocalDateTime(localDate,localTime)
                 startTimeSpinner.valueFactory.setValue(localTime)
                 endTimeSpinner.valueFactory.setValue(localTime.plusHours(2))
@@ -154,7 +159,7 @@ class AddTestPlanController implements InitializableArgs<List<TestPlanItem>>,Cha
                 endDatePicker.setValue(localDate)
             } else {
                 final def localDate=localDateTime.toLocalDate()
-                def localTime = localDateTime.toLocalTime()
+                def localTime = localDateTime.toLocalTime().plusSeconds(1)
                 startTimeSpinner.valueFactory.setValue(localTime)
                 endTimeSpinner.valueFactory.setValue(localTime.plusHours(2))
                 startDatePicker.setValue(localDate)
@@ -246,14 +251,22 @@ class AddTestPlanController implements InitializableArgs<List<TestPlanItem>>,Cha
         def startSecond=startTimeSpinner.timeMillis
         def endSecond=endTimeSpinner.timeMillis
         if (-1 < startSecond&&-1<endSecond&&startDatePicker.value&&endDatePicker.value) {
+            def nowDateTime=LocalDateTime.now()
             LocalDateTime startDate=new LocalDateTime(startDatePicker.value,startTimeSpinner.localTime)
             LocalDateTime endDate=new LocalDateTime(endDatePicker.value,endTimeSpinner.localTime)
             def startMillis=startDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
             def endMillis=endDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+            def nowDateTimeMillis=nowDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
             //1:必须小于结束时间
             int index = items.findIndexOf { !it.cycle && it.st <= startMillis && it.et >= startMillis }
-            if (startMillis >= endMillis) {
+            if(startMillis<nowDateTimeMillis){
+                Platform.runLater({
+                    startTimeSpinner.setEditError(true)
+                    startDatePicker.setEditError(true)
+                    snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("常规任务无法选择比当前时间小的日期!", null, 2000, null))
+                })
+            } else if (startMillis >= endMillis) {
                 //提示选择异常
                 Platform.runLater({
                     startTimeSpinner.setEditError(true)
@@ -383,10 +396,10 @@ class AddTestPlanController implements InitializableArgs<List<TestPlanItem>>,Cha
         LocalTime localTime
         def matcher=value=~/(\d{1,2}):(\d{1,2}):(\d{1,2})/
         if(matcher) {
-            def hour=Integer.parseInt(matcher[0][0])
-            def minute=Integer.parseInt(matcher[0][1])
-            def second=Integer.parseInt(matcher[0][2])
-            localTime = LocalTime.of(Integer.parseInt(hour, minute, second))
+            def hour=Integer.parseInt(matcher[0][1])
+            def minute=Integer.parseInt(matcher[0][2])
+            def second=Integer.parseInt(matcher[0][3])
+            localTime = LocalTime.of(hour, minute, second)
         }
         localTime
     }
@@ -417,6 +430,7 @@ class AddTestPlanController implements InitializableArgs<List<TestPlanItem>>,Cha
             }
             planItem.cycle=cycleCheckBox.isSelected()
             DbHelper.helper.insertTestPlan(planItem)
+            Log.e(TAG,"用户:$planItem.uid 添加任务计划:$planItem.name $planItem.startDate-$planItem.endDate 成功!")
             RxBus.post(new OnTestPlanAddedEvent(planItem))
             StageManager.instance.getStage(this)?.hide()
         }
