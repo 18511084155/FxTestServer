@@ -18,7 +18,8 @@ import javafx.scene.layout.StackPane
 import quant.test.server.animation.PaneTransition
 import quant.test.server.anntation.FXMLLayout
 import quant.test.server.bus.RxBus
-import quant.test.server.event.OnDeviceConnectedEvent
+import quant.test.server.event.OnActionStartEvent
+import quant.test.server.event.OnActionStopEvent
 import quant.test.server.event.OnDeviceDisConnectedEvent
 import quant.test.server.event.OnDeviceSelectedEvent
 import quant.test.server.exception.ExceptionHandler
@@ -50,16 +51,31 @@ class MainController implements Initializable{
     @Override
     void initialize(URL location, ResourceBundle resources) {
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler())
+        //初始化设备列表
+        initDeviceList()
+        //初始化面板按钮
+        initMenuButton()
+        //初始化调试桥
+        initBridge(SharedPrefs.get(PrefsKey.ADB))
+        //初始化事件
+        initEvent()
+    }
+
+    private void initDeviceList() {
         deviceList.setItems(FXCollections.observableArrayList())
         deviceList.setCellFactory({ new DeviceListCell() })
         deviceList.setOnMouseClicked({
-            def selectedItem=deviceList.getSelectionModel().getSelectedItem()
-            if(selectedItem){
+            def selectedItem = deviceList.getSelectionModel().getSelectedItem()
+            if (selectedItem) {
                 RxBus.post(new OnDeviceSelectedEvent(selectedItem as DeviceItem))
             }
         })
-
-        ToggleGroup toggleGroup=new ToggleGroup()
+    }
+    /**
+     * 初始化菜单按钮
+     */
+    private void initMenuButton() {
+        ToggleGroup toggleGroup = new ToggleGroup()
         buttonDeviceInfo.setToggleGroup(toggleGroup)
         buttonTask.setToggleGroup(toggleGroup)
         buttonTest.setToggleGroup(toggleGroup)
@@ -67,23 +83,45 @@ class MainController implements Initializable{
         buttonMessage.setToggleGroup(toggleGroup)
 
         toggleGroup.selectToggle(buttonDeviceInfo)
-        final def controllerArray=[DeviceInfoController.class,TestPlanController.class,TestCaseController.class,TestDocController.class,MessageController.class]
-        def listener={ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle selectedToggle->
-            int index=tabLayout.children.indexOf(selectedToggle)
+        final
+        def controllerArray = [DeviceInfoController.class, TestPlanController.class, TestCaseController.class, TestDocController.class, MessageController.class]
+        def listener = { ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle selectedToggle ->
+            int index = tabLayout.children.indexOf(selectedToggle)
             def oldIndex = tabLayout.children.indexOf(oldValue)
-            -1!=index?: oldValue.setSelected(true)
-            if(-1!=index&&-1!=oldIndex&&oldIndex!=index){
-                loadPane(controllerArray[index],index,false)
-                new PaneTransition(cachePane[oldIndex],cachePane[index],index>oldIndex?-contentPane.width:contentPane.width).start()
+            -1 != index ?: oldValue.setSelected(true)
+            if (-1 != index && -1 != oldIndex && oldIndex != index) {
+                loadPane(controllerArray[index], index, false)
+                new PaneTransition(cachePane[oldIndex], cachePane[index], index > oldIndex ? -contentPane.width : contentPane.width).start()
             }
         } as ChangeListener
         toggleGroup.selectedToggleProperty().addListener(listener)
         //装载默认面板
-        loadPane(controllerArray[0],0,true)
+        loadPane(controllerArray[0], 0, true)
         //装载消息面板
-        loadPane(controllerArray[4],4,false)
-        //初始化调试桥
-        initBridge(SharedPrefs.get(PrefsKey.ADB))
+        loadPane(controllerArray[4], 4, false)
+    }
+
+    /**
+     * 初始化事件
+     */
+    private void initEvent() {
+        //事件开始执行事件
+        RxBus.subscribe(OnActionStartEvent.class) { event ->
+            int index = deviceList.items.indexOf(event.deviceItem)
+            if (-1 < index) {
+                event.deviceItem.running = true
+                deviceList.items.set(index, event.deviceItem)
+            }
+        }
+
+        //事件停止执行事件
+        RxBus.subscribe(OnActionStopEvent.class) { event ->
+            int index = deviceList.items.indexOf(event.deviceItem)
+            if (-1 < index) {
+                event.deviceItem.running = false
+                deviceList.items.set(index, event.deviceItem)
+            }
+        }
     }
 
 
@@ -183,7 +221,6 @@ class MainController implements Initializable{
                             //首次信息初始化
                             deviceList.selectionModel.select(0)
                             RxBus.post(new OnDeviceSelectedEvent(deviceItem))
-                            RxBus.post(new OnDeviceConnectedEvent(deviceItem))
                         }
                     })
                     Log.e(TAG,"设备己连接:${iDevice} state:$i device-state:$iDevice.state")

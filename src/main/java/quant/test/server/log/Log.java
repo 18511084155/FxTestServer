@@ -21,7 +21,7 @@ public class Log {
 
 
     public static final void i(String TAG,String info){
-        processLog(INFO,TAG,info);
+        processLog(INFO, TAG, info);
     }
 
     public static final void w(String TAG,String info){
@@ -43,19 +43,41 @@ public class Log {
     }
 
     /**
+     * 等级过滤
+     * @param level
+     */
+    public static List<LogItem> filterLevel(int level){
+        return processor.filterLevel(level);
+    }
+
+    /**
      * 过滤文字
      * @param text
+     * @param level
      */
-    public List<LogItem> filterLog(String text){
-        return processor.matcherLog(text);
+    public static List<LogItem> filterLog(int level,String text){
+        return processor.filterLog(level, text);
     }
 
     /**
      * 正则过滤条目
      * @param regex
+     * @param level
      */
-    public List<LogItem> matcherLog(String regex){
-        return processor.matcherLog(regex);
+    public static List<LogItem> matcherLog(int level,String regex){
+        return processor.matcherLog(level, regex);
+    }
+
+    /**
+     * 检测此日志是否可以匹配当前条件
+     * @param logItem
+     * @param level
+     * @param text
+     * @param regex
+     * @return
+     */
+    public static boolean matcherLog(LogItem logItem,int level,String text,boolean regex){
+        return processor.matcherLog(logItem, level, text, regex);
     }
 
     public static void unregisterObservable(Observer observer){

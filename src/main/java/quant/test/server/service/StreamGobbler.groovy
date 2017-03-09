@@ -13,14 +13,17 @@ class StreamGobbler extends Thread{
     @Override
     void run() {
         super.run()
+        BufferedReader br
         try {
             String line
-            def br = new BufferedReader(new InputStreamReader(inputStream))
-            while (!(line = br.readLine())) {
+            br = new BufferedReader(new InputStreamReader(inputStream))
+            while ((line = br.readLine()) != null) {
                 closure?.call(line)
             }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally{
+            br?.close()
         }
     }
 }

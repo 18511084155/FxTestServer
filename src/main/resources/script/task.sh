@@ -82,6 +82,7 @@ checkClient(){
 	if [ -z "$pkg" ]
 	then
 		# 如果为空,则重启应用
+		adb shell am force-stop $CLIENT_PACKAGE
 		adb shell am start -n $CLIENT_PACKAGE/$CLIENT_PACKAGE.MainActivity  > /dev/null
 	fi
 }
@@ -116,7 +117,7 @@ startTestCase(){
 	# 主包包名
 	testPackage=$(aapt dump badging $testApk2 | awk '/package/{gsub("name=|'"'"'","");  print $2}')
 	# 启动测试用例
-	test=$(adb -s $deviceId shell am instrument -w $testPackage/android.support.test.runner.AndroidJUnitRunner)
+	$(adb -s $deviceId shell am instrument -w $testPackage/android.support.test.runner.AndroidJUnitRunner)
 }
 
 # 开始执行测试用例
@@ -146,6 +147,7 @@ initTestCase(){
 			sleep 2
 		else
 			message $TYPE_LOG "设备:$deviceName 执行用例:${testCaseName}执行完毕!"
+			message $TYPE_RUN_COMPLETE "$$"
 			exit
 		fi
 	done

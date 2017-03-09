@@ -2,13 +2,14 @@ package quant.test.server.service
 import com.android.ddmlib.AndroidDebugBridge
 import com.android.ddmlib.IDevice
 import groovy.json.JsonSlurper
+import quant.test.server.bus.RxBus
 import quant.test.server.command.Command
+import quant.test.server.event.OnDeviceAdbConnectedEvent
 import quant.test.server.log.Log
 import quant.test.server.model.DeviceItem
 import quant.test.server.model.Property
 import quant.test.server.protocol.Json
 import quant.test.server.protocol.What
-
 /**
  * Created by czz on 2017/2/3.
  * 客户端服务对象
@@ -107,6 +108,7 @@ class ClientService implements Runnable,AndroidDebugBridge.IDeviceChangeListener
             Log.e(TAG,"设备:${address} Adb己连接")
             sendMessage(What.ADB.CONNECT_COMPLETE,address,null)
             sendMessage(What.ADB.LOG,address,"设备:${address} Adb己连接")
+            RxBus.post(new OnDeviceAdbConnectedEvent(deviceItem[0]))
         } else {
             //说明,未插入设备,通知其检测是否 root,如果未 root 提示其插入 usb
             sendMessage(What.ADB.CHECK_ADB,address,null)
@@ -125,12 +127,10 @@ class ClientService implements Runnable,AndroidDebugBridge.IDeviceChangeListener
         //设备中断,查看设备为无线连接,或是有线,若为无线,则尝试重联,有线
         if (null != iDevice) {
             def deviceAddress=iDevice.properties[Property.DEVICE_ADDRESS]
-            Log.e(TAG,"设备连接中断:$iDevice.serialNumber")
             if (address.equals(deviceAddress)) {
                 //当前设备中断,设置重连
                 sendMessage(What.ADB.ADB_INTERRUPT,address,null)//设备adb中断
                 sendMessage(What.ADB.LOG,address,"设备:${iDevice.serialNumber} 中断,尝试重联...")
-                Log.e(TAG,"发送消息:$iDevice.serialNumber")
                 checkAdbConnect(address)
             }
         }
@@ -146,6 +146,7 @@ class ClientService implements Runnable,AndroidDebugBridge.IDeviceChangeListener
                 //设备连接
                 sendMessage(What.ADB.CONNECT_COMPLETE,deviceAddress,null)//设备adb
                 sendMessage(What.ADB.LOG,address,"设备:${deviceAddress} Adb己连接")
+                RxBus.post(new OnDeviceAdbConnectedEvent(DeviceItem.form(iDevice)))
             }
         }
     }

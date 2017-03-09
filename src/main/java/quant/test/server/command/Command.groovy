@@ -28,16 +28,10 @@ class Command {
     static def exec(command,closure){
         int exitValue=-1
         try{
-            def process=command?.execute()
-            process.inputStream.withReader {reader->reader.readLines().each {
-                closure(it)
-            }}
-            process.errorStream.withReader {reader->reader.readLines().each {
-                closure(it)
-            }}
+            Process process=command?.execute()
+            new StreamGobbler(process.inputStream,closure).start()
             process.waitFor()
             exitValue=process.exitValue()
-            process.destroy()
         } catch (e){
             e.printStackTrace()
         }
@@ -66,15 +60,15 @@ class Command {
     static def shell(shell,String[] params,closure){
         int exitValue=-1
         try {
-            params?.each{ shell += (" " + it.toString().replaceAll("\\s+", "_")) }
+            params?.each{ shell += (" " + it.replaceAll("\\s+", "_")) }
             def processBuilder=new ProcessBuilder(["/bin/sh", "-c", shell as String])
             def env=processBuilder.environment()
             env+=(System.getenv())
             def process = processBuilder.start()
-            new StreamGobbler(process.inputStream,closure).start()
+            def inputStream=process.inputStream
+            new StreamGobbler(inputStream,closure).start()
             process.waitFor()
             exitValue=process.exitValue()
-            process.destroy()
         } catch (Exception e) {
             e.printStackTrace();
             Log.e(TAG,e)

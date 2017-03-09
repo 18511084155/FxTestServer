@@ -3,9 +3,10 @@
 <?import com.jfoenix.controls.*?>
 <?import de.jensd.fx.fontawesome.Icon?>
 <?import javafx.collections.FXCollections?>
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import org.fxmisc.richtext.StyleClassedTextArea?>
 <VBox fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
 	  xmlns="http://javafx.com/javafx/2.2"
 	  fx:controller="quant.test.server.controller.MessageController"
@@ -35,15 +36,12 @@
 		</JFXTreeTableView>
 
 		<HBox alignment="CENTER_LEFT" >
-			<ComboBox id="comboBox" editable="false" prefHeight="18" prefWidth="120" promptText="全部">
+			<ComboBox fx:id="comboBox" styleClass="jfx-combo-box" editable="false" prefHeight="18" prefWidth="120" promptText="全部">
 				<HBox.margin>
 					<Insets left="12" right="12"/>
 				</HBox.margin>
 				<items>
 					<FXCollections fx:factory="observableArrayList" >
-						<Label text="Info" styleClass="item-label"/>
-						<Label text="Warning" styleClass="item-label"/>
-						<Label text="Error" styleClass="item-label"/>
 					</FXCollections>
 				</items>
 			</ComboBox>
@@ -54,28 +52,23 @@
 				</HBox.margin>
 			</JFXTextField>
 
-			<JFXCheckBox text="正则" alignment="CENTER">
+			<JFXCheckBox fx:id="regexCheckBox" text="正则" alignment="CENTER">
 				<HBox.margin>
 					<Insets left="12" right="12"/>
 				</HBox.margin>
 			</JFXCheckBox>
 
-			<Icon fx:id="buttonTrash" awesomeIcon="TRASH"  size="1.2em" prefWidth="24" prefHeight="24" />
-
-			<JFXToggleNode styleClass="toggle-icon1">
+			<JFXToggleNode fx:id="staticNode" styleClass="toggle-icon1">
 				<Icon awesomeIcon="FILTER"  size="1.2em"  />
 			</JFXToggleNode>
 
-			<JFXToggleNode styleClass="toggle-icon1">
-				<Icon awesomeIcon="TRASH"  size="1.2em"  />
-			</JFXToggleNode>
 		</HBox>
 
-		<TextArea fx:id="messageArea" editable="false"  VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS">
+		<StyleClassedTextArea fx:id="messageArea" styleClass="text-area" style="-fx-font-size: 10" editable="false"  VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS">
 			<VBox.margin>
 				<Insets left="8" right="8" top="8" bottom="8"/>
 			</VBox.margin>
-		</TextArea>
+		</StyleClassedTextArea>
 	</children>
 
 </VBox>

@@ -34,7 +34,7 @@ class DeviceItemController{
     }
 
 
-    def setDeviceItem(DeviceItem deviceItem) {
+    def bindItem(DeviceItem deviceItem) {
         imageView.setImage(new Image(getClass().getResourceAsStream(deviceItem.isUsbConnect()?"/image/ic_settings_input_hdmi.png":"/image/ic_settings_input_antenna.png")))
         deviceName.setText("$deviceItem.brand-$deviceItem.model")
         def address=deviceItem.getDeviceProperty(Property.DEVICE_ADDRESS)
@@ -44,6 +44,10 @@ class DeviceItemController{
             socketStatus.setText(deviceItem.getDeviceProperty(Property.DEVICE_IMEI))
         }
         JFXDepthManager.setDepth(runStatus,2)
-        runStatus.setFill(new Color(1.0,0,0,1.0))
+        if(deviceItem.running){
+            runStatus.setFill(new Color(0,1.0,0,1.0))
+        } else {
+            runStatus.setFill(new Color(1.0,0,0,1.0))
+        }
     }
 }

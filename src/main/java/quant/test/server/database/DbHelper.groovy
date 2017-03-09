@@ -19,7 +19,7 @@ class DbHelper implements DbInterface{
         helper
     }
     @Override
-    void insertTestCase(TestCaseItem item) {
+    boolean insertTestCase(TestCaseItem item) {
         def connection=Database.connection
         PreparedStatement statement = connection.prepareStatement("INSERT INTO $Database.TEST_CASE(" +
                 "name," +
@@ -48,8 +48,9 @@ class DbHelper implements DbInterface{
         statement.setString(11,item.apk2Md5)
         statement.setLong(12,System.currentTimeMillis())
         statement.setInt(13,item.uid)
-        statement.execute()
+        boolean result = statement.execute()
         statement.closed?:statement.close()
+        result
     }
 
     @Override
@@ -149,7 +150,7 @@ class DbHelper implements DbInterface{
     }
 
     @Override
-    void insertTestPlan(TestPlanItem item) {
+    boolean insertTestPlan(TestPlanItem item) {
         def connection=Database.connection
         PreparedStatement statement = connection.prepareStatement("INSERT INTO $Database.TEST_PLAN(" +
                 "name," +
@@ -172,8 +173,9 @@ class DbHelper implements DbInterface{
         statement.setString(8,item.endDate)
         statement.setBoolean(9,item.cycle)
         statement.setBoolean(10,item.invalid)
-        statement.execute()
+        boolean result=statement.execute()
         statement.closed?:statement.close()
+        result
     }
 
     @Override

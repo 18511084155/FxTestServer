@@ -1,5 +1,6 @@
 package quant.test.server.bus
 
+import javafx.application.Platform
 import rx.Observable
 import rx.Subscription
 import rx.functions.Action1
@@ -19,7 +20,11 @@ class RxBus {
      * @param o
      */
     static void post(o) {
-        bus.onNext(o);
+        if(Platform.fxApplicationThread){
+            bus.onNext(o)
+        } else {
+            Platform.runLater({ bus.onNext(o)})
+        }
     }
 
     static<T> void  subscribe(Class<T> eventType, Action1<T> action1){

@@ -2,6 +2,7 @@ group 'quant.test.server'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
+apply plugin: 'groovy'
 
 sourceCompatibility = 1.8
 
@@ -10,9 +11,17 @@ repositories {
     mavenCentral()
 }
 
+sourceSets {
+    main {
+        java.srcDirs = ['src/main/java','ddms']
+        resources.srcDirs = ['src/main/resources']
+    }
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile group: 'junit', name: 'junit', version: '4.11'
     compile 'com.jfoenix:jfoenix:1.1.0'
     compile 'io.reactivex:rxjava:1.1.6'
+    compile 'org.fxmisc.richtext:richtextfx:0.6.10'
 }

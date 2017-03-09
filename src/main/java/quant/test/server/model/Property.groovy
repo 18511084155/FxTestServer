@@ -530,6 +530,8 @@ interface Property {
     final def RO_RIL_OEM_IMEI="persist.radio.imei1"
     final def PERSIST_RADIO_IMEI="persist.radio.imei1"
 
+    final def GSM_DEVICE_SN="gsm.device.sn"
+
     final def DEVICE_IMEI="device_imei"
     final def DEVICE_ID="device_id"
     final def DEVICE_ADDRESS="device_address"

@@ -53,7 +53,7 @@ class DeviceListCell extends ListCell<DeviceItem> {
         if (empty) {
             setGraphic(null)
         } else {
-            controller.setDeviceItem(item)
+            controller.bindItem(item)
             setGraphic(view)
         }
     }

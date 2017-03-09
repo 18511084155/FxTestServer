@@ -23,6 +23,6 @@ public class LogItem {
 
     @Override
     public String toString() {
-        return formatter.format(ct)+" "+LogLevel.values()[level]+"/"+threadName+"-"+tag+": "+value;
+        return formatter.format(ct)+"["+LogLevel.values()[level]+"/"+threadName+"/"+tag+"] "+value;
     }
 }

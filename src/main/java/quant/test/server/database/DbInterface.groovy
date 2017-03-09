@@ -8,7 +8,7 @@ import quant.test.server.model.TestPlanItem
  */
 interface DbInterface {
 
-    void insertTestCase(TestCaseItem item)
+    boolean insertTestCase(TestCaseItem item)
 
     void deleteTestCase(TestCaseItem item)
 
@@ -18,7 +18,7 @@ interface DbInterface {
 
     TestCaseItem queryTestCase(int id)
 
-    void insertTestPlan(TestPlanItem item)
+    boolean insertTestPlan(TestPlanItem item)
 
     void deleteTestPlan(TestPlanItem item)
 

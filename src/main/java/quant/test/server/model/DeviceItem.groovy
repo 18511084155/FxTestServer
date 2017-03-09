@@ -16,15 +16,17 @@ class DeviceItem {
     def gsmSerial
     def serialNumber
     def properties
+    boolean running
 
     static DeviceItem form(device){
+        def gsmSerial=device.properties[Property.RO_SERIALNO]
+        gsmSerial?:(gsmSerial=device.properties[Property.GSM_DEVICE_SN])
         new DeviceItem(device.serialNumber,
                 device.properties[Property.RO_PRODUCT_BRAND],
                 device.properties[Property.RO_PRODUCT_MODEL],
                 device.properties[Property.RO_BUILD_VERSION_RELEASE],
                 device.properties[Property.RO_BUILD_VERSION_SDK],
-                device.properties[Property.RO_SERIALNO],
-                device.state,device.properties)
+                gsmSerial, device.state,device.properties)
     }
 
     DeviceItem(serialNumber,model, brand, sdk, release, gsmSerial,state,properties) {
@@ -58,7 +60,6 @@ class DeviceItem {
 
     @Override
     boolean equals(Object obj) {
-        if (is(obj)) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         DeviceItem that = (DeviceItem) obj;
         return Objects.equals(model, that.model) &&

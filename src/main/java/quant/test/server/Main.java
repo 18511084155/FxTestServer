@@ -13,6 +13,9 @@ import java.io.File;
 
 /**
  * Created by cz on 2017/3/6.
+ * 1;消息日志过滤,以及展示
+ * 2:计划优先级测试机制
+ * 3:apk包copy
  */
 public class Main extends Application {
     @Override
@@ -27,7 +30,7 @@ public class Main extends Application {
         } else {
             //主界面
             primaryStage.setTitle("调试程序");
-            stageManager.stage(primaryStage, getClass().getClassLoader().getResource("fxml/main_layout.fxml"), 900, 720);
+            stageManager.stage(primaryStage, getClass().getClassLoader().getResource("fxml/main_layout.fxml"), 960, 720);
         }
 
 //        stageManager.stage(primaryStage, getClass().getClassLoader().getResource("fxml/test_plan_item.fxml"), 900, 720);
@@ -48,6 +51,7 @@ public class Main extends Application {
             Platform.exit();
         });
         primaryStage.show();
+
     }
 
 

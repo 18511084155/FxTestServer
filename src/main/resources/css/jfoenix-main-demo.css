@@ -1293,3 +1293,22 @@
 	-fx-font-size: 0.75em;
 }
 
+.red {
+	-fx-fill: red;
+}
+
+.green {
+	-fx-fill: green;
+}
+
+.blue {
+	-fx-fill: blue;
+}
+.black{
+	-fx-fill: black;
+}
+
+.bold {
+	-fx-font-weight: bold;
+}
+
