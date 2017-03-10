@@ -105,4 +105,30 @@ def testTarget(){
     [file1,file2]
 }
 
-//readProjectLine()
+def testRegex(){
+    def value="[100%] /data/local/tmp/app-debug.apk"
+    def matcher=value=~/\[(100%)\]\s+(.+)/
+    if(matcher){
+        println matcher.group(1)
+    }
+}
+
+def testXml(){
+    File file=new File("ui.xml")
+    Node node=new XmlParser().parse(file)
+    def findItems=[]
+    node.each {testNode(findItems,it)}
+    findItems.each {
+        println it
+    }
+}
+
+def testNode(items,Node node){
+    def findItem=node.attributes().find { it.value=="继续安装" }
+    !findItem?:(items<<node)
+    if(node.children()){
+        node.children().each { testNode(items,it) }
+    }
+}
+
+testXml()

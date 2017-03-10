@@ -48,7 +48,7 @@ class ClientService implements Runnable,AndroidDebugBridge.IDeviceChangeListener
                 try{
                     item = new JsonSlurper().parseText(line)
                 } catch (Exception e){
-                    printf "message:$line 解析失败!"
+                    println "message:$line 解析失败!"
                 }
                 if (item) {
                     if (What.ADB.CONNECT == item.what) {

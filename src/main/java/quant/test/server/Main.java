@@ -43,6 +43,8 @@ public class Main extends Application {
 
             @Override
             public void exitCalled() {
+                //退出时保留所有日志
+                Log.saveAllLog();
                 //exit
                 System.exit(0);
             }

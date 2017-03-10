@@ -10,6 +10,7 @@ class FilePrefs {
     final static def TEST_CASE_PATH="TestServer/testCase"
     final static def LOG_PATH="TestServer/log"
     final static def EXCEPTION_PATH="TestServer/exception"
+    final static def CACHE_PATH="TestServer/dump"
 
     public final static File CONFIG_FOLDER=new File(System.properties["user.home"],CONFIG_PATH)
     public final static File DATABASE_FOLDER=new File(System.properties["user.home"],DB_PATH)
@@ -17,6 +18,7 @@ class FilePrefs {
     public final static File TEST_CASE_FOLDER=new File(System.properties["user.home"],TEST_CASE_PATH)
     public final static File LOG_FOLDER=new File(System.properties["user.home"],LOG_PATH)
     public final static File EXCEPTION_FOLDER=new File(System.properties["user.home"],EXCEPTION_PATH)
+    public final static File DUMP_FOLDER=new File(System.properties["user.home"],CACHE_PATH)
 
     public final static File SCRIPT_TASK=new File(SCRIPT_FOLDER,"task.sh")
     public final static File SCRIPT_SCAN_APK=new File(SCRIPT_FOLDER,"apk_file.sh")
@@ -28,7 +30,8 @@ class FilePrefs {
                 SCRIPT_FOLDER,
                 TEST_CASE_FOLDER,
                 LOG_FOLDER,
-                EXCEPTION_FOLDER)
+                EXCEPTION_FOLDER,
+                DUMP_FOLDER)
     }
 
     static def ensureFolder(File...folder){

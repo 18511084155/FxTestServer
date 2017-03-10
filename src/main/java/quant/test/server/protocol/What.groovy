@@ -23,6 +23,10 @@ class What {
         final static int TYPE_INSTALL_FAILED=5
         final static int TYPE_RUN_COMPLETE=6
         final static int TYPE_RUN_LOOP=7
+        final static int TYPE_DUMP_SUCCESS=8
+        final static int TYPE_DUMP_FAILED=9
+        final static int TYPE_PULL_SUCCESS=10
+        final static int TYPE_PULL_FAILED=11
     }
     static class ADB{
         static final def ID= ADB.class.simpleName.hashCode()

@@ -19,6 +19,7 @@ import quant.test.server.prefs.SharedPrefs
 import quant.test.server.protocol.What
 import quant.test.server.service.ActionService
 import quant.test.server.service.TestPlanTimerTask
+import quant.test.server.service.install.XiaoMiInstallService
 import quant.test.server.util.FileUtils
 import quant.test.server.widget.TestPlanCell
 import rx.Observable
@@ -80,6 +81,8 @@ class DeviceInfoController implements Initializable,TestPlanCallback{
     final List<RunTestItem> runTestItems =[]//执行任务集
     TestPlanTimerTask testPlanTimerTask//未来的任务计划
     TestPlanItem currentPlan
+    def installItems=[:]//安装协助对象
+    XiaoMiInstallService installService
     def planItems=[]//当前计划集
 
     @Override
@@ -448,7 +451,7 @@ class DeviceInfoController implements Initializable,TestPlanCallback{
                 Log.e(TAG,"当前任务:$testPlanItem.name $item.message 安装成功!")
                 break
             case What.SCRIPT.TYPE_INSTALL_FAILED:
-                Log.e(TAG,"当前任务:$testPlanItem.name ${item.message} 安装失败!")
+                Log.e(TAG,"当前任务:$testPlanItem.name ${item.message} 安装失败,准备重启安装")
                 break
             case What.SCRIPT.TYPE_MD5_ERROR:
                 Log.e(TAG,"当前任务:$testPlanItem.name $item.message")
@@ -458,7 +461,6 @@ class DeviceInfoController implements Initializable,TestPlanCallback{
                 break
             case What.SCRIPT.TYPE_RUN_LOOP:
                 //检测任务是否正常运行,
-
                 break
             case What.SCRIPT.TYPE_RUN_COMPLETE:
                 //1:移除任务列
@@ -473,7 +475,22 @@ class DeviceInfoController implements Initializable,TestPlanCallback{
                     //4:任务己执行完,通知其他界面
                     RxBus.post(new OnTestPlanRunCompleteEvent(testPlanItem))
                 })
-                break
+                break;
+            case What.SCRIPT.TYPE_DUMP_SUCCESS:
+                //生成界面位置成功
+                Log.i(TAG,item.message)
+                break;
+            case What.SCRIPT.TYPE_DUMP_FAILED:
+                Log.i(TAG,item.message)
+                break;
+            case What.SCRIPT.TYPE_PULL_SUCCESS:
+                Log.i(TAG,item.message)
+                installService?:(installService=new XiaoMiInstallService(deviceItem,testPlanItem))
+                installService.analysis()
+                break;
+            case What.SCRIPT.TYPE_PULL_FAILED:
+                Log.i(TAG,item.message)
+                break;
         }
     }
 /**

@@ -29,7 +29,6 @@ class LogProcessor extends Thread {
         super.run();
         while(true){
             synchronized (logItems){
-                def writer1,writer2
                 try {
                     while(!logItems.isEmpty()){
                         LogItem logItem = logItems.pollFirst();
@@ -37,37 +36,45 @@ class LogProcessor extends Thread {
                     }
                     //保存日志文件
                     if(MAX_SIZE<=originalItems.size()){
-                        //今天的起始时间
-                        LocalDate nowDate = LocalDate.now()
-                        LocalDate lastDate=nowDate.plusDays(-1)
-                        writer1 = new File(FilePrefs.LOG_FOLDER,nowDate.toString()+".txt").newWriter(true)
-
-                        LocalDateTime localDateTime=LocalDateTime.of(nowDate, LocalTime.of(0, 0, 0))
-                        long timeMillis=localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                        for(Iterator<LogItem> iterator=originalItems.iterator();iterator.hasNext();){
-                            LogItem item = iterator.next()
-
-                            def logValue=item.toString()+"\n"
-                            if(item.ct<timeMillis){
-                                //上一天内容
-                                writer2?:(writer2=new File(FilePrefs.LOG_FOLDER,lastDate.toString()+".txt").newWriter(true))
-                                writer2.write(logValue,0,logValue.length())
-                            } else {
-                                //今天内容
-                                writer1.write(logValue,0,logValue.length())
-                            }
-                            iterator.remove()
-                        }
+                        saveAllLog()
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } finally {
-                    writer1?.close()
-                    writer2?.close()
                     logItems.wait();
                 }
             }
         }
+    }
+
+    /**
+     * 保存所有的日志文件
+     */
+    public void saveAllLog() {
+        def writer1, writer2
+        //今天的起始时间
+        LocalDate nowDate = LocalDate.now()
+        LocalDate lastDate = nowDate.plusDays(-1)
+        writer1 = new File(FilePrefs.LOG_FOLDER, nowDate.toString() + ".txt").newWriter(true)
+
+        LocalDateTime localDateTime = LocalDateTime.of(nowDate, LocalTime.of(0, 0, 0))
+        long timeMillis = localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        for (Iterator<LogItem> iterator = originalItems.iterator(); iterator.hasNext();) {
+            LogItem item = iterator.next()
+
+            def logValue = item.toString() + "\n"
+            if (item.ct < timeMillis) {
+                //上一天内容
+                writer2 ?: (writer2 = new File(FilePrefs.LOG_FOLDER, lastDate.toString() + ".txt").newWriter(true))
+                writer2.write(logValue, 0, logValue.length())
+            } else {
+                //今天内容
+                writer1.write(logValue, 0, logValue.length())
+            }
+            iterator.remove()
+        }
+        writer1?.close()
+        writer2?.close()
     }
 
     void process(LogItem item) {

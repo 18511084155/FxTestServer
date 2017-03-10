@@ -42,6 +42,13 @@ public class Log {
         processor.registerObservable(observer);
     }
 
+
+    /**
+     * 保存所有log日志
+     */
+    public static void saveAllLog(){
+        processor.saveAllLog();
+    }
     /**
      * 等级过滤
      * @param level

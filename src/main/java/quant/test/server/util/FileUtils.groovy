@@ -12,7 +12,7 @@ class FileUtils {
      * 拷贝脚本文件
      */
     static void copyResourceFileIfNotExists(File file,String path) {
-        if(!file.exists()){
+        if(file.exists()){
             BufferedWriter writer=new BufferedWriter(new FileWriter(file))
             InputStream inputStream = FileUtils.class.getClassLoader().getResourceAsStream(path);
             inputStream.withReader {

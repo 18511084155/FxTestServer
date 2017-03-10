@@ -42,11 +42,17 @@ class ActionService implements Runnable{
         long todayStartTime=todayTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
         //脚本内,以秒计算
         long et=(taskItem.cycle?todayStartTime+taskItem.et:taskItem.et)/1000
-        Command.shell(FilePrefs.SCRIPT_TASK.absolutePath,
-                [deviceItem.serialNumber,
-                 deviceItem.toString(),
-                 adbPath,testCaseItem.apk1,
-                 testCaseItem.apk2,0,et,taskItem.name] as String[]){
+        def dumpFile=new File(FilePrefs.DUMP_FOLDER,deviceItem.toString().hashCode()+".xml")
+        Command.shell(FilePrefs.SCRIPT_TASK.absolutePath,//脚本位置
+                [deviceItem.serialNumber,//手机序列id,用以区分执行多台设备
+                 deviceItem.toString(),//手机标记名
+                 adbPath,testCaseItem.apk1,//测试apk包位置
+                 testCaseItem.apk2,//测试apk 用例位置
+                 0,//运行次数
+                 et,//结束时间
+                 taskItem.name,//测试计划名称,下面为导出手机界面元素文件到本机位置
+                 dumpFile.absolutePath,
+                 deviceItem.release] as String[]){
             def item=getMessage(it)
             if(item){
 //                //回调信息
@@ -76,7 +82,7 @@ class ActionService implements Runnable{
         try{
             item = new JsonSlurper().parseText(message)
         } catch (Exception e){
-            Log.e(TAG,"message:$message 解析失败!")
+            println "message:$message 解析失败!"
         }
         item
     }
