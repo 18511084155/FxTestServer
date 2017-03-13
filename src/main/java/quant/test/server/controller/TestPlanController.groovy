@@ -115,18 +115,17 @@ class TestPlanController implements Initializable{
 
 
     private initAddButton() {
-        def items=planItems.keySet() as List
         if(Platform.fxApplicationThread){
             addTask.setDisable(false)
             addTask.setOnMouseClicked({
-                StageManager.instance.newStage(getClass().getClassLoader().getResource("fxml/add_task_layout.fxml"), items, 640, 720)?.show()
+                StageManager.instance.newStage(getClass().getClassLoader().getResource("fxml/add_task_layout.fxml"), planItems.keySet() as List, 640, 720)?.show()
             })
         } else {
             Platform.runLater({
                 //设置控件可点击
                 addTask.setDisable(false)
                 addTask.setOnMouseClicked({
-                    StageManager.instance.newStage(getClass().getClassLoader().getResource("fxml/add_task_layout.fxml"),items, 640, 720)?.show()
+                    StageManager.instance.newStage(getClass().getClassLoader().getResource("fxml/add_task_layout.fxml"),planItems.keySet() as List, 640, 720)?.show()
                 })
             })
         }

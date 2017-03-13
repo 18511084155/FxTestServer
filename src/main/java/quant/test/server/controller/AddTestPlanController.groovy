@@ -1,6 +1,5 @@
 package quant.test.server.controller
 
-import com.android.ddmlib.Log
 import com.jfoenix.controls.*
 import javafx.application.Platform
 import javafx.beans.value.ChangeListener
@@ -19,6 +18,7 @@ import quant.test.server.bus.RxBus
 import quant.test.server.callback.InitializableArgs
 import quant.test.server.database.DbHelper
 import quant.test.server.event.OnTestPlanAddedEvent
+import quant.test.server.log.Log
 import quant.test.server.model.TestCaseItem
 import quant.test.server.model.TestPlanItem
 import quant.test.server.model.TestPlanProperty
@@ -93,7 +93,7 @@ class AddTestPlanController implements InitializableArgs<List<TestPlanItem>>,Cha
         if (!items) {
             //没有任何记录
             //添加2小时,默认
-            LocalTime nowTime = LocalTime.now()
+            LocalTime nowTime = LocalTime.now().plusMinutes(10)
             startTimeSpinner.valueFactory.setValue(nowTime)
             endTimeSpinner.valueFactory.setValue(nowTime.plusHours(2))
             //操作时间
@@ -111,11 +111,7 @@ class AddTestPlanController implements InitializableArgs<List<TestPlanItem>>,Cha
     @Override
     void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
         //检测时间变化
-        if(cycleCheckBox.isSelected()){
-            notifyCycleTimeTextChanged()
-        } else {
-            notifyTimeTextChanged()
-        }
+        notifyTimeDateChanged(true)
     }
 
     /**
@@ -129,7 +125,6 @@ class AddTestPlanController implements InitializableArgs<List<TestPlanItem>>,Cha
             TestPlanItem endCycleItem
             items.each { !it.cycle || (endCycleItem && endCycleItem.et >= it.et) ?: (endCycleItem = it) }
             //设定循环任务起始时间
-
             LocalTime localTime = LocalTime.now()
             if (endCycleItem&&endCycleItem.et >= localTime.toSecondOfDay()) {
                 localTime=getTimeSecond(endCycleItem.endDate)
@@ -137,8 +132,10 @@ class AddTestPlanController implements InitializableArgs<List<TestPlanItem>>,Cha
             localTime=localTime.plusSeconds(1)
             startTimeSpinner.valueFactory.setValue(localTime)
             endTimeSpinner.valueFactory.setValue(localTime.plusHours(2))
-            startDatePicker.setValue(LocalDate.now())
-            endDatePicker.setValue(LocalDate.now())
+            LocalDate localDate=LocalDate.now()
+            startDatePicker.setValue(localDate)
+            endDatePicker.setValue(localDate.plusDays(1))
+            endDatePicker.setDayCellFactory({ new DateCellItem(localDate.plusDays(1)) } as Callback<DatePicker, DateCell>)
         } else {
             TestPlanItem endItem
             items.each { it.cycle || (endItem && endItem.et >= it.et) ?: (endItem = it) }
@@ -159,7 +156,7 @@ class AddTestPlanController implements InitializableArgs<List<TestPlanItem>>,Cha
                 endDatePicker.setValue(localDate)
             } else {
                 final def localDate=localDateTime.toLocalDate()
-                def localTime = localDateTime.toLocalTime().plusSeconds(1)
+                def localTime = localDateTime.toLocalTime().plusMinutes(10)
                 startTimeSpinner.valueFactory.setValue(localTime)
                 endTimeSpinner.valueFactory.setValue(localTime.plusHours(2))
                 startDatePicker.setValue(localDate)
@@ -194,20 +191,23 @@ class AddTestPlanController implements InitializableArgs<List<TestPlanItem>>,Cha
             refreshLocalTime()
             //根据循环任务显示日历
             startDatePicker.setDisable(newValue)
-            endDatePicker.setDisable(newValue)
-            if(newValue){
-                notifyCycleTimeTextChanged()
-            } else {
-                //不循环的执行任务
-                notifyTimeTextChanged()
-            }
+            notifyTimeDateChanged(true)
         } as ChangeListener<Boolean>)
+    }
+
+    def notifyTimeDateChanged(boolean snack){
+        if(cycleCheckBox.isSelected()){
+            notifyCycleTimeTextChanged(snack)
+        } else {
+            //不循环的执行任务
+            notifyTimeTextChanged(snack)
+        }
     }
 
     /**
      * 通知循环时间变化检测
      */
-    private void notifyCycleTimeTextChanged() {
+    private void notifyCycleTimeTextChanged(boolean snack) {
         def startTimeSecond = startTimeSpinner.timeMillis
         def endTimeSecond = endTimeSpinner.timeMillis
         if (-1 < startTimeSecond) {
@@ -218,21 +218,21 @@ class AddTestPlanController implements InitializableArgs<List<TestPlanItem>>,Cha
                 //提示选择异常
                 Platform.runLater({
                     startTimeSpinner.setEditError(true)
-                    snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("选择时间段必须小于结束时间!", null, 2000, null))
+                    !snack?:snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("选择时间段必须小于结束时间!", null, 2000, null))
                 })
             } else if (-1 < index) {
                 //2:必须在己存在计划范围外
                 Platform.runLater({
                     startTimeSpinner.setEditError(true)
                     treeTableView.selectionModel.select(index)
-                    snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("选择时间段重复,请查看己存在计划,并重新选择!", null, 2000, null))
+                    !snack?:snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("选择时间段重复,请查看己存在计划,并重新选择!", null, 2000, null))
                 })
             } else if (items.find { it.cycle && startTimeSecond <= it.st && endTimeSecond >= it.et }) {
                 //3:所选时间范围,必须在所有计划外
                 Platform.runLater({
                     startTimeSpinner.setEditError(true)
                     endTimeSpinner.setEditError(true)
-                    snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("选择时间己包含其他计划,请重新选择!", null, 2000, null))
+                    !snack?:snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("选择时间己包含其他计划,请重新选择!", null, 2000, null))
                 })
             } else {
                 startTimeSpinner.setEditError(false)
@@ -247,7 +247,7 @@ class AddTestPlanController implements InitializableArgs<List<TestPlanItem>>,Cha
     /**
      * 通知时间变化检测
      */
-    private void notifyTimeTextChanged() {
+    private void notifyTimeTextChanged(snack) {
         def startSecond=startTimeSpinner.timeMillis
         def endSecond=endTimeSpinner.timeMillis
         if (-1 < startSecond&&-1<endSecond&&startDatePicker.value&&endDatePicker.value) {
@@ -264,14 +264,14 @@ class AddTestPlanController implements InitializableArgs<List<TestPlanItem>>,Cha
                 Platform.runLater({
                     startTimeSpinner.setEditError(true)
                     startDatePicker.setEditError(true)
-                    snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("常规任务无法选择比当前时间小的日期!", null, 2000, null))
+                    !snack?:snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("常规任务无法选择比当前时间小的日期!", null, 2000, null))
                 })
             } else if (startMillis >= endMillis) {
                 //提示选择异常
                 Platform.runLater({
                     startTimeSpinner.setEditError(true)
                     startDatePicker.setEditError(true)
-                    snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("选择时间段必须小于结束时间!", null, 2000, null))
+                    !snack?:snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("选择时间段必须小于结束时间!", null, 2000, null))
                 })
             } else if (-1 < index) {
                 //2:必须在己存在计划范围外
@@ -279,7 +279,7 @@ class AddTestPlanController implements InitializableArgs<List<TestPlanItem>>,Cha
                     startTimeSpinner.setEditError(true)
                     startDatePicker.setEditError(true)
                     treeTableView.selectionModel.select(index)
-                    snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("选择时间段重复,请查看己存在计划,并重新选择!", null, 2000, null))
+                    !snack?:snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("选择时间段重复,请查看己存在计划,并重新选择!", null, 2000, null))
                 })
             } else if (items.find { !it.cycle && startMillis <= it.st && endMillis >= it.et }) {
                 //3:所选时间范围,必须在所有计划外
@@ -288,7 +288,7 @@ class AddTestPlanController implements InitializableArgs<List<TestPlanItem>>,Cha
                     endTimeSpinner.setEditError(true)
                     startDatePicker.setEditError(true)
                     endDatePicker.setEditError(true)
-                    snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("选择时间己包含其他计划,请重新选择!", null, 2000, null))
+                    !snack?:snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("选择时间己包含其他计划,请重新选择!", null, 2000, null))
                 })
             } else {
                 startTimeSpinner.setEditError(false)
@@ -417,9 +417,10 @@ class AddTestPlanController implements InitializableArgs<List<TestPlanItem>>,Cha
 
             if(cycleCheckBox.isSelected()){
                 planItem.st=startTimeSpinner.timeMillis
-                planItem.et=endTimeSpinner.timeMillis
                 planItem.startDate=startTimeSpinner.text
-                planItem.endDate=endTimeSpinner.text
+                LocalDateTime endDate=new LocalDateTime(endDatePicker.value,endTimeSpinner.localTime)
+                planItem.et=endDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                planItem.endDate=endDate.toLocalDate().toString()+" "+endDate.toLocalTime().toString()
             } else {
                 LocalDateTime startDate=new LocalDateTime(startDatePicker.value,startTimeSpinner.localTime)
                 LocalDateTime endDate=new LocalDateTime(endDatePicker.value,endTimeSpinner.localTime)

@@ -67,6 +67,7 @@ class Command {
             def process = processBuilder.start()
             def inputStream=process.inputStream
             new StreamGobbler(inputStream,closure).start()
+            new StreamGobbler(process.errorStream,closure).start()
             process.waitFor()
             exitValue=process.exitValue()
         } catch (Exception e) {

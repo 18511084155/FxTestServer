@@ -13,14 +13,12 @@ import quant.test.server.database.DbHelper
 import quant.test.server.event.*
 import quant.test.server.log.Log
 import quant.test.server.model.*
-import quant.test.server.prefs.FilePrefs
 import quant.test.server.prefs.PrefsKey
 import quant.test.server.prefs.SharedPrefs
 import quant.test.server.protocol.What
 import quant.test.server.service.ActionService
+import quant.test.server.service.InstallService
 import quant.test.server.service.TestPlanTimerTask
-import quant.test.server.service.install.XiaoMiInstallService
-import quant.test.server.util.FileUtils
 import quant.test.server.widget.TestPlanCell
 import rx.Observable
 import rx.Subscriber
@@ -81,8 +79,6 @@ class DeviceInfoController implements Initializable,TestPlanCallback{
     final List<RunTestItem> runTestItems =[]//执行任务集
     TestPlanTimerTask testPlanTimerTask//未来的任务计划
     TestPlanItem currentPlan
-    def installItems=[:]//安装协助对象
-    XiaoMiInstallService installService
     def planItems=[]//当前计划集
 
     @Override
@@ -243,11 +239,7 @@ class DeviceInfoController implements Initializable,TestPlanCallback{
      */
     def findRunPlanItems(){
         final long time=LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-        planItems.findAll { TestPlanItem item->
-            long startTime=getTestPlanTime(item,item.st)
-            long endTime=getTestPlanTime(item,item.et)
-            startTime<time&&endTime>time
-        }
+        planItems.findAll { getTestPlanTime(it,it.st)<time&&it.et>time }
     }
 
     /**
@@ -398,13 +390,12 @@ class DeviceInfoController implements Initializable,TestPlanCallback{
      * @return
      */
     def executeAllDeviceAction(TestPlanItem item){
-        FileUtils.copyResourceFileIfNotExists(FilePrefs.SCRIPT_TASK, "script/task.sh");
         def testCaseItem=DbHelper.helper.queryTestCase(item.caseId)
         if(!testCaseItem){
             //脚本记录不存在,可能为人为删除
             Log.e(TAG,"执行任务时,检测到用例:$item.testCase ID:$item.caseId 不存在!")
         } else {
-            deviceItems.each {startDeviceAction(it,item,testCaseItem)}
+            deviceItems.each {startInstallAction(it,item,testCaseItem)}
         }
     }
 
@@ -414,14 +405,36 @@ class DeviceInfoController implements Initializable,TestPlanCallback{
      * @return
      */
     def executeDeviceAction(TestPlanItem item,DeviceItem deviceItem){
-        FileUtils.copyResourceFileIfNotExists(FilePrefs.SCRIPT_TASK, "script/task.sh");
         def testCaseItem=DbHelper.helper.queryTestCase(item.caseId)
         if(!testCaseItem){
             //脚本记录不存在,可能为人为删除
             Log.e(TAG,"执行任务时,检测到用例:$item.testCase ID:$item.caseId 不存在!")
         } else {
-            startDeviceAction(deviceItem, item, testCaseItem)
+            startInstallAction(deviceItem, item, testCaseItem)
         }
+    }
+
+    /**
+     * 开始启动安装计划任务
+     * @param deviceItem
+     * @param item
+     * @param testCaseItem
+     */
+    void startInstallAction(DeviceItem deviceItem, TestPlanItem item, TestCaseItem testCaseItem) {
+        final String sdkPath = SharedPrefs.get(PrefsKey.SDK)
+        def installService = new InstallService(sdkPath, deviceItem, item, testCaseItem)
+        installService.actionCallback{
+            //启动用例任务
+            println it
+            if(What.INSTALL.TYPE_INSTALL_SUCCESS==it.type) {
+                startTaskAction(sdkPath,deviceItem,item,testCaseItem)
+            }
+        }
+        threadPool.execute(installService)
+        //保存安装对象,安装成功后移除
+        runTestItems << new RunTestItem(this,sdkPath,deviceItem, item,testCaseItem,installService)
+        //发送任务开始执行事件,由任围更新状态
+        RxBus.post(new OnActionStartEvent(deviceItem))
     }
 
     /**
@@ -430,41 +443,48 @@ class DeviceInfoController implements Initializable,TestPlanCallback{
      * @param item
      * @param testCaseItem
      */
-    void startDeviceAction(DeviceItem deviceItem, TestPlanItem item, TestCaseItem testCaseItem) {
-        final String sdkPath = SharedPrefs.get(PrefsKey.SDK)
-        def actionService = new ActionService(sdkPath, deviceItem, item, testCaseItem)
-        actionService.actionCallback { processMessage(deviceItem,item, it) }
-        runTestItems << new RunTestItem(deviceItem, item, actionService)
-        threadPool.execute(actionService)
-        //发送任务开始执行事件,由任围更新状态
-        RxBus.post(new OnActionStartEvent(deviceItem))
+    void startTaskAction(String sdkPath,DeviceItem deviceItem,TestPlanItem item,TestCaseItem testCaseItem){
+        //结束安装任务
+        def runItem=runTestItems.find {it.deviceItem==deviceItem}
+        if(runItem){
+            //当前执行次数
+            int runCount=runItem.runCount
+            //取消本次任务内,安装服务,以及运行服务
+            runItem.reset()
+            //开始调试任务
+            def actionService = new ActionService(sdkPath, deviceItem, item, testCaseItem,runCount)
+            actionService.actionCallback { processMessage(deviceItem,item, it) }
+            runItem.actionService=actionService
+            threadPool.execute(actionService)
+        }
     }
 
+
     /**
-     * 处理消息
+     * 处理安装消息
      * @param message
      */
     def processMessage(DeviceItem deviceItem,TestPlanItem testPlanItem,item){
         //记录信息
         switch (item.type){
-            case What.SCRIPT.TYPE_INSTALL_SUCCESS:
-                Log.e(TAG,"当前任务:$testPlanItem.name $item.message 安装成功!")
-                break
-            case What.SCRIPT.TYPE_INSTALL_FAILED:
-                Log.e(TAG,"当前任务:$testPlanItem.name ${item.message} 安装失败,准备重启安装")
-                break
-            case What.SCRIPT.TYPE_MD5_ERROR:
-                Log.e(TAG,"当前任务:$testPlanItem.name $item.message")
-                break
-            case What.SCRIPT.TYPE_LOG:
+            case What.TASK.TYPE_LOG:
                 Log.i(TAG,item.message)
                 break
-            case What.SCRIPT.TYPE_RUN_LOOP:
-                //检测任务是否正常运行,
+            case What.TASK.TYPE_RUN_LOOP:
+                //检测任务是否正常运行,记录此次脚本执行时间,如果两次时间一次执行后,在一段时间里,没有执行.说明测试进程可能出现问题,需要重启
+                def runItem=runTestItems.find {it.deviceItem==deviceItem}
+                runItem.checkTask.addActionTime()//添加此次运行时长
+                runItem.checkTask.resetTask()//重置检测任务
                 break
-            case What.SCRIPT.TYPE_RUN_COMPLETE:
+            case What.TASK.TYPE_RUN_RESULT:
+                //获取执行结果
+                break
+            case What.TASK.TYPE_RUN_COMPLETE:
                 //1:移除任务列
                 println "$testPlanItem.name 执行完毕!"
+                //移除检测任务
+                def items=runTestItems.findAll {it.deviceItem==deviceItem}
+                items?.each { it.checkTask.cancel() }
                 //移除所有正在执行此事件对象
                 runTestItems.removeAll { it.testPlanItem==testPlanItem}
                 Platform.runLater({
@@ -475,21 +495,6 @@ class DeviceInfoController implements Initializable,TestPlanCallback{
                     //4:任务己执行完,通知其他界面
                     RxBus.post(new OnTestPlanRunCompleteEvent(testPlanItem))
                 })
-                break;
-            case What.SCRIPT.TYPE_DUMP_SUCCESS:
-                //生成界面位置成功
-                Log.i(TAG,item.message)
-                break;
-            case What.SCRIPT.TYPE_DUMP_FAILED:
-                Log.i(TAG,item.message)
-                break;
-            case What.SCRIPT.TYPE_PULL_SUCCESS:
-                Log.i(TAG,item.message)
-                installService?:(installService=new XiaoMiInstallService(deviceItem,testPlanItem))
-                installService.analysis()
-                break;
-            case What.SCRIPT.TYPE_PULL_FAILED:
-                Log.i(TAG,item.message)
                 break;
         }
     }
@@ -525,8 +530,7 @@ class DeviceInfoController implements Initializable,TestPlanCallback{
         if(planItems&&currentPlan&&currentPlan.cycle){
             //获得当前任务结束时间
             long startTime=getTestPlanTime(currentPlan,currentPlan.st)
-            long endTime=getTestPlanTime(currentPlan,currentPlan.et)
-            def runPlanItems=findRunPlanItems(startTime,endTime)
+            def runPlanItems=findRunPlanItems(startTime,currentPlan.et)
             if(runPlanItems){
                 runPlanItems-=currentPlan
                 if(runPlanItems){

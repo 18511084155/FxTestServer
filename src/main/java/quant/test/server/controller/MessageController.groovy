@@ -105,7 +105,7 @@ class MessageController implements Initializable,Observer{
 
         ObservableList<ExceptionItem> testCaseItems = FXCollections.observableArrayList();
         def files=FilePrefs.EXCEPTION_FOLDER.listFiles()
-        files?.each { testCaseItems<< ExceptionItem.from(it) }
+        files?.each { it.name.startsWith(".")?:testCaseItems<< ExceptionItem.from(it) }
         treeTableView.setRoot(new RecursiveTreeItem<ExceptionItem>(testCaseItems, { it.getChildren() }))
         treeTableView.setShowRoot(false)
 

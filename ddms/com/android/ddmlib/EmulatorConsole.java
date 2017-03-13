@@ -59,7 +59,7 @@ public final class EmulatorConsole {
     private final static String COMMAND_KILL = "kill\r\n"; //$NON-NLS-1$
     private final static String COMMAND_GSM_STATUS = "gsm status\r\n"; //$NON-NLS-1$
     private final static String COMMAND_GSM_CALL = "gsm call %1$s\r\n"; //$NON-NLS-1$
-    private final static String COMMAND_GSM_CANCEL_CALL = "gsm cancel %1$s\r\n"; //$NON-NLS-1$
+    private final static String COMMAND_GSM_CANCEL_CALL = "gsm reset %1$s\r\n"; //$NON-NLS-1$
     private final static String COMMAND_GSM_DATA = "gsm data %1$s\r\n"; //$NON-NLS-1$
     private final static String COMMAND_GSM_VOICE = "gsm voice %1$s\r\n"; //$NON-NLS-1$
     private final static String COMMAND_SMS_SEND = "sms send %1$s %2$s\r\n"; //$NON-NLS-1$
@@ -487,7 +487,7 @@ public final class EmulatorConsole {
 
     /**
      * Cancels a current call.
-     * @param number the number of the call to cancel
+     * @param number the number of the call to reset
      * @return {@link #RESULT_OK} if success, an error String otherwise.
      */
     public synchronized String cancelCall(String number) {

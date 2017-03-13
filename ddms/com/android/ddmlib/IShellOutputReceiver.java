@@ -38,7 +38,7 @@ public interface IShellOutputReceiver {
 
     /**
      * Cancel method to stop the execution of the remote shell command.
-     * @return true to cancel the execution of the command.
+     * @return true to reset the execution of the command.
      */
     public boolean isCancelled();
 };

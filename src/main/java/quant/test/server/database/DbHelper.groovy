@@ -204,7 +204,7 @@ class DbHelper implements DbInterface{
                 "end_date," +
                 "cycle," +
                 "invalid FROM "+
-                "$Database.TEST_PLAN WHERE et>$todayTimeMillis OR cycle=1 ORDER BY _id DESC ")
+                "$Database.TEST_PLAN WHERE et>$todayTimeMillis ORDER BY _id DESC ")
         def items=[]
         while(resultSet.next()){
             def item=new TestPlanItem()

@@ -3,6 +3,7 @@ import com.google.common.io.Files
 import groovy.io.FileType
 import quant.test.server.prefs.FilePrefs
 import quant.test.server.scheduler.MainThreadSchedulers
+import quant.test.server.service.StreamGobbler
 import rx.Observable
 import rx.schedulers.Schedulers
 
@@ -81,7 +82,7 @@ def testTimer(){
     def date1=new Date()
     date1.seconds+=5
     timer.schedule({
-        println "cancel task1"
+        println "reset task1"
         timerTask.cancel()
         timer.purge()
     },date1)
@@ -131,4 +132,26 @@ def testNode(items,Node node){
     }
 }
 
-testXml()
+/**
+ * 测试shell进程写入
+ */
+void testShell(String shell){
+    def processBuilder=new ProcessBuilder(["/bin/sh", "-c", shell])
+    def env=processBuilder.environment()
+    env+=(System.getenv())
+    processBuilder.redirectErrorStream(true)
+    def process = processBuilder.start()
+    final def outputStream=process.outputStream
+    new Thread({
+        while(true){
+            outputStream.write(new String("test message").bytes)
+            outputStream.flush()
+            System.sleep(1000)
+        }
+    }).start()
+    new StreamGobbler(process.inputStream,{println it}).start()
+    new StreamGobbler(process.errorStream,{println it}).start()
+    process.waitFor()
+    println process.exitValue()
+    process.destroy()
+}
