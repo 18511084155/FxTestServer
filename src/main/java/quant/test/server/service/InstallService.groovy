@@ -78,7 +78,7 @@ class InstallService implements Runnable{
             !installWorker?:installWorker.destroy()
             if(pid){
                 def result=Command.exec("kill $pid")
-                !result?: Log.i(TAG,"当前设备:${deviceItem.toString()} 安装服务被终止 pid:$pid 执行结果:$result.exit")
+                !result?: Log.i(TAG,"设备:${deviceItem.toString()} 安装服务被终止 pid:$pid 执行结果:$result.exit")
             }
         }
     }

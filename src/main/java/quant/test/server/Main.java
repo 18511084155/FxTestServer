@@ -7,9 +7,6 @@ import javafx.stage.Stage;
 import quant.test.server.log.Log;
 import quant.test.server.prefs.PrefsKey;
 import quant.test.server.prefs.SharedPrefs;
-import quant.test.server.util.TextUtils;
-
-import java.io.File;
 
 /**
  * Created by cz on 2017/3/6.
@@ -23,17 +20,17 @@ public class Main extends Application {
         Log.startProcess();//启动日志线程
         String value = SharedPrefs.get(PrefsKey.ADB);
         StageManager stageManager = StageManager.getInstance();
-        if(TextUtils.isEmpty(value)||!new File(value).exists()){
-//            //初始化配置
-            primaryStage.setTitle("Hello!");
-            stageManager.stage(primaryStage,getClass().getClassLoader().getResource("fxml/prefs_adb_layout.fxml"), 520, 640);
-        } else {
-            //主界面
-            primaryStage.setTitle("调试程序");
-            stageManager.stage(primaryStage, getClass().getClassLoader().getResource("fxml/main_layout.fxml"), 960, 720);
-        }
+//        if(TextUtils.isEmpty(value)||!new File(value).exists()){
+////            //初始化配置
+//            primaryStage.setTitle("Hello!");
+//            stageManager.stage(primaryStage,getClass().getClassLoader().getResource("fxml/prefs_adb_layout.fxml"), 520, 640);
+//        } else {
+//            //主界面
+//            primaryStage.setTitle("调试程序");
+//            stageManager.stage(primaryStage, getClass().getClassLoader().getResource("fxml/main_layout.fxml"), 960, 720);
+//        }
 
-//        stageManager.stage(primaryStage, getClass().getClassLoader().getResource("fxml/test_plan_item.fxml"), 900, 720);
+        stageManager.stage(primaryStage, getClass().getClassLoader().getResource("fxml/test_plan_item.fxml"), 900, 720);
 
         //结束监听
         PlatformImpl.addListener(new PlatformImpl.FinishListener() {

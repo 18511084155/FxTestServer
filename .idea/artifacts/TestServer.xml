@@ -1,0 +1,21 @@
+<component name="ArtifactManager">
+  <artifact type="javafx" name="TestServer">
+    <output-path>$PROJECT_DIR$/build/artifacts/TestServer</output-path>
+    <properties id="javafx-properties">
+      <options>
+        <option name="appClass" value="quant.test.server.Main" />
+        <option name="description" value="an android test server application" />
+        <option name="htmlParamFile" value="" />
+        <option name="nativeBundle" value="dmg" />
+        <option name="paramFile" value="" />
+        <option name="title" value="TestServser" />
+        <option name="vendor" value="cz" />
+      </options>
+    </properties>
+    <root id="root">
+      <element id="archive" name="TestServer.jar">
+        <element id="module-output" name="TestServer" />
+      </element>
+    </root>
+  </artifact>
+</component>

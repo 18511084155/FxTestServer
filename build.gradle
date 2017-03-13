@@ -1,20 +1,31 @@
 group 'quant.test.server'
-version '1.0-SNAPSHOT'
+version '1.0'
+apply from: "http://dl.bintray.com/content/shemnon/javafx-gradle/0.3.0/javafx.plugin"
 
 apply plugin: 'java'
 apply plugin: 'groovy'
+apply plugin: 'application'
 
 sourceCompatibility = 1.8
+
 
 repositories {
     jcenter()
     mavenCentral()
 }
 
+
+String getProjectProperty(String propertyName) {
+    project.hasProperty(propertyName) ? project.property(propertyName) : null
+}
+
 sourceSets {
     main {
         java.srcDirs = ['src/main/java','ddms']
         resources.srcDirs = ['src/main/resources']
+
+        output.classesDir   = 'build/main'
+        output.resourcesDir = 'build/main'
     }
 }
 

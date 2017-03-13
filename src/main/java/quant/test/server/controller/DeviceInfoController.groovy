@@ -127,8 +127,10 @@ class DeviceInfoController implements Initializable,TestPlanCallback{
         RxBus.subscribe(OnDeviceAdbConnectedEvent.class){ event->
             deviceItems<<event.deviceItem
             //这里检测,当前是否有任务执行.如果有.则启动
-            if(currentPlan){
-                Log.e(TAG,"设备:${event.deviceItem.toString()}开始准备执行任务:$currentPlan.name")
+            if(!currentPlan){
+                Log.e(TAG,"设备:${event.deviceItem.toString()} 接入,但当前没有任务执行,等待任务!")
+            } else {
+                Log.e(TAG,"设备:${event.deviceItem.toString()} 开始准备执行任务:$currentPlan.name")
                 executeDeviceAction(currentPlan,event.deviceItem)
             }
         }
@@ -481,6 +483,7 @@ class DeviceInfoController implements Initializable,TestPlanCallback{
                 break
             case What.TASK.TYPE_RUN_COMPLETE:
                 //1:移除任务列
+                currentPlan=null
                 println "$testPlanItem.name 执行完毕!"
                 //移除检测任务
                 def items=runTestItems.findAll {it.deviceItem==deviceItem}

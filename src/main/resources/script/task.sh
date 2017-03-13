@@ -54,8 +54,8 @@ checkClient(){
 	if [ -z "$pkg" ]
 	then
 		# 如果为空,则重启应用
-		adb shell am force-stop $CLIENT_PACKAGE
-		adb shell am start -n $CLIENT_PACKAGE/$CLIENT_PACKAGE.MainActivity  > /dev/null
+		adb -s $deviceId shell am force-stop $CLIENT_PACKAGE
+		adb -s $deviceId shell am start -n $CLIENT_PACKAGE/$CLIENT_PACKAGE.MainActivity  > /dev/null
 	fi
 }
 

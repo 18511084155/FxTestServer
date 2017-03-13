@@ -103,8 +103,8 @@ installApkFile(){
 	# 导入包名
 	export package
 	# 安装应用,这里检测到手机版本大于21时,厂商会弹出安装确认窗,所以需要执行uidump方法,与客户端交互,获取UI元素,并点击
-	adb install $apkFile | awk '{if ($0~/^\[100%\]/ && '$deviceSdk' >= 21 ) system("checkApkInstall");
-											else if($0~/^Success/) system("sleep 2"); }'
+	adb -s $deviceId install $apkFile | awk '{if ($0~/^\[100%\]/ && '$deviceSdk' >= 21 ) system("checkApkInstall");
+											else if($0~/^Success/) system("sleep 4"); }'
 	# 检测应用是否安装,很难分析install信息获得,因为awk输出每一行时,有时分漏掉最后一句,但最后一句就是成功与否的关键
 	checkApkInstallComplete $package
 	if [ 0 -eq $? ];then
