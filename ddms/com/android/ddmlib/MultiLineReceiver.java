@@ -16,8 +16,6 @@
 
 package com.android.ddmlib;
 
-import quant.test.server.util.TextUtils;
-
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
@@ -114,7 +112,7 @@ public abstract class MultiLineReceiver implements IShellOutputReceiver {
                 // normal encoding didn't work, try the default one
                 value = new String(data, offset,length);
             }
-            if (!TextUtils.isEmpty(value)) {
+            if (null!=value && 0!=value.length()) {
                 // if we had an unfinished line we add it.
                 if (mUnfinishedLine != null) {
                     value = mUnfinishedLine + value;

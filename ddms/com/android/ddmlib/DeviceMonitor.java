@@ -20,7 +20,6 @@ import com.android.ddmlib.AdbHelper.AdbResponse;
 import com.android.ddmlib.ClientData.DebuggerStatus;
 import com.android.ddmlib.DebugPortManager.IDebugPortProvider;
 import com.android.ddmlib.IDevice.DeviceState;
-import quant.test.server.util.TextUtils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -294,7 +293,6 @@ final class DeviceMonitor {
 
     /**
      * Processes an incoming device message from the socket
-     * @param socket
      * @param length
      * @throws IOException
      */
@@ -450,7 +448,7 @@ final class DeviceMonitor {
             GetPropReceiver propReceiver = new GetPropReceiver(device);
             //添加附加的prop属性
             String value = device.executeShellCommand(GetPropReceiver.GET_SERVER_PROP_COMMAND);
-            if(!TextUtils.isEmpty(value)){
+            if(null!=value && 0!=value.length()){
                 byte[] bytes = value.getBytes();
                 propReceiver.addOutput(bytes,0,bytes.length);
             }

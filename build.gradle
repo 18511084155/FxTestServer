@@ -1,32 +1,53 @@
 group 'quant.test.server'
 version '1.0'
-apply from: "http://dl.bintray.com/content/shemnon/javafx-gradle/0.3.0/javafx.plugin"
 
 apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'application'
+apply plugin: 'javafx-gradle-plugin'
 
 sourceCompatibility = 1.8
 
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+        mavenLocal()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+    }
+
+    dependencies {
+        classpath group: 'de.dynamicfiles.projects.gradle.plugins', name: 'javafx-gradle-plugin', version: "8.8.2"
+    }
+}
 
 repositories {
-    jcenter()
+    mavenLocal()
     mavenCentral()
 }
 
 
-String getProjectProperty(String propertyName) {
-    project.hasProperty(propertyName) ? project.property(propertyName) : null
-}
-
 sourceSets {
     main {
-        java.srcDirs = ['src/main/java','ddms']
+        java.srcDirs = ['ddms']
+        groovy { srcDirs = ["src/main/java"] }
         resources.srcDirs = ['src/main/resources']
-
         output.classesDir   = 'build/main'
         output.resourcesDir = 'build/main'
     }
+}
+
+jfx {
+    mainClass = 'quant.test.server.Main'
+    vendor = 'cz'
+
+    jfxMainAppJarName = "project-jfx.jar"
+}
+
+mainClassName="quant.test.server.Main"
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
 }
 
 dependencies {
@@ -35,4 +56,5 @@ dependencies {
     compile 'com.jfoenix:jfoenix:1.1.0'
     compile 'io.reactivex:rxjava:1.1.6'
     compile 'org.fxmisc.richtext:richtextfx:0.6.10'
+    compile 'org.codehaus.groovy:groovy-all:2.4.7'
 }
