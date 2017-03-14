@@ -1,6 +1,6 @@
 package quant.test.server.controller
 import com.jfoenix.controls.*
-import com.sun.javafx.PlatformUtil
+import javafx.application.Platform
 import javafx.beans.value.ChangeListener
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
@@ -10,6 +10,7 @@ import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.scene.control.TreeTableView
 import javafx.scene.layout.StackPane
+import javafx.stage.Stage
 import quant.test.server.StageManager
 import quant.test.server.model.EnvironmentItem
 import quant.test.server.prefs.PrefsKey
@@ -72,27 +73,37 @@ class PrefsAdbController implements Initializable{
             if(!pathField.validate()){
                 snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("Adb目录异常,请重新设置 ",null,2000, null))
             } else {
-                def adbText=pathField.text
                 //判断是否以Separator结尾,不为则补足
-                adbText.endsWith(fileSeparator)?:(adbText+=fileSeparator)
-
+                //检测build-tools,哎
+                //sdk目录
+                def sdkFile=new File(pathField.text)
                 //保存sdk目录
-                def file=new File(adbText)
-                def sdkPath=!file.exists()?:file.parentFile.absolutePath
+                def platformTools=new File(sdkFile,"platform-tools")
+                def buildTools=new File(sdkFile,"build-tools")
 
-                if(PlatformUtil.isWindows()){
-                    //windows  file.separator=/  path.separator=;
-                    adbText+="adb.exe"
-                } else if(PlatformUtil.isLinux()||PlatformUtil.isMac()){
-                    //osx file.separator=\  path.separator=:
-                    adbText+="adb"
+                def buildToolFolder
+                def listFiles=buildTools.listFiles()
+                !listFiles?:(buildToolFolder=listFiles[-1])
+
+//                if(PlatformUtil.isWindows()){
+//                    //windows  file.separator=/  path.separator=;
+//                    adbText+="adb.exe"
+//                } else if(PlatformUtil.isLinux()||PlatformUtil.isMac()){
+//                    //osx file.separator=\  path.separator=:
+//                    adbText+="adb"
+//                }
+                if(!buildToolFolder.exists()){
+                    snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("Build-Tool目录不存在,将导致aapt命令无法使用,请检测",null,2000, null))
+                } else {
+                    //保存路径
+                    SharedPrefs.save(PrefsKey.SDK,sdkFile.absolutePath)
+                    SharedPrefs.save(PrefsKey.ADB,platformTools.absolutePath)
+                    SharedPrefs.save(PrefsKey.BUILD_TOOL,buildToolFolder.absolutePath)
+                    def stageManager=StageManager.instance
+                    stageManager.getStage(this)?.hide()
+                    Stage primaryStage=stageManager.newStage(getClass().getClassLoader().getResource("fxml/main_layout.fxml"),800,720)?.show()
+                    primaryStage.setOnCloseRequest({Platform.exit()})
                 }
-                //保存路径
-                SharedPrefs.save(PrefsKey.ADB,adbText)
-                SharedPrefs.save(PrefsKey.SDK,sdkPath)
-                def stageManager=StageManager.instance
-                stageManager.getStage(this)?.hide()
-                stageManager.newStage(getClass().getClassLoader().getResource("fxml/main_layout.fxml"),800,720)?.show()
             }
         } as EventHandler)
     }

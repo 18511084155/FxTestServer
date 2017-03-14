@@ -6,4 +6,5 @@ package quant.test.server.prefs
 interface PrefsKey {
     def ADB="adb"
     def SDK="sdk"
+    def BUILD_TOOL="build_tool"
 }

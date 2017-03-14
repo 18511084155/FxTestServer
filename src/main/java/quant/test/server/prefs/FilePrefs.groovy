@@ -41,7 +41,7 @@ class FilePrefs {
 
     static def ensureFolder(File...folder){
         if(folder){
-            folder.each { it.exists() ?: it.mkdir() }
+            folder.each { it.exists() ?: it.mkdirs() }
         }
     }
 }

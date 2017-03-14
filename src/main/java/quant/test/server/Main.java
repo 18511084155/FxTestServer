@@ -49,9 +49,7 @@ public class Main extends Application {
                 System.exit(0);
             }
         });
-        primaryStage.setOnCloseRequest(it->{
-            Platform.exit();
-        });
+        primaryStage.setOnCloseRequest(it -> Platform.exit());
         primaryStage.show();
 
     }

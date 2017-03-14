@@ -1,5 +1,7 @@
 package quant.test.server.util
 import quant.test.server.command.Command
+import quant.test.server.log.Log
+
 /**
  * Created by cz on 2017/3/6.
  */
@@ -9,7 +11,7 @@ class FileUtils {
      * 拷贝脚本文件
      */
     static void copyResourceFileIfNotExists(File file,String path) {
-//        if(!file.exists()){
+        if(!file.exists()){
             BufferedWriter writer=new BufferedWriter(new FileWriter(file))
             InputStream inputStream = FileUtils.class.getClassLoader().getResourceAsStream(path);
             inputStream.withReader {
@@ -17,7 +19,8 @@ class FileUtils {
             }
             writer?.close()
             //修改shell脚本可执行权限
-            Command.exec("chmod 777 $file.absolutePath")
-//        }
+            def result=Command.exec("chmod 777 $file.absolutePath")
+            Log.i(TAG,"文件拷贝成功:$file.name 修改权限结果:$result.exit")
+        }
     }
 }
