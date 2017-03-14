@@ -14,6 +14,7 @@ class RunTestItem {
     final RunActionCheckTimer checkTask
     InstallService installService
     ActionService actionService
+    def destroyed
 
     RunTestItem(TestPlanCallback callback,String adbPath,DeviceItem deviceItem, TestPlanItem testPlanItem,TestCaseItem testCaseItem, InstallService installService) {
         this.deviceItem = deviceItem
@@ -36,6 +37,21 @@ class RunTestItem {
             actionService=null
         }
         this.checkTask.reset()
+    }
+
+    def destroy(){
+        if(!destroyed){
+            destroyed=true
+            if(installService){
+                installService.destroy()
+                installService=null
+            }
+            if(actionService){
+                actionService.destroy()
+                actionService=null
+            }
+            this.checkTask.cancel()
+        }
     }
 
 }

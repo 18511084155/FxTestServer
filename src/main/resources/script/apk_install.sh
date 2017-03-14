@@ -70,7 +70,6 @@ checkApkInstallComplete(){
         # 去掉最后一个不知名的异常字符,不为\n 也不为空格.尼码.这里巨坑.
         length=${#line}
         realStr=${line:0:$length-1}
-        message $TYPE_LOG "设备:$deviceName $realStr package:$package"
         if [ "package:$package" = "$realStr" ];then
              result=0
         fi

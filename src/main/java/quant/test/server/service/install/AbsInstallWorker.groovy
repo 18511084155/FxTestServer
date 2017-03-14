@@ -42,10 +42,12 @@ abstract class AbsInstallWorker extends Thread{
     }
 
     def findXmlNodeByText(file,textItems){
-        Node node=new XmlParser().parse(file)
         final def findItems=[]
-        eachNode(findItems,node){textItems.contains(it.value)}
-        findItems
+        if(file.exists()){
+            Node node=new XmlParser().parse(file)
+            eachNode(findItems,node){textItems.contains(it.value)}
+            findItems
+        }
     }
 
     def eachNode(items,Node node,closure){

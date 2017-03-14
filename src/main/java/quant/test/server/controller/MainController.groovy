@@ -48,6 +48,7 @@ class MainController implements Initializable{
 
     def serverSocket
     def cachePane=[:]
+    def clientItems=[:]
     @Override
     void initialize(URL location, ResourceBundle resources) {
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler())
@@ -175,7 +176,9 @@ class MainController implements Initializable{
             while (socket = serverSocket.accept()) {
                 String hostAddress = socket.getInetAddress().getHostAddress();
                 Log.e(TAG,"连接一个远程设备:" + hostAddress)
-                executorService.execute(new ClientService(hostAddress,socket,bridge))
+                def clientService=new ClientService(hostAddress,socket,bridge)
+                clientItems<<[(hostAddress):clientService]
+                executorService.execute(clientService)
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -209,11 +212,7 @@ class MainController implements Initializable{
             @Override
             public void deviceChanged(IDevice iDevice, int i) {
                 if(null!=iDevice&&IDevice.CHANGE_BUILD_INFO==i){
-                    if(iDevice.serialNumber.equals(iDevice.properties["gsm.serial"])){
-                        //代表为有线连接
-                    } else {
-                        //代表为无线连接
-                    }
+
                     Platform.runLater({
                         def deviceItem=DeviceItem.form(iDevice)
                         deviceList.getItems().add(deviceItem)
@@ -222,6 +221,10 @@ class MainController implements Initializable{
                             deviceList.selectionModel.select(0)
                             RxBus.post(new OnDeviceSelectedEvent(deviceItem))
                         }
+//                        def address=deviceItem.getDeviceProperty(Property.DEVICE_ADDRESS)
+//                        def clientService=clientItems[address]
+//                        //设备连接时,如果己有client对象,则检测adb连接
+//                        !clientService?:clientService.checkAdbConnect(address)
                     })
                     Log.e(TAG,"设备己连接:${iDevice} state:$i device-state:$iDevice.state")
                 }

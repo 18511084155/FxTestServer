@@ -29,9 +29,11 @@ public class Main extends Application {
             stageManager.stage(primaryStage,getClass().getClassLoader().getResource("fxml/prefs_adb_layout.fxml"), 520, 640);
         } else {
             //主界面
-            primaryStage.setTitle("TestServer");
+            primaryStage.setTitle("调试程序");
             stageManager.stage(primaryStage, getClass().getClassLoader().getResource("fxml/main_layout.fxml"), 960, 720);
         }
+
+//        stageManager.stage(primaryStage, getClass().getClassLoader().getResource("fxml/test_plan_item.fxml"), 900, 720);
 
         //结束监听
         PlatformImpl.addListener(new PlatformImpl.FinishListener() {

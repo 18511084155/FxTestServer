@@ -65,7 +65,7 @@ class ActionService implements Runnable{
 //                //记录pid
                 if(What.TASK.TYPE_INIT_PID==item.type){
                     pid=item.message
-                    Log.i(TAG,"任务:$taskItem.name 己启动.PID:$pid")
+                    Log.i(TAG,"设备:${deviceItem.toString()} 启动任务:$taskItem.name PID:$pid")
                 }
             }
         }
@@ -80,7 +80,7 @@ class ActionService implements Runnable{
             destroyed=true
             if(pid){
                 def result=Command.exec("kill $pid")
-                !result?: Log.i(TAG,"当前任务:$taskItem.name 被终止 pid:$pid 执行结果:$result.exit")
+                !result?: Log.i(TAG,"设备:${deviceItem.toString()} 执行任务:$taskItem.name 被终止 pid:$pid 执行结果:$result.exit")
             }
         }
     }

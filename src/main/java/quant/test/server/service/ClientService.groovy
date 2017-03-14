@@ -50,10 +50,8 @@ class ClientService implements Runnable,AndroidDebugBridge.IDeviceChangeListener
                 } catch (Exception e){
                     println "message:$line 解析失败!"
                 }
-                if (item) {
-                    if (What.ADB.CONNECT == item.what) {
-                        connectDevice(item.address)
-                    }
+                if (item&&What.ADB.CONNECT == item.what) {
+                    connectDevice(item.address)
                 }
             }
         } catch (Exception e) {
@@ -69,19 +67,22 @@ class ClientService implements Runnable,AndroidDebugBridge.IDeviceChangeListener
      * @param address
      */
     def connectDevice(String address) {
-        println "开始连接设备:" + address
-        Command.shell("adb connect $address:5555",null){
-            if(it){
-                //connected to 192.168.100.201:5555
-                def matcher=it.endsWith("connected to ${address}:5555") as String
-                if(matcher){
-                    //连接成功?
-                    println "连接成功:$address"
-                } else {
-                    //重联
-                    connectDevice(address)
-                    println "连接失败:$address 开始重联"
-                }
+        def result=Command.exec("adb connect $address:5555")
+        println "开始连接设备:" + address+" "+result.out.toString()
+        if(0<=result.exit){
+            //connected to 192.168.100.201:5555
+            //unable to connect to 192.168.100.182:5555: Connection refused
+            def value=result.out.toString()
+            if(findAdbDevice(address)){
+                //连接成功?
+                sendMessage(What.ADB.CONNECT_COMPLETE,address,null)
+                sendMessage(What.ADB.LOG,address,"设备:${address} Adb己连接")
+            } else if(value.endsWith("Connection refused")){
+                //检测当前是否存在
+                sendMessage(What.ADB.ALERT_ADB_DEBUG,address,address)
+            } else {
+                //重联
+                connectDevice(address)
             }
         }
     }
@@ -95,13 +96,7 @@ class ClientService implements Runnable,AndroidDebugBridge.IDeviceChangeListener
      */
     def checkAdbConnect(address) {
         //检测机器是否连接
-        def deviceItem=[]
-        sendMessage(What.ADB.LOG,address,"开始连接Adb:$address")
-        devices?.each {
-            if (address?.equals(it.properties[Property.DEVICE_ADDRESS])) {
-                deviceItem<<DeviceItem.form(it)
-            }
-        }
+        def deviceItem=findAdbDevice(address)
         //如果未连接.尝试连接
         if(deviceItem){
             //连接己连接成功,根据状态状态设备设备是否需要尝试重联,如 offline
@@ -116,6 +111,17 @@ class ClientService implements Runnable,AndroidDebugBridge.IDeviceChangeListener
         //添加设备监听,为此 socket 连接设备动态更新状态
         AndroidDebugBridge.removeDeviceChangeListener(this);
         AndroidDebugBridge.addDeviceChangeListener(this);
+    }
+
+    def findAdbDevice(address){
+        def deviceItem=[]
+        sendMessage(What.ADB.LOG,address,"开始连接Adb:$address")
+        devices?.each {
+            if (address?.equals(it.properties[Property.DEVICE_ADDRESS])) {
+                deviceItem<<DeviceItem.form(it)
+            }
+        }
+        deviceItem
     }
 
     @Override
@@ -144,7 +150,7 @@ class ClientService implements Runnable,AndroidDebugBridge.IDeviceChangeListener
             println "设备己连接:$address deviceAddress:$deviceAddress"
             if(address.equals(deviceAddress)){
                 //设备连接
-                sendMessage(What.ADB.CONNECT_COMPLETE,deviceAddress,null)//设备adb
+                sendMessage(What.ADB.CONNECT_COMPLETE,deviceAddress,deviceAddress)//设备adb
                 sendMessage(What.ADB.LOG,address,"设备:${deviceAddress} Adb己连接")
                 RxBus.post(new OnDeviceAdbConnectedEvent(DeviceItem.form(iDevice)))
             }
@@ -158,6 +164,7 @@ class ClientService implements Runnable,AndroidDebugBridge.IDeviceChangeListener
      */
     def sendMessage(what,address,message) {
         if (printWriter) {
+            println "address:$address mesasge:$message"
             printWriter.println(Json.map2(["what":what, "address":address, "message":message?:""]))
             printWriter.flush()
         }

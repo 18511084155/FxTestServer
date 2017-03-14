@@ -9,10 +9,12 @@ import javafx.scene.control.Label
 import quant.test.server.anntation.FXMLLayout
 import quant.test.server.bus.RxBus
 import quant.test.server.callback.TestPlanCallback
+import quant.test.server.command.Command
 import quant.test.server.database.DbHelper
 import quant.test.server.event.*
 import quant.test.server.log.Log
 import quant.test.server.model.*
+import quant.test.server.prefs.FilePrefs
 import quant.test.server.prefs.PrefsKey
 import quant.test.server.prefs.SharedPrefs
 import quant.test.server.protocol.What
@@ -49,7 +51,6 @@ import java.util.concurrent.Executors
 @FXMLLayout("fxml/device_info_layout.fxml")
 class DeviceInfoController implements Initializable,TestPlanCallback{
     final static def TAG='DeviceInfoController'
-
     @FXML Label mobileModel
     @FXML Label mobileSerialno
     @FXML Label mobileImei
@@ -72,11 +73,11 @@ class DeviceInfoController implements Initializable,TestPlanCallback{
     @FXML JFXListView testPlanList
 
 
+    static final List<RunTestItem> runTestItems =[]//执行任务集
     final def deviceProperties = FXCollections.observableArrayList()
     final def threadPool = Executors.newCachedThreadPool()
     final List<DeviceItem> deviceItems=[]//当前连接设备列表
     final Timer timer=new Timer()//启动任务定时器
-    final List<RunTestItem> runTestItems =[]//执行任务集
     TestPlanTimerTask testPlanTimerTask//未来的任务计划
     TestPlanItem currentPlan
     def planItems=[]//当前计划集
@@ -143,7 +144,7 @@ class DeviceInfoController implements Initializable,TestPlanCallback{
                 //移除条目
                 runTestItems.remove(testItem)
                 //结束任务
-                testItem.actionService?.destroy()
+                testItem.destroy()
             }
         }
     }
@@ -194,6 +195,7 @@ class DeviceInfoController implements Initializable,TestPlanCallback{
         if(runTestItems){
             //5:有可执行条目,检测是否替换为优先级高的任务
             loopNewPlan(currentPlan)
+            setRunNextTestPlanInfo(getNextTestPlanItem(currentPlan))
         } else {
             //当前没有可执行条目
             if (runItems) {
@@ -213,7 +215,13 @@ class DeviceInfoController implements Initializable,TestPlanCallback{
                         Platform.runLater({runTestPlan(runItems[1])})
                     }
                 } else {
-                    //TODO 异常情况,一般不可能出现,3个以上的并行任务.因为同一个同段,只可能存在循环与不循环任务相交
+                    // 异常情况,一般不可能出现,3个以上的并行任务.因为同一个同段,只可能存在循环与不循环任务相交
+                    def dateTime=LocalDateTime.now()
+                    File file=new File(FilePrefs.EXCEPTION_FOLDER,dateTime.toString()+".txt")
+                    def out=new StringBuilder("Date:${dateTime.toString()}\n")
+                    runItems.each { out.append("任务:$it.name 测试用例:$it.testCase 起始时间:$it.startDate 结束时间:$it.endDate 周期任务:$it.cycle\n") }
+                    file.withWriter {it.write(out.toString()) }
+                    Log.e(TAG,"出现3个并行执行任务,记录日志:$file.name 请检测!")
                 }
             } else if (planItems) {
                 //7:找下一个时间距离最近的任务,当前没有可执行任务,检测可循环任务
@@ -353,6 +361,12 @@ class DeviceInfoController implements Initializable,TestPlanCallback{
         testEndTime.setText(item?item.endDate:"##")
     }
 
+    void setRunNextTestPlanInfo(TestPlanItem item=null){
+        nextTestPlan.setText(item?item.name:"##")
+        nextTestStartTime.setText(item?item.startDate:"##")
+        nextTestEndTime.setText(item?item.endDate:"##")
+    }
+
 
     /**
      * 初始化执行定时任务计划
@@ -427,14 +441,17 @@ class DeviceInfoController implements Initializable,TestPlanCallback{
         def installService = new InstallService(sdkPath, deviceItem, item, testCaseItem)
         installService.actionCallback{
             //启动用例任务
-            println it
             if(What.INSTALL.TYPE_INSTALL_SUCCESS==it.type) {
                 startTaskAction(sdkPath,deviceItem,item,testCaseItem)
             }
         }
-        threadPool.execute(installService)
         //保存安装对象,安装成功后移除
+        if(!runTestItems){
+            def result=Command.exec("pkill bash")
+            Log.e(TAG,"任务:$item.name 执行前,清理进程:$result.exit")
+        }
         runTestItems << new RunTestItem(this,sdkPath,deviceItem, item,testCaseItem,installService)
+        threadPool.execute(installService)
         //发送任务开始执行事件,由任围更新状态
         RxBus.post(new OnActionStartEvent(deviceItem))
     }
@@ -475,29 +492,39 @@ class DeviceInfoController implements Initializable,TestPlanCallback{
             case What.TASK.TYPE_RUN_LOOP:
                 //检测任务是否正常运行,记录此次脚本执行时间,如果两次时间一次执行后,在一段时间里,没有执行.说明测试进程可能出现问题,需要重启
                 def runItem=runTestItems.find {it.deviceItem==deviceItem}
-                runItem.checkTask.addActionTime()//添加此次运行时长
-                runItem.checkTask.resetTask()//重置检测任务
+                if(!runItem){
+                    Log.e(TAG,"设备:${deviceItem.toString()} 任务轮询时,发现运行条目不存在!")
+                } else {
+                    runItem.checkTask.addActionTime()//添加此次运行时长
+                    runItem.checkTask.resetTask()//重置检测任务
+                }
                 break
             case What.TASK.TYPE_RUN_RESULT:
                 //获取执行结果
                 break
             case What.TASK.TYPE_RUN_COMPLETE:
-                //1:移除任务列
-                currentPlan=null
                 println "$testPlanItem.name 执行完毕!"
                 //移除检测任务
-                def items=runTestItems.findAll {it.deviceItem==deviceItem}
-                items?.each { it.checkTask.cancel() }
-                //移除所有正在执行此事件对象
-                runTestItems.removeAll { it.testPlanItem==testPlanItem}
-                Platform.runLater({
-                    //2:移除己执行条目
-                    testPlanList.getItems().remove(testPlanItem)
-                    //3:重新检测所有任务
-                    initTestPlanItems(planItems-testPlanItem)
-                    //4:任务己执行完,通知其他界面
-                    RxBus.post(new OnTestPlanRunCompleteEvent(testPlanItem))
-                })
+                def runItem=runTestItems.find {it.deviceItem==deviceItem}
+                if(runItem) {
+                    runItem.destroy()
+                    //移除当前条目
+                    runTestItems.remove(runItem)
+                    if(!runTestItems){
+                        //杀死所有bash进程
+                        def result=Command.exec("pkill bash")
+                        Log.i(TAG,"任务:${testPlanItem.name} 清理所有子进程:$result.exit!")
+                        Platform.runLater({
+                            currentPlan=null
+                            //2:移除己执行条目
+                            testPlanList.getItems().remove(testPlanItem)
+                            //3:重新检测所有任务
+                            initTestPlanItems(planItems-testPlanItem)
+                            //4:任务己执行完,通知其他界面
+                            RxBus.post(new OnTestPlanRunCompleteEvent(testPlanItem))
+                        })
+                    }
+                }
                 break;
         }
     }

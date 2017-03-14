@@ -81,7 +81,7 @@ class Command {
     static class Result{
         def out
         def error
-        def exit
+        int exit
 
         Result() {
             out=new StringBuilder()

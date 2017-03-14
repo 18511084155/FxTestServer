@@ -16,7 +16,7 @@ import quant.test.server.util.FileUtils
 class InstallService implements Runnable{
     final def TAG="InstallService"
     final def DEFAULT_SERVICE="default"
-
+    static final int SDK_L=21
     DefaultInstallWorker installWorker
     final TestCaseItem testCaseItem
     final DeviceItem deviceItem
@@ -58,10 +58,12 @@ class InstallService implements Runnable{
                         Log.i(TAG,"设备:${deviceItem.toString()} 启动安装服务,PID:$pid")
                         break;
                     case What.INSTALL.TYPE_INSTALL_CHECK:
-                        //上传apk成功,开始检测,并操作
-                        !installWorker?:installWorker.destroy()
-                        installWorker=new DefaultInstallWorker(deviceItem,adbPath)
-                        installWorker.start()
+                        //上传apk成功,开始检测,并操作,只有大于api 21才启动
+                        if(SDK_L<=(deviceItem.release as Integer)){
+                            !installWorker?:installWorker.destroy()
+                            installWorker=new DefaultInstallWorker(deviceItem,adbPath)
+                            installWorker.start()
+                        }
                         break;
                 }
             }
