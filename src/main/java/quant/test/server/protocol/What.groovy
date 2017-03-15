@@ -28,6 +28,7 @@ class What {
         final static int TYPE_INIT_PID=2
         final static int TYPE_INSTALL_SUCCESS=3
         final static int TYPE_INSTALL_CHECK=4
+        final static int TYPE_USER_RESTRICTED=5
     }
 
     static class ADB{
@@ -43,5 +44,6 @@ class What {
         static final def LOG=ID+9
         static final def ADB_INTERRUPT=ID+10
         static final int ALERT_ADB_DEBUG=ID+11;//连上socket,但未root,未连接usb
+        final static int TYPE_USER_RESTRICTED=ID+12
     }
 }

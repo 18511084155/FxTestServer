@@ -4,7 +4,8 @@
 deviceId=$1
 deviceName=$2
 envPath=$3
-dumpPath=$4
+buildTool=$4
+dumpPath=$5
 
 TYPE_LOG=1
 TYPE_INIT_PID=2
@@ -13,7 +14,7 @@ TYPE_INIT_PID=2
 exportEnv(){
 	export PATH=${PATH}:${envPath}/platform-tools/;
 	export PATH=${PATH}:${envPath}/tools/;
-	export PATH=${PATH}:${envPath}/build-tools/22.0.1/;
+	export PATH=${PATH}:${buildTool}/;
 }
 
 message(){

@@ -5,9 +5,12 @@ import groovy.json.JsonSlurper
 import quant.test.server.bus.RxBus
 import quant.test.server.command.Command
 import quant.test.server.event.OnDeviceAdbConnectedEvent
+import quant.test.server.event.OnUserRestrictedEvent
 import quant.test.server.log.Log
 import quant.test.server.model.DeviceItem
 import quant.test.server.model.Property
+import quant.test.server.prefs.PrefsKey
+import quant.test.server.prefs.SharedPrefs
 import quant.test.server.protocol.Json
 import quant.test.server.protocol.What
 /**
@@ -20,13 +23,19 @@ class ClientService implements Runnable,AndroidDebugBridge.IDeviceChangeListener
     final AndroidDebugBridge bridge
     final Socket socket
     final def address
+    final def adbPath
     def reader
 
     ClientService(address, socket, AndroidDebugBridge bridge) {
         this.address=address
         this.socket = socket
         this.bridge = bridge
+        this.adbPath=SharedPrefs.get(PrefsKey.ADB)
         this.printWriter = new PrintWriter(socket.getOutputStream());
+        //设定用户事件,主要通知用户,拒绝安装行为
+        RxBus.subscribe(OnUserRestrictedEvent.class){
+            it.address!=address?: sendMessage(What.ADB.TYPE_USER_RESTRICTED,address,address)
+        }
     }
 
     @Override
@@ -67,7 +76,7 @@ class ClientService implements Runnable,AndroidDebugBridge.IDeviceChangeListener
      * @param address
      */
     def connectDevice(String address) {
-        def result=Command.exec("adb connect $address:5555")
+        def result=Command.exec("$adbPath connect $address:5555")
         println "开始连接设备:" + address+" "+result.out.toString()
         if(0<=result.exit){
             //connected to 192.168.100.201:5555

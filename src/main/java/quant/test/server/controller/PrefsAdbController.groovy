@@ -1,5 +1,6 @@
 package quant.test.server.controller
 import com.jfoenix.controls.*
+import com.sun.javafx.PlatformUtil
 import javafx.application.Platform
 import javafx.beans.value.ChangeListener
 import javafx.collections.FXCollections
@@ -51,6 +52,23 @@ class PrefsAdbController implements Initializable{
                 valueArray.each { value-> envItems.add(new EnvironmentItem(it.key,value,value.toLowerCase().contains(path)))}
             }
         }
+        if(PlatformUtil.isWindows()){
+            //windows  file.separator=/  path.separator=;
+
+        } else if(PlatformUtil.isLinux()||PlatformUtil.isMac()){
+            //osx file.separator=\  path.separator=:
+            def proFile=new File(System.properties["user.home"],".bash_profile")
+            if(proFile.exists()){
+                proFile.withReader {it.readLines().each {
+                    def matcher=it=~/export\s+(\w+)=(.+):(.+)[\/|;]/
+                    if(matcher){
+                        def key=matcher[0][1]
+                        def value=matcher[0][3]
+                        envItems.add(new EnvironmentItem(key,value,value.toLowerCase().contains(path)))
+                    }
+                }}
+            }
+        }
         envKey.setCellValueFactory({ envKey.validateValue(it)?it.value.value.key: envKey.getComputedValue(it) })
 		envValue.setCellValueFactory({ envValue.validateValue(it)? it.value.value.value: envValue.getComputedValue(it) })
 		envValid.setCellValueFactory({ envValid.validateValue(it)? it.value.value.valid: envValid.getComputedValue(it) })
@@ -76,28 +94,27 @@ class PrefsAdbController implements Initializable{
                 //判断是否以Separator结尾,不为则补足
                 //检测build-tools,哎
                 //sdk目录
-                def sdkFile=new File(pathField.text)
-                //保存sdk目录
-                def platformTools=new File(sdkFile,"platform-tools")
+                def platformTools=new File(pathField.text)
+                def sdkFile=platformTools.parentFile
                 def buildTools=new File(sdkFile,"build-tools")
 
                 def buildToolFolder
                 def listFiles=buildTools.listFiles()
                 !listFiles?:(buildToolFolder=listFiles[-1])
-
-//                if(PlatformUtil.isWindows()){
-//                    //windows  file.separator=/  path.separator=;
-//                    adbText+="adb.exe"
-//                } else if(PlatformUtil.isLinux()||PlatformUtil.isMac()){
-//                    //osx file.separator=\  path.separator=:
-//                    adbText+="adb"
-//                }
+                def adbFile
+                if(PlatformUtil.isWindows()){
+                    //windows  file.separator=/  path.separator=;
+                    adbFile=new File(platformTools,"adb.exe")
+                } else if(PlatformUtil.isLinux()||PlatformUtil.isMac()){
+                    adbFile=new File(platformTools,"adb")
+                }
                 if(!buildToolFolder.exists()){
                     snackBar.fireEvent(new JFXSnackbar.SnackbarEvent("Build-Tool目录不存在,将导致aapt命令无法使用,请检测",null,2000, null))
                 } else {
                     //保存路径
                     SharedPrefs.save(PrefsKey.SDK,sdkFile.absolutePath)
-                    SharedPrefs.save(PrefsKey.ADB,platformTools.absolutePath)
+                    SharedPrefs.save(PrefsKey.ADB,adbFile.absolutePath)
+                    SharedPrefs.save(PrefsKey.PLATFORM_TOOL,platformTools.absolutePath)
                     SharedPrefs.save(PrefsKey.BUILD_TOOL,buildToolFolder.absolutePath)
                     def stageManager=StageManager.instance
                     stageManager.getStage(this)?.hide()

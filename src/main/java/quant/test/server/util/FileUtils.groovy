@@ -11,7 +11,7 @@ class FileUtils {
      * 拷贝脚本文件
      */
     static void copyResourceFileIfNotExists(File file,String path) {
-        if(!file.exists()){
+//        if(!file.exists()){
             BufferedWriter writer=new BufferedWriter(new FileWriter(file))
             InputStream inputStream = FileUtils.class.getClassLoader().getResourceAsStream(path);
             inputStream.withReader {
@@ -21,6 +21,6 @@ class FileUtils {
             //修改shell脚本可执行权限
             def result=Command.exec("chmod 777 $file.absolutePath")
             Log.i(TAG,"文件拷贝成功:$file.name 修改权限结果:$result.exit")
-        }
+//        }
     }
 }

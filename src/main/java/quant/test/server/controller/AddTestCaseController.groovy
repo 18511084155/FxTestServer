@@ -20,6 +20,8 @@ import quant.test.server.event.OnTestCaseAddedEvent
 import quant.test.server.log.Log
 import quant.test.server.model.TestCaseItem
 import quant.test.server.prefs.FilePrefs
+import quant.test.server.prefs.PrefsKey
+import quant.test.server.prefs.SharedPrefs
 import quant.test.server.scheduler.MainThreadSchedulers
 import quant.test.server.util.FileUtils
 import quant.test.server.widget.drag.DragTextField
@@ -182,8 +184,10 @@ class AddTestCaseController implements Initializable{
             apkSpinner.setVisible(true)
             messageArea.appendText("开始分析文件:$file.absolutePath\n")
             Observable.create({
+                def sdkPath=SharedPrefs.get(PrefsKey.SDK)
+                def buildToolPath=SharedPrefs.get(PrefsKey.BUILD_TOOL)
                 FileUtils.copyResourceFileIfNotExists(FilePrefs.SCRIPT_SCAN_APK, "script/apk_file.sh");
-                def result=Command.shell(FilePrefs.SCRIPT_SCAN_APK.absolutePath,file.absolutePath)
+                def result=Command.shell(FilePrefs.SCRIPT_SCAN_APK.absolutePath,file.absolutePath,sdkPath,buildToolPath)
                 it.onNext(result)
                 it.onCompleted()
             }).subscribeOn(Schedulers.io()).
@@ -200,6 +204,7 @@ class AddTestCaseController implements Initializable{
      * @return
      */
     def processApkResult(Command.Result result,file,fileChoose,apkSpinner) {
+        messageArea.appendText(result.out.toString())
         if(0<=result.exit){
             final def params=result.out2LazyMap()
             Platform.runLater({
@@ -219,7 +224,6 @@ class AddTestCaseController implements Initializable{
                     testCaseItem.sdkVersion=params.sdkVersion
                     testCaseItem.apkPackage=params.package
                     testCaseItem.targetSdkVersion=params.targetSdkVersion
-                    messageArea.appendText("应用名:${params.label}\n")
                     messageArea.appendText("应用版号:${params.versionName}\n")
                 }
                 messageArea.appendText("最低版本:${params.sdkVersion}\n")

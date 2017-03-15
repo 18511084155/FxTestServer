@@ -4,14 +4,19 @@ import quant.test.server.command.Command
 import quant.test.server.log.Log
 import quant.test.server.model.DeviceItem
 import quant.test.server.prefs.FilePrefs
+import quant.test.server.prefs.PrefsKey
+import quant.test.server.prefs.SharedPrefs
+
 /**
  * Created by cz on 2017/3/10.
  */
 class DefaultInstallWorker extends AbsInstallWorker{
     final def TAG="DefaultInstallWorker"
+    final def adbPath
     def destroyed
-    DefaultInstallWorker(DeviceItem deviceItem,String adbPath) {
-        super(deviceItem,adbPath)
+    DefaultInstallWorker(DeviceItem deviceItem,String envPath) {
+        super(deviceItem,envPath)
+        adbPath=SharedPrefs.get(PrefsKey.ADB)
     }
 
     @Override
@@ -49,7 +54,7 @@ class DefaultInstallWorker extends AbsInstallWorker{
                                 int bottom=matcher[0][4] as Integer
                                 int centerX=(left+right)/2
                                 int centerY=(top+bottom)/2
-                                def result=Command.exec("adb -s $deviceItem.serialNumber shell input tap $centerX $centerY")
+                                def result=Command.exec("$adbPath -s $deviceItem.serialNumber shell input tap $centerX $centerY")
                                 Log.i(TAG,"点击按钮:$textValue x:$centerX y:$centerY 结果:$result.exit")
                             }
                         }

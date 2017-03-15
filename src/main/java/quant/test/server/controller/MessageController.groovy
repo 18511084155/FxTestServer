@@ -19,7 +19,6 @@ import quant.test.server.prefs.FilePrefs
 
 import javax.annotation.PreDestroy
 import java.time.LocalDateTime
-
 /**
  * Created by cz on 2017/2/17.
  */
@@ -45,8 +44,9 @@ class MessageController implements Initializable,Observer{
         initExceptionList()
         staticNode.selectedProperty().addListener({ observable, oldValue, newValue ->
         } as ChangeListener<Boolean>)
-        regexCheckBox.selectedProperty().addListener({
-            observable, oldValue, newValue -> searchField.clear() } as ChangeListener<Boolean>)
+        regexCheckBox.selectedProperty().addListener({ observable, oldValue, newValue ->
+            searchField.clear()
+        } as ChangeListener<Boolean>)
         //异常处理
         RxBus.subscribe(OnExceptionHandleEvent.class){ event->
             //生成日志,更新列表

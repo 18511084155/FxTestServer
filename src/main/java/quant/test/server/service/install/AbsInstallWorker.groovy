@@ -4,6 +4,8 @@ import quant.test.server.command.Command
 import quant.test.server.log.Log
 import quant.test.server.model.DeviceItem
 import quant.test.server.prefs.FilePrefs
+import quant.test.server.prefs.PrefsKey
+import quant.test.server.prefs.SharedPrefs
 import quant.test.server.protocol.What
 import quant.test.server.util.FileUtils
 
@@ -24,11 +26,12 @@ abstract class AbsInstallWorker extends Thread{
     def dumpUiFile(){
         def dumpFile=new File(FilePrefs.DUMP_FOLDER,deviceItem.toString().hashCode()+".xml")
         dumpFile.delete()
+        def buildTool=SharedPrefs.get(PrefsKey.BUILD_TOOL)
         FileUtils.copyResourceFileIfNotExists(FilePrefs.SCRIPT_INSTALL_CHECK,FilePrefs.SCRIPT_INSTALL_CHECK_PATH)
         int exitValue=Command.shell(FilePrefs.SCRIPT_INSTALL_CHECK.absolutePath,//脚本位置
                 [deviceItem.serialNumber,//手机序列id,用以区分执行多台设备
                  deviceItem.toString(),//手机标记名
-                 adbPath, dumpFile.absolutePath] as String[]){
+                 adbPath,buildTool, dumpFile.absolutePath] as String[]){
             def item=getMessage(it)
             if(item){
                 if(What.TASK.TYPE_INIT_PID==item.type){

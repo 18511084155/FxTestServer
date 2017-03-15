@@ -6,6 +6,8 @@ import quant.test.server.model.DeviceItem
 import quant.test.server.model.TestCaseItem
 import quant.test.server.model.TestPlanItem
 import quant.test.server.prefs.FilePrefs
+import quant.test.server.prefs.PrefsKey
+import quant.test.server.prefs.SharedPrefs
 import quant.test.server.protocol.What
 import quant.test.server.service.install.DefaultInstallWorker
 import quant.test.server.util.FileUtils
@@ -36,11 +38,13 @@ class InstallService implements Runnable{
     @Override
     void run() {
         //校验执行脚本
+        def buildTool=SharedPrefs.get(PrefsKey.BUILD_TOOL)
         FileUtils.copyResourceFileIfNotExists(FilePrefs.SCRIPT_INSTALL_APK, FilePrefs.SCRIPT_INSTALL_PATH);
         Command.shell(FilePrefs.SCRIPT_INSTALL_APK.absolutePath,//脚本位置
                 [deviceItem.serialNumber,//手机序列id,用以区分执行多台设备
                  deviceItem.toString(),//手机标记名
-                 adbPath,testCaseItem.apk1,//测试apk包位置
+                 adbPath,buildTool,
+                 testCaseItem.apk1,//测试apk包位置
                  testCaseItem.apk2,//测试apk 用例位置
                  taskItem.name,
                  deviceItem.release] as String[]){

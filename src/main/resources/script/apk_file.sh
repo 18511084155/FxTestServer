@@ -3,14 +3,15 @@
 #传入参数声明:1:adb变量 4:测试apk包
 #检测apk文件信息,提取包名/应用名,版本号,应用的签名md5
 
-# envPath=$1
 apkFile=$1
+envPath=$2
+buildTool=$3
 
 # 导入环境变量
 exportEnv(){
 	export PATH=${PATH}:${envPath}/platform-tools/;
-	export PATH=${PATH}:${envPath}/tools/;
-	export PATH=${PATH}:${envPath}/build-tools/22.0.1/;
+    export PATH=${PATH}:${envPath}/tools/;
+    export PATH=${PATH}:${buildTool}/;
 }
 
 
@@ -29,8 +30,8 @@ startAnalysis(){
 	then
 		# 非测试包
     	versionName=$(echo $info | awk '/package/{gsub("versionName=|'"'"'","");  print $4}')
-    	label=$(aapt dump badging $1 | awk '/application-label:/{gsub("application-label:|'"'"'","");  print}')
-    	message $package $versionName $label $sdkVersion $targetSdkVersion $keyMd5
+    	# label=$(aapt dump badging $1 | awk '/application-label:/{gsub("application-label:|'"'"'","");  print}')
+    	message $package $versionName $sdkVersion $targetSdkVersion $keyMd5
 	else
 		# 测试包
 		testMessage $package $sdkVersion $targetSdkVersion $keyMd5
@@ -52,7 +53,7 @@ apkMd5(){
 
 # package versionName,label sdkVersion  targetSdkVersion md5
 message(){
-	echo "{\"package\": \"${1}\",\"versionName\": \"${2}\",\"label\": \"${3}\",\"sdkVersion\": ${4},\"targetSdkVersion\": ${5},\"md5\": \"${6}\",\"test\": false}"
+	echo "{\"package\": \"${1}\",\"versionName\": \"${2}\",\"sdkVersion\": ${3},\"targetSdkVersion\": ${4},\"md5\": \"${5}\",\"test\": false}"
 }
 
 testMessage(){
@@ -60,7 +61,7 @@ testMessage(){
 }
 
 # 导入环境变量
-# exportEnv
+exportEnv
 # 提取信息
 startAnalysis $apkFile
 

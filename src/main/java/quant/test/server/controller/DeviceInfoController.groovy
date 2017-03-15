@@ -443,6 +443,12 @@ class DeviceInfoController implements Initializable,TestPlanCallback{
             //启动用例任务
             if(What.INSTALL.TYPE_INSTALL_SUCCESS==it.type) {
                 startTaskAction(sdkPath,deviceItem,item,testCaseItem)
+            } else if(What.INSTALL.TYPE_USER_RESTRICTED==it.type){
+                //用户主动拒绝程序安装,结束流程
+                def address=deviceItem.getDeviceProperty(Property.DEVICE_ADDRESS)
+                !address?: RxBus.post(new OnUserRestrictedEvent(address))
+                Log.e(TAG,"设备:${deviceItem.toString()} 拒绝了程序安装,中止本机任务!")
+                installService.destroy()
             }
         }
         //保存安装对象,安装成功后移除
