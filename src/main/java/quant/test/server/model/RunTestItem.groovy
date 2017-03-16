@@ -11,6 +11,7 @@ import quant.test.server.service.check.RunActionCheckTimer
 class RunTestItem {
     final DeviceItem deviceItem
     final TestPlanItem testPlanItem
+    final TestCaseItem testCaseItem
     final RunActionCheckTimer checkTask
     InstallService installService
     ActionService actionService
@@ -19,6 +20,7 @@ class RunTestItem {
     RunTestItem(TestPlanCallback callback,String adbPath,DeviceItem deviceItem, TestPlanItem testPlanItem,TestCaseItem testCaseItem, InstallService installService) {
         this.deviceItem = deviceItem
         this.testPlanItem = testPlanItem
+        this.testCaseItem = testCaseItem
         this.installService = installService
         this.checkTask=new RunActionCheckTimer(callback,adbPath,deviceItem,testPlanItem,testCaseItem)
     }

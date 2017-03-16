@@ -1,4 +1,5 @@
 package quant.test.server.controller
+
 import com.android.ddmlib.AndroidDebugBridge
 import com.android.ddmlib.IDevice
 import com.jfoenix.controls.JFXListView
@@ -18,10 +19,7 @@ import javafx.scene.layout.StackPane
 import quant.test.server.animation.PaneTransition
 import quant.test.server.anntation.FXMLLayout
 import quant.test.server.bus.RxBus
-import quant.test.server.event.OnActionStartEvent
-import quant.test.server.event.OnActionStopEvent
-import quant.test.server.event.OnDeviceDisConnectedEvent
-import quant.test.server.event.OnDeviceSelectedEvent
+import quant.test.server.event.*
 import quant.test.server.exception.ExceptionHandler
 import quant.test.server.log.Log
 import quant.test.server.model.DeviceItem
@@ -31,6 +29,7 @@ import quant.test.server.service.ClientService
 import quant.test.server.widget.DeviceListCell
 
 import java.util.concurrent.Executors
+
 /**
  * Created by Administrator on 2017/2/15.
  */
@@ -64,7 +63,12 @@ class MainController implements Initializable{
 
     private void initDeviceList() {
         deviceList.setItems(FXCollections.observableArrayList())
-        deviceList.setCellFactory({ new DeviceListCell() })
+        deviceList.setCellFactory({
+            def listCell=new DeviceListCell()
+            listCell.setStartAction{ RxBus.post(new OnDeviceStartEvent(deviceList.getSelectionModel().getSelectedItem())) }
+            listCell.setStopAction{ RxBus.post(new OnDeviceStopEvent(deviceList.getSelectionModel().getSelectedItem())) }
+            listCell
+        })
         deviceList.setOnMouseClicked({
             def selectedItem = deviceList.getSelectionModel().getSelectedItem()
             if (selectedItem) {

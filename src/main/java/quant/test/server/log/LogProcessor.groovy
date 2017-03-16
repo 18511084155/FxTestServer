@@ -32,7 +32,6 @@ class LogProcessor extends Thread {
                 try {
                     while(!logItems.isEmpty()){
                         LogItem logItem = logItems.pollFirst()
-                        println logItem.toString()
                         observable.notifyObservers(logItem)
                     }
                     //保存日志文件

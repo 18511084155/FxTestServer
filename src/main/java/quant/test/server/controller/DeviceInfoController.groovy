@@ -147,6 +147,37 @@ class DeviceInfoController implements Initializable,TestPlanCallback{
                 testItem.destroy()
             }
         }
+        //手动启动设备任务事件
+        RxBus.subscribe(OnDeviceStartEvent.class){ event->
+            def findItem=runTestItems.find {it.deviceItem==event.deviceItem}
+            if(findItem){
+                Log.e(TAG,"设备:${event.deviceItem.toString()} 己运行!")
+            } else if(currentPlan){
+                //当前有任务正在运行
+                executeDeviceAction(currentPlan,event.deviceItem)
+            } else {
+                //当前没有任务执行,检测执行
+                initTestPlanItems(planItems)
+            }
+        }
+        //手动结束设备运行事件
+        RxBus.subscribe(OnDeviceStopEvent.class){ event->
+            threadPool.execute({
+                //结束当前任务
+                final def deviceItem=event.deviceItem
+                def findItem=runTestItems.find {it.deviceItem==deviceItem}
+                if(findItem){
+                    runTestItems.remove(findItem)
+                    findItem.destroy()
+                    def adb=SharedPrefs.get(PrefsKey.ADB)
+                    def testCaseItem=findItem.testCaseItem
+                    def result1=Command.exec("$adb -s $deviceItem.serialNumber shell am force-stop $testCaseItem.apkPackage")
+                    def result2=Command.exec("$adb -s $deviceItem.serialNumber shell am force-stop $testCaseItem.testPackage")
+                    Log.e(TAG,"设备:${deviceItem.toString()} 强行结束任务:${findItem.testPlanItem.name} 结果:$result1.exit $result2.exit")
+                    RxBus.post(new OnActionStopEvent(deviceItem))
+                }
+            })
+        }
     }
 
     private void initPropertyTable() {

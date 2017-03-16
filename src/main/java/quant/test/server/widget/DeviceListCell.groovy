@@ -13,7 +13,7 @@ import quant.test.server.model.DeviceItem
 class DeviceListCell extends ListCell<DeviceItem> {
     private final DeviceItemController controller = new DeviceItemController();
     private final def view = controller.getView()
-    def startAction,pauseAction,stopAction
+    def startAction,stopAction
 
     DeviceListCell() {
     }
@@ -27,15 +27,12 @@ class DeviceListCell extends ListCell<DeviceItem> {
         MenuItem editItem = new MenuItem()
         editItem.textProperty().bind(new SimpleStringProperty("启动任务"))
         editItem.setOnAction({ startAction?.call(getItem()) })
-        MenuItem deleteItem = new MenuItem()
-        deleteItem.textProperty().bind(new SimpleStringProperty("暂停任务"))
-        deleteItem.setOnAction({ pauseAction?.call(getItem()) })
 
         MenuItem stopItem = new MenuItem();
         stopItem.textProperty().bind(new SimpleStringProperty("终止任务"))
         stopItem.setOnAction({ stopAction?.call(getItem()) })
 
-        contextMenu.getItems().addAll(editItem, deleteItem,stopItem)
+        contextMenu.getItems().addAll(editItem,stopItem)
 //        textProperty().bind(new SimpleStringProperty(deviceInfo))
 
         emptyProperty().addListener({obs, wasEmpty, isNowEmpty->
@@ -56,15 +53,13 @@ class DeviceListCell extends ListCell<DeviceItem> {
             controller.bindItem(item)
             setGraphic(view)
         }
+        initContextMenu()
     }
 
     def setStartAction(closure){
         this.startAction=closure
     }
 
-    def setPauseAction(closure){
-        this.pauseAction=closure
-    }
 
     def setStopAction(closure){
         this.stopAction=closure
